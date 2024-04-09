@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { ChangeEvent, FormEvent, useState, useRef, useEffect } from "react";
 import FileUpload from "./FileUpload";
+// import cloudinary from "@/libs/cloudinary";
+import { supabase } from "@/libs/supabase";
 
 const categories = [
   "AI",
@@ -57,11 +59,6 @@ const Form = () => {
     }
   };
 
-  
- 
-
-  
-
   const handlePageTypeChange1 = (pageType: string) => {
     if (selectedPageTypes1.includes(pageType)) {
       setSelectedPageTypes1(
@@ -71,10 +68,6 @@ const Form = () => {
       setSelectedPageTypes1([...selectedPageTypes1, pageType]);
     }
   };
-
-  
-
-  
 
   useEffect(() => {
     const currentDate = new Date().toLocaleString("en-US", {
@@ -104,13 +97,42 @@ const Form = () => {
       [type]: file,
     });
   };
+  const handleCloudinaryFileChange = async (file: File, type: string) => {};
 
- 
   const addWebsiteHandler = async (formData: any) => {
     // await addWebsite(formData);
   };
+  const [file, setFile] = useState<File | null>(null);
 
-  
+  const handleFileChanges = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      setFile(event.target.files[0]);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Image uploaded:", data.imageUrl);
+        // Handle the Cloudinary URL as needed (e.g., display the image)
+      } else {
+        console.error("Failed to upload image:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    }
+  };
 
   return (
     <div className="p-4 rounded-[20px] w-full m-4 bg-white">
@@ -120,7 +142,7 @@ const Form = () => {
         </p>
       </div>
       <form action={addWebsiteHandler}>
-        <div className="grid grid-cols-2 gap-20 w-full">
+        <div className="grid grid-cols-2 gap-20 w-full text-slate-700">
           <div className=" ">
             <div className="w-full py-8">
               <label htmlFor="name">Name of website</label>
@@ -292,25 +314,44 @@ const Form = () => {
           </div>
           <div className="">
             <div>
+              <div>
+                <input type="file" onChange={handleFileChanges} />
+                <button onClick={handleUpload}>Upload</button>
+              </div>
               <FileUpload
                 label="Logo"
                 onFileChange={(file) => handleFileChange(file, "logo")}
+                onCloudinaryFileChange={(file) =>
+                  handleCloudinaryFileChange(file, "logo")
+                }
               />
               <FileUpload
                 label="Desktop screenshot"
                 onFileChange={(file) => handleFileChange(file, "desktopSs")}
+                onCloudinaryFileChange={(file) =>
+                  handleCloudinaryFileChange(file, "desktopSs")
+                }
               />
               <FileUpload
                 label="Mobile screenshot"
                 onFileChange={(file) => handleFileChange(file, "mobileSs")}
+                onCloudinaryFileChange={(file) =>
+                  handleCloudinaryFileChange(file, "mobileSs")
+                }
               />
               <FileUpload
                 label="Desktop full page"
                 onFileChange={(file) => handleFileChange(file, "desktopFp")}
+                onCloudinaryFileChange={(file) =>
+                  handleCloudinaryFileChange(file, "desktopFp")
+                }
               />
               <FileUpload
                 label="Mobile full page"
                 onFileChange={(file) => handleFileChange(file, "mobileFp")}
+                onCloudinaryFileChange={(file) =>
+                  handleCloudinaryFileChange(file, "mobileFp")
+                }
               />
             </div>
             <div className="w-full py-8">

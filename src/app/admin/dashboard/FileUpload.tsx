@@ -4,12 +4,14 @@ import React, { useState, useRef, ChangeEvent } from "react";
 
 interface FileUploadProps {
   label: string;
-  onFileChange: (file: File, type: string) => void;
+  filename: string;
+  onFileChange: (file: File, type: string, filename: string) => void;
   onCloudinaryFileChange: (file: File, type: string) => void;
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({
   label,
+  filename,
   onFileChange,
   onCloudinaryFileChange,
 }) => {
@@ -29,7 +31,8 @@ const FileUpload: React.FC<FileUploadProps> = ({
         setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
-      onFileChange(file, label);
+      onFileChange(file, label, filename);
+      console.log("file content ", file);
       onCloudinaryFileChange(file, label);
     }
   };
@@ -69,6 +72,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
       <input
         type="file"
         accept="image/*"
+        required
         onChange={handleFileInputChange}
         ref={fileInputRef}
         style={{ display: "none" }}

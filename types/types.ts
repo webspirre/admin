@@ -70,4 +70,44 @@ type User = {
   user: UserData;
 };
 
-export type { User };
+
+interface FormData {
+  name: string;
+  webURL: string;
+  category: string;
+  pageType: string;
+  shortDescription: string;
+  longDescription: string;
+  logoImageURL: string;
+  desktopSsURL: string;
+  mobileSsURL: string;
+  desktopFpURL: string;
+  mobileFpURL: string;
+  date: string; // Assuming date is a string here
+}
+
+interface CloudinaryAsset {
+  access_mode: string;
+  asset_id: string;
+  bytes: number;
+  created_at: string;
+  etag: string;
+  folder: string;
+  format: string;
+  height: number;
+  original_filename: string;
+  placeholder: boolean;
+  public_id: string;
+  resource_type: string;
+  secure_url: string;
+  signature: string;
+  tags: string[]; // Assuming tags are an array of strings
+  type: string;
+  url: string;
+  version: number;
+  version_id: string;
+  width: number;
+}
+
+
+export type { User, FormData, CloudinaryAsset };

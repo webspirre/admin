@@ -8,6 +8,7 @@ import { supabase } from "@/libs/supabase";
 import { OAuthResponse, Provider } from "@supabase/supabase-js";
 import axios from "axios";
 import { User } from "../../../../types/types";
+import { create } from "@/app/actions/create";
 
 function page() {
   const [userData, setUserData] = useState<User | null | string>(null);
@@ -55,9 +56,9 @@ function page() {
 
           // Store the user information in localStorage
           localStorage.setItem("userData", JSON.stringify(response.data));
-        } catch (error) {
+        } catch (error: any) {
           // If the error is due to an unauthorized request, try refreshing the token
-          if (error.response.status === 401) {
+          if (error.response && error.response.status === 401) {
             const refreshToken = localStorage.getItem("refreshToken");
             if (refreshToken) {
               // Request a new access token using the refresh token
@@ -83,44 +84,95 @@ function page() {
     }
   }, []);
 
-  const storedUserDataString = localStorage.getItem(
-    "sb-nawqzhetlcutvfqhyjsv-auth-token"
-  );
+  // const storedUserDataString =
+  //   typeof window !== "undefined"
+  //     ? localStorage.getItem("sb-nawqzhetlcutvfqhyjsv-auth-token")
+  //     : null;
 
-  const sendToDb = async (data: User) => {
-    if (data) {
-      // Insert user data into the 'administrators' table
-      const { user } = data;
-      const { id, email } = user;
-      const { data: userData, error: insertError } = await supabase
-        .from("admin.administrators")
-        .insert([
-          { id, email, created_at: new Date(), userId: id, role: "user" },
-        ]);
+  // const sendToDb = async (data: User) => {
+  //   if (data) {
+  //     // Insert user data into the 'administrators' table
+  //     const { user } = data;
+  //     const { id, email } = user;
+  //     const { data: userData, error: insertError } = await supabase
+  //       .from("admin.administrators")
+  //       .insert([
+  //         { id, email, created_at: new Date(), userId: id, role: "user" },
+  //       ]);
 
-      if (insertError) {
-        console.log(insertError);
-        throw insertError;
-      }
-    }
-  };
-  if (storedUserDataString) {
-    // console.log("Stored token:", storedUserDataString);
-  } else {
-    console.log("Token not found in localStorage");
-  }
+  //     if (insertError) {
+  //       console.log(insertError);
+  //       throw insertError;
+  //     }
+  //   }
+  // };
+  // if (storedUserDataString) {
+  //   console.log("Stored token:", storedUserDataString);
+  // } else {
+  //   console.log("Token not found in localStorage");
+  // }
 
   useEffect(() => {
+    const storedUserDataString =
+      typeof window !== "undefined"
+        ? localStorage.getItem("sb-nawqzhetlcutvfqhyjsv-auth-token")
+        : null;
+
+    if (storedUserDataString) {
+      const parsedUserData = JSON.parse(storedUserDataString);
+      setUserData(parsedUserData);
+    }
+
     setUserData(
       JSON.parse(
         JSON.stringify(JSON.parse(storedUserDataString as string), null, 2)
       )
     );
+  }, []);
+
+  useEffect(() => {
+    const sendToDb = async (data: User) => {
+      if (data) {
+        // Insert user data into the 'administrators' table
+        const { user } = data;
+        const { id, email } = user;
+        const idAsBigInt = String(BigInt(`0x${id.replace(/-/g, "")}`));
+        const { data: userData, error: insertError } = await supabase
+          // .from("admin.administrators")
+          .from("administrators")
+          .insert([
+            {
+              // id: idAsBigInt.toString(),
+              email,
+              created_at: new Date(),
+              userid: id,
+              role: "admin",
+            },
+          ]);
+
+        if (insertError) {
+          console.log(insertError);
+          throw insertError;
+        }
+      }
+    };
 
     if (typeof userData === "object" && userData !== null) {
-      sendToDb(JSON.parse(JSON.stringify(userData, null, 2)));
+      sendToDb(userData);
     }
   }, [userData]);
+
+  // useEffect(() => {
+  //   setUserData(
+  //     JSON.parse(
+  //       JSON.stringify(JSON.parse(storedUserDataString as string), null, 2)
+  //     )
+  //   );
+
+  //   if (typeof userData === "object" && userData !== null) {
+  //     sendToDb(JSON.parse(JSON.stringify(userData, null, 2)));
+  //   }
+  // }, [userData]);
 
   const returnValues: User = JSON.parse(JSON.stringify(userData, null, 2));
 
@@ -160,7 +212,6 @@ function page() {
                         <div className="text-[12px] pr-[50px]">
                           <p> {returnValues?.user?.email as string}</p>
                           <p>{returnValues?.user?.user_metadata?.full_name} </p>
-                          e
                         </div>
                       </div>
                     </>
@@ -194,6 +245,31 @@ function page() {
         <div className=" flex w-full pt-[45px] bg-[#ececec]">
           <Uploade />
         </div>
+        {/* <div className=" flex w-full pt-[45px] bg-[#ececec]">
+          <form
+            action={create}
+            className="bg-white text-black border border-slate-200 dark:border-slate-500 rounded p-2"
+          >
+            <p className="mb-3">
+              <label
+                htmlFor="image"
+                className="block font-semibold text-sm mb-2"
+              >
+                Select an Image to Upload
+              </label>
+              <input
+                id="image"
+                className="block w-full border-slate-400 rounded focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                type="file"
+                name="image"
+                required
+              />
+            </p>
+            <button className="bg-black text-white px-[50px] py-2 rounded-lg">
+              Submit
+            </button>
+          </form>
+        </div> */}
       </div>
     </div>
   );

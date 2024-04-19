@@ -4,14 +4,23 @@ import React, { useState, useRef, ChangeEvent } from "react";
 
 interface FileUploadProps {
   label: string;
-  onFileChange: (file: File, type: string) => void;
+  filename: string;
+  onFileChange: (file: File, type: string, filename: string) => void;
+  onCloudinaryFileChange: (file: File, type: string) => void;
 }
 
-const FileUpload: React.FC<FileUploadProps> = ({ label, onFileChange }) => {
+const FileUpload: React.FC<FileUploadProps> = ({
+  label,
+  filename,
+  onFileChange,
+  onCloudinaryFileChange,
+}) => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFileInputChange = async (
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
     const files = event.target.files;
     if (!files) return;
 
@@ -22,7 +31,9 @@ const FileUpload: React.FC<FileUploadProps> = ({ label, onFileChange }) => {
         setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
-      onFileChange(file, label);
+      onFileChange(file, label, filename);
+      console.log("file content ", file);
+      onCloudinaryFileChange(file, label);
     }
   };
 
@@ -33,10 +44,10 @@ const FileUpload: React.FC<FileUploadProps> = ({ label, onFileChange }) => {
   };
 
   return (
-    <div className="flex flex-col w-full py-8">
+    <div className="flex flex-col w-full py-8 text-slate-700">
       <label htmlFor={label}>{label}</label>
       <div
-        className="p-4 flex w-full border-2 border-gray-300 rounded-md justify-between items-center"
+        className="p-4 flex w-full border-2 border-gray-300 rounded-md justify-between items-center cursor-pointer"
         onClick={handleUploadClick}
       >
         <p className="text-[gray]">Upload</p>
@@ -44,8 +55,9 @@ const FileUpload: React.FC<FileUploadProps> = ({ label, onFileChange }) => {
           <img
             src={imagePreview}
             alt="Uploaded preview"
-            height={20}
-            width={20}
+            height={40}
+            width={40}
+            className="cursor-not-allowed"
           />
         ) : (
           <img
@@ -53,12 +65,14 @@ const FileUpload: React.FC<FileUploadProps> = ({ label, onFileChange }) => {
             width={20}
             src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1708135436/utilities/Laptop_Upload_1_basxso.svg"
             alt="Upload icon"
+            className="cursor-pointer"
           />
         )}
       </div>
       <input
         type="file"
         accept="image/*"
+        required
         onChange={handleFileInputChange}
         ref={fileInputRef}
         style={{ display: "none" }}

@@ -1,8 +1,18 @@
 "use client";
+// "use server";
 
 import Image from "next/image";
 import { ChangeEvent, FormEvent, useState, useRef, useEffect } from "react";
 import FileUpload from "./FileUpload";
+import cloudinary from "@/libs/cloudinary";
+import { supabase } from "@/libs/supabase";
+// import { create } from "../../actions/create";
+import toast from "react-hot-toast";
+
+import {
+  CloudinaryAsset,
+  FormData as MyFormData,
+} from "../../../../types/types";
 
 const categories = [
   "AI",
@@ -23,25 +33,34 @@ const pageTypes = [
   "404 page",
 ];
 
+interface Map {
+  [key: string]: string | undefined;
+}
+
+const initialFormData: Map = {
+  name: "",
+  webURL: "",
+  category: "",
+  pageType: "",
+  shortDescription: "",
+  longDescription: "",
+  logoImageURL: "",
+  desktopSsURL: "",
+  mobileSsURL: "",
+  desktopFpURL: "",
+  mobileFpURL: "",
+  date: new Date().toLocaleString("en-US", {
+    month: "long",
+    year: "numeric",
+  }),
+};
+
 const Form = () => {
-  
-  const [formData, setFormData] = useState({
-    name: "",
-    webURL: "",
-    category: "",
-    pageType: "",
-    shortDescription: "",
-    longDescription: "",
-    logoImageURL: "",
-    desktopSsURL: "",
-    mobileSsURL: "",
-    desktopFpURL: "",
-    mobileFpURL: "",
-    date: new Date().toLocaleString("en-US", {
-      month: "long",
-      year: "numeric",
-    }),
-  });
+  // const { resources: sneakers } = await cloudinary.api.resources_by_tag(
+  //   "nextjs-server-actions-upload-sneakers",
+  //   { context: true }
+  // );
+  const [formData, setFormData] = useState(initialFormData);
 
   const [isOpen, setIsOpen] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -58,11 +77,6 @@ const Form = () => {
     }
   };
 
-  
- 
-
-  
-
   const handlePageTypeChange1 = (pageType: string) => {
     if (selectedPageTypes1.includes(pageType)) {
       setSelectedPageTypes1(
@@ -73,15 +87,22 @@ const Form = () => {
     }
   };
 
-  
-
-  
-
   useEffect(() => {
+    // const currentDate = new Date().toLocaleString("en-US", {
+    //   month: "long",
+    //   year: "numeric",
+    // });
     const currentDate = new Date().toLocaleString("en-US", {
-      month: "long",
       year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
     });
+    
+    // Example output: "2024-04-12 14:30:00"
+    
     setFormData((prevFormData) => ({
       ...prevFormData,
       date: currentDate,
@@ -99,19 +120,232 @@ const Form = () => {
     });
   };
 
-  const handleFileChange = (file: File, type: string) => {
+  /**
+   * handleFileChange
+   * @description Triggers when the file input changes (ex: when a file is selected)
+   */
+
+  const handleFileChange = async (
+    file: File,
+    type: string,
+    filename: string
+  ) => {
     setFormData({
       ...formData,
-      [type]: file,
+      // [type]: file ,
+      [type]: file as unknown as string,
     });
-  };
+    const formDataForCloudinary = new FormData();
 
- 
-  const addWebsiteHandler = async (formData: any) => {
+    // Upload images to Cloudinary
+    if (file) formDataForCloudinary.append("file", file);
+
+    formDataForCloudinary.append("upload_preset", "webspirre");
+
+    try {
+      const cloudinaryResponse: CloudinaryAsset = await fetch(
+        "https://api.cloudinary.com/v1_1/dwqantex4/image/upload",
+        {
+          method: "POST",
+          body: formDataForCloudinary,
+        }
+      ).then((r) => r.json());
+
+      console.log("data", cloudinaryResponse);
+      setFormData({
+        ...formData,
+        [type]: file as unknown as string,
+        [filename]: cloudinaryResponse.secure_url,
+      });
+      toast.success(`${filename} link generated`, {duration: 3000})
+      console.log("new formDa", formData);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+  const handleCloudinaryFileChange = async (file: File, type: string) => {};
+
+  /**
+   * handleOnSubmit
+   * @description Triggers when the main form is submitted
+   */
+  async function handleOnSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const formDataForCloudinary = new FormData();
+    const formDataForSupabase: Map = {
+      ...formData,
+    };
+
+    // Upload images to Cloudinary
+    // const formDataKeys: (keyof FormData)[] = ['logoImageURL', 'desktopSsURL', 'mobileSsURL', 'desktopFpURL', 'mobileFpURL'];
+    for (const fieldName in formData) {
+      if (formData.hasOwnProperty(fieldName)) {
+        const imageUrl = formData[fieldName];
+        if (imageUrl) {
+          formDataForCloudinary.append("file", imageUrl);
+          // Clear the URL after upload to avoid redundant uploads
+          formDataForSupabase[fieldName] = "";
+        }
+      }
+    }
+
+    // Iterate over all file types and append them to FormData for Cloudinary
+    const fileTypes = [
+      "logoImageURL",
+      "desktopSsURL",
+      "mobileSsURL",
+      "desktopFpURL",
+      "mobileFpURL",
+    ];
+    // fileTypes.forEach((fieldName) => {
+    //   const files = formData[fieldName];
+    //   console.log("file names", files)
+    //   if (files) {
+    //     if (Array.isArray(files)) {
+    //       // If multiple files are selected for the field
+    //       files.forEach((file) => {
+    //         console.log("file name", file)
+    //         formDataForCloudinary.append("file", file);
+    //       });
+    //     } else {
+    //       // If only one file is selected for the field
+    //       formDataForCloudinary.append("file", files);
+    //     }
+    //     // Clear the URL after upload to avoid redundant uploads
+    //     formDataForSupabase[fieldName] = "";
+    //   }
+    // });
+
+    formDataForCloudinary.append("upload_preset", "webspirre");
+
+    try {
+      const cloudinaryResponse = await fetch(
+        "https://api.cloudinary.com/v1_1/dwqantex4/image/upload",
+        {
+          method: "POST",
+          body: formDataForCloudinary,
+        }
+      ).then((r) => r.json());
+
+      console.log("data", cloudinaryResponse);
+
+      // Update formData with Cloudinary URLs
+      for (const fieldName in cloudinaryResponse) {
+        if (cloudinaryResponse.hasOwnProperty(fieldName)) {
+          const fieldValue = cloudinaryResponse[fieldName];
+          if (fieldValue) {
+            formDataForSupabase[fieldName] = fieldValue;
+          }
+        }
+      }
+
+      // Insert formData into Supabase
+      const { data, error } = await supabase
+        .from("website.website")
+        .insert([formDataForSupabase])
+        .select();
+
+      // Handle errors
+      if (error) {
+        console.error("Error inserting data into Supabase:", error.message);
+        return;
+      }
+
+      // Handle success
+      console.log("Data inserted into Supabase:", data);
+      setFormData(initialFormData); // Clear the form fields after successful submission
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+
+  const addWebsiteHandler = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     // await addWebsite(formData);
+    try {
+        // Destructure formData object
+  const {
+    name,
+    webURL,
+    category,
+    pageType,
+    shortDescription,
+    longDescription,
+    logoImageURL,
+    desktopSsURL,
+    mobileSsURL,
+    desktopFpURL,
+    mobileFpURL,
+    date
+  } = formData;
+      // Insert formData into Supabase
+      const { data, error } = await supabase
+        .from("website")
+        // .from("website.website")
+        // .insert([formData])
+        .insert([
+          {
+            name,
+            webURL,
+            category,
+            pageType,
+            shortDescription,
+            longDescription,
+            logoImageURL,
+            desktopSsURL,
+            mobileSsURL,
+            desktopFpURL,
+            mobileFpURL,
+            date
+          }
+        ])
+        .select();
+
+      // Handle errors
+      if (error) {
+        console.error("Error inserting data into Supabase:", error.message);
+        return;
+      }
+
+      // Handle success
+      console.log("Data inserted into Supabase:", data);
+      setFormData(initialFormData); // Clear the form fields after successful submission
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+  const [file, setFile] = useState<File | null>(null);
+
+  const handleFileChanges = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      setFile(event.target.files[0]);
+    }
   };
 
-  
+  const handleUpload = async () => {
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Image uploaded:", data.imageUrl);
+        // Handle the Cloudinary URL as needed (e.g., display the image)
+      } else {
+        console.error("Failed to upload image:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    }
+  };
 
   return (
     <div className="p-4 rounded-[20px] w-full m-4 bg-white">
@@ -120,14 +354,19 @@ const Form = () => {
           Upload details
         </p>
       </div>
-      <form action={addWebsiteHandler}>
-        <div className="grid grid-cols-2 gap-20 w-full">
+      <form
+        onSubmit={addWebsiteHandler}
+        // action={handleOnSubmit}
+        // onSubmit={handleOnSubmit}
+      >
+        <div className="grid grid-cols-2 gap-20 w-full text-slate-700">
           <div className=" ">
             <div className="w-full py-8">
               <label htmlFor="name">Name of website</label>
               <input
                 type="text"
                 name="name"
+                required
                 placeholder="Name"
                 onChange={handleChange}
                 className="border-2 rounded-lg p-4 w-full"
@@ -139,6 +378,7 @@ const Form = () => {
               <input
                 type="text"
                 name="webURL"
+                required
                 placeholder="Website URL"
                 onChange={handleChange}
                 className="border-2 rounded-lg p-4 w-full"
@@ -295,23 +535,53 @@ const Form = () => {
             <div>
               <FileUpload
                 label="Logo"
-                onFileChange={(file) => handleFileChange(file, "logo")}
+                onFileChange={(file) =>
+                  handleFileChange(file, "logo", "logoImageURL")
+                }
+                onCloudinaryFileChange={(file) =>
+                  handleCloudinaryFileChange(file, "logo")
+                }
+                filename={"logoImageURL"}
               />
               <FileUpload
                 label="Desktop screenshot"
-                onFileChange={(file) => handleFileChange(file, "desktopSs")}
+                onFileChange={(file) =>
+                  handleFileChange(file, "desktopSs", "desktopSsURL")
+                }
+                onCloudinaryFileChange={(file) =>
+                  handleCloudinaryFileChange(file, "desktopSs")
+                }
+                filename={"desktopSsURL"}
               />
               <FileUpload
                 label="Mobile screenshot"
-                onFileChange={(file) => handleFileChange(file, "mobileSs")}
+                onFileChange={(file) =>
+                  handleFileChange(file, "mobileSs", "mobileSsURL")
+                }
+                onCloudinaryFileChange={(file) =>
+                  handleCloudinaryFileChange(file, "mobileSs")
+                }
+                filename={"mobileSsURL"}
               />
               <FileUpload
                 label="Desktop full page"
-                onFileChange={(file) => handleFileChange(file, "desktopFp")}
+                onFileChange={(file) =>
+                  handleFileChange(file, "desktopFp", "desktopFpURL")
+                }
+                onCloudinaryFileChange={(file) =>
+                  handleCloudinaryFileChange(file, "desktopFp")
+                }
+                filename={"desktopFpURL"}
               />
               <FileUpload
                 label="Mobile full page"
-                onFileChange={(file) => handleFileChange(file, "mobileFp")}
+                onFileChange={(file) =>
+                  handleFileChange(file, "mobileFp", "mobileFpURL")
+                }
+                onCloudinaryFileChange={(file) =>
+                  handleCloudinaryFileChange(file, "mobileFp")
+                }
+                filename={"mobileFpURL"}
               />
             </div>
             <div className="w-full py-8">

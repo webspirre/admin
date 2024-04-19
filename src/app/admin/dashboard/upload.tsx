@@ -9,6 +9,8 @@ import { supabase } from "@/libs/supabase";
 // import { create } from "../../actions/create";
 import toast from "react-hot-toast";
 
+import Select from "react-select";
+
 import {
   CloudinaryAsset,
   FormData as MyFormData,
@@ -32,15 +34,40 @@ const pageTypes = [
   "Sign up page",
   "404 page",
 ];
+const categories_: Option[] = [
+  { value: "ai", label: "AI" },
+  { value: "fintech", label: "Fintech" },
+  { value: "marketplace", label: "Marketplace" },
+  { value: "e-commerce", label: "E-commerce" },
+  { value: "crypto-web3", label: "Crypto & Web 3" },
+  { value: "software-saas", label: "Software & SaaS" },
+  { value: "travel-hospitality", label: "Travel & Hospitality" },
+  { value: "agency-corporate", label: "Agency & Corporate" },
+];
+
+const pageTypes_: Option[] = [
+  { value: "landing", label: "Landing page" },
+  { value: "pricing", label: "Pricing page" },
+  { value: "about", label: "About page" },
+  { value: "login", label: "Login page" },
+  { value: "signup", label: "Sign up page" },
+  { value: "404", label: "404 page" },
+];
+
+interface Option {
+  value: string;
+  label: string;
+}
 
 interface Map {
-  [key: string]: string | undefined;
+  [key: string]: string | string[] | undefined;
 }
 
 const initialFormData: Map = {
   name: "",
   webURL: "",
   category: "",
+  categories: [],
   pageType: "",
   shortDescription: "",
   longDescription: "",
@@ -68,12 +95,74 @@ const Form = () => {
   const [isOpen1, setIsOpen1] = useState(false);
   const [selectedPageTypes1, setSelectedPageTypes1] = useState<string[]>([]);
   const dropdownRef1 = useRef<HTMLDivElement>(null);
+  const [selectedOption, setSelectedOption] = useState<Option>();
+  const [categoryOption, setCategoryOption] = useState<Option>();
 
-  const handleCategoryChange = (category: string) => {
-    if (selectedCategories.includes(category)) {
-      setSelectedCategories(selectedCategories.filter((c) => c !== category));
+  const handleChangePageType = (selectedOption: Option) => {
+    setFormData({ ...formData, pageTypes: selectedOption.value });
+    setSelectedOption(selectedOption);
+  };
+
+  const handleChangeCategories = (selectedOption: Option) => {
+    setFormData({ ...formData, categories: selectedOption.value });
+    setCategoryOption(categoryOption);
+  };
+
+  // const handleCategoryChange = (category: string) => {
+  //   if (selectedCategories.includes(category)) {
+  //     setSelectedCategories(selectedCategories.filter((c) => c !== category));
+  //   } else {
+  //     setSelectedCategories([...selectedCategories, category]);
+  //   }
+  // };
+
+  /**
+   * handleCategoryChange
+   * @description Triggers when the category selection changes
+   * @param category - Array of strings representing the selected categories
+   */
+
+  const handleCategoriesChange = (category: string[]) => {
+    // Check if the category array contains any elements
+    if (category.length === 0) return;
+
+    // Check if the first category in the array is already selected
+    if (selectedCategories.includes(category[0])) {
+      // Remove all categories present in the category array from selectedCategories
+      setSelectedCategories(
+        selectedCategories.filter((c) => !category.includes(c))
+      );
     } else {
-      setSelectedCategories([...selectedCategories, category]);
+      // Add all categories in the category array to selectedCategories
+      setSelectedCategories([...selectedCategories, ...category]);
+      // Update formData with the new category
+      setFormData({
+        ...formData,
+        categories: [...(formData.categories as string[]), ...category],
+      });
+    }
+  };
+  const handleCategoriesChange_ = (category: Option[]) => {
+    // Check if the category array contains any elements
+    if (category.length === 0) return;
+
+    // Extract values from Option objects
+    const categoryValues = category.map((cat) => cat.value);
+
+    // Check if any category is already selected
+    if (categoryValues.some((value) => selectedCategories.includes(value))) {
+      // Remove selected categories from selectedCategories
+      setSelectedCategories(
+        selectedCategories.filter((c) => !categoryValues.includes(c))
+      );
+    } else {
+      // Add selected categories to selectedCategories
+      setSelectedCategories([...selectedCategories, ...categoryValues]);
+      // Update formData with new categories
+      setFormData({
+        ...formData,
+        categories: [...(formData.categories as string[]), ...categoryValues],
+      });
     }
   };
 
@@ -100,9 +189,9 @@ const Form = () => {
       minute: "2-digit",
       second: "2-digit",
     });
-    
+
     // Example output: "2024-04-12 14:30:00"
-    
+
     setFormData((prevFormData) => ({
       ...prevFormData,
       date: currentDate,
@@ -157,7 +246,7 @@ const Form = () => {
         [type]: file as unknown as string,
         [filename]: cloudinaryResponse.secure_url,
       });
-      toast.success(`${filename} link generated`, {duration: 3000})
+      toast.success(`${filename} link generated`, { duration: 3000 });
       console.log("new formDa", formData);
     } catch (error) {
       console.error("Error:", error);
@@ -183,7 +272,7 @@ const Form = () => {
       if (formData.hasOwnProperty(fieldName)) {
         const imageUrl = formData[fieldName];
         if (imageUrl) {
-          formDataForCloudinary.append("file", imageUrl);
+          formDataForCloudinary.append("file", imageUrl as string);
           // Clear the URL after upload to avoid redundant uploads
           formDataForSupabase[fieldName] = "";
         }
@@ -264,21 +353,22 @@ const Form = () => {
     event.preventDefault();
     // await addWebsite(formData);
     try {
-        // Destructure formData object
-  const {
-    name,
-    webURL,
-    category,
-    pageType,
-    shortDescription,
-    longDescription,
-    logoImageURL,
-    desktopSsURL,
-    mobileSsURL,
-    desktopFpURL,
-    mobileFpURL,
-    date
-  } = formData;
+      // Destructure formData object
+      const {
+        name,
+        webURL,
+        category,
+        pageType,
+        shortDescription,
+        longDescription,
+        logoImageURL,
+        desktopSsURL,
+        mobileSsURL,
+        desktopFpURL,
+        mobileFpURL,
+        categories,
+        date,
+      } = formData;
       // Insert formData into Supabase
       const { data, error } = await supabase
         .from("website")
@@ -297,8 +387,9 @@ const Form = () => {
             mobileSsURL,
             desktopFpURL,
             mobileFpURL,
-            date
-          }
+            date,
+            categories,
+          },
         ])
         .select();
 
@@ -385,7 +476,7 @@ const Form = () => {
               />
             </div>
 
-            {/* categoris */}
+            {/* categories */}
             <div className="py-8">
               <label htmlFor="category">Category</label>
 
@@ -434,7 +525,9 @@ const Form = () => {
                               type="checkbox"
                               className="form-checkbox h-5 w-5 text-blue-600"
                               checked={selectedCategories.includes(category)}
-                              onChange={() => handleCategoryChange(category)}
+                              onChange={() =>
+                                handleCategoriesChange([category])
+                              }
                             />
                             <span className="ml-2 text-sm text-gray-700">
                               {category}
@@ -446,6 +539,71 @@ const Form = () => {
                   )}
                 </div>
               </div>
+            </div>
+
+            {/*  Category Field*/}
+
+            <div className="w-full py-8">
+              <h2>Select a Category:</h2>
+              <Select
+                value={categoryOption}
+                onChange={() => handleCategoriesChange_}
+                options={categories_}
+                placeholder="Select Category..."
+                isMulti
+                styles={{
+                  control: (provided) => ({
+                    ...provided,
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    height: "60px",
+                    width: "100%", // Customize width as needed
+                  }),
+                  option: (provided, state) => ({
+                    ...provided,
+                    backgroundColor: state.isSelected ? "#007bff" : "white", // Change background color of selected option
+                    color: state.isSelected ? "white" : "black", // Change text color of selected option
+                  }),
+                }}
+              />
+              {categoryOption && (
+                <div className="p-20">
+                  <h3>Selected Category:</h3>
+                  <p>{categoryOption.label}</p>
+                </div>
+              )}
+            </div>
+
+            {/* PageType Field */}
+
+            <div className="w-full py-8">
+              <h2>Select a PageType:</h2>
+              <Select
+                value={selectedOption}
+                onChange={() => handleChangePageType}
+                options={pageTypes_}
+                placeholder="Select PageType..."
+                styles={{
+                  control: (provided) => ({
+                    ...provided,
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    height: "60px",
+                    width: "100%", // Customize width as needed
+                  }),
+                  option: (provided, state) => ({
+                    ...provided,
+                    backgroundColor: state.isSelected ? "#007bff" : "white", // Change background color of selected option
+                    color: state.isSelected ? "white" : "black", // Change text color of selected option
+                  }),
+                }}
+              />
+              {selectedOption && (
+                <div className="p-20">
+                  <h3>Selected PageType:</h3>
+                  <p>{selectedOption.label}</p>
+                </div>
+              )}
             </div>
 
             <div className="w-full py-8">
@@ -510,6 +668,7 @@ const Form = () => {
                 </div>
               </div>
             </div>
+
             <div className="w-full py-8">
               <label htmlFor="shortDescription">Short Discription</label>
 

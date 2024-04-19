@@ -2,7 +2,7 @@
 // "use server";
 
 import Image from "next/image";
-import { ChangeEvent, FormEvent, useState, useRef, useEffect } from "react";
+import { ChangeEvent, FormEvent, useState, useRef, useEffect, FC } from "react";
 import FileUpload from "./FileUpload";
 import cloudinary from "@/libs/cloudinary";
 import { supabase } from "@/libs/supabase";
@@ -79,7 +79,7 @@ const initialFormData: Map = {
   }),
 };
 
-const Form = () => {
+const Form: FC<{handleLoading: () => void, loading: boolean }> = ({handleLoading}) => {
   // const { resources: sneakers } = await cloudinary.api.resources_by_tag(
   //   "nextjs-server-actions-upload-sneakers",
   //   { context: true }
@@ -96,7 +96,7 @@ const Form = () => {
   const [categoryOption, setCategoryOption] = useState<Option>();
 
   const handleChangePageType = (selectedOption: Option) => {
-    setFormData({ ...formData, pageTypes: selectedOption.value });
+    setFormData({ ...formData, pageType: selectedOption.value });
     setSelectedOption(selectedOption);
   };
 
@@ -218,7 +218,7 @@ const Form = () => {
   ) => {
     setFormData({
       ...formData,
-      // [type]: file ,
+      // [type]: file,
       [type]: file as unknown as string,
     });
     const formDataForCloudinary = new FormData();
@@ -229,6 +229,7 @@ const Form = () => {
     formDataForCloudinary.append("upload_preset", "webspirre");
 
     try {
+      handleLoading()
       const cloudinaryResponse: CloudinaryAsset = await fetch(
         "https://api.cloudinary.com/v1_1/dwqantex4/image/upload",
         {
@@ -243,8 +244,10 @@ const Form = () => {
         [type]: file as unknown as string,
         [filename]: cloudinaryResponse.secure_url,
       });
+     
       toast.success(`${filename} link generated`, { duration: 3000 });
       console.log("new formDa", formData);
+      handleLoading()
     } catch (error) {
       console.error("Error:", error);
     }

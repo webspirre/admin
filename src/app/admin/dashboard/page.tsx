@@ -191,7 +191,7 @@ function page() {
           </Link>
         </div>
         {/* <div className="w-10 bg-[#ececec] h-full flex">.</div> */}
-        <div className="flex justify-between bg-[#ececec] px-4  items-center w-full border-b-1  border-[#BBBBBB] h-[100px]">
+        <div className="flex justify-between bg-[#ececec] px-4  items-center w-full border-b-1 text-slate-900  border-[#BBBBBB] h-[100px]">
           <p className="text-[32px] font-bold">Upload</p>
           <div className="flex">
             {" "}

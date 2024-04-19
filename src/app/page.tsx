@@ -1,12 +1,13 @@
-import Image from "next/image";
-import Dashboard from "../app/admin/dashboard/page";
-import { Toaster } from "react-hot-toast";
+// "use client";
+
+import Admin from "./admin/page";
 
 export default function Home() {
   return (
-    <main className="">
-      <Toaster />
-      <Dashboard />
-    </main>
+    <>
+      <div>
+        <Admin />
+      </div>
+    </>
   );
 }

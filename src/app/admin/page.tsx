@@ -1,20 +1,23 @@
-"use client";
-
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
 export default function Admin() {
+  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
+    setIsClient(true);
 
-    if (!token) {
-      router.push("/admin/dashboard");
-    } else {
-      router.push("/admin/auth/login");
+    if (isClient) {
+      const token = localStorage.getItem("accessToken");
+
+      if (token) {
+        router.push("/admin/dashboard");
+      } else {
+        router.push("/admin/auth/login");
+      }
     }
-  }, []);
+  }, [isClient, router]);
 
   return null;
 }

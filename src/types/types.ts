@@ -70,7 +70,6 @@ type User = {
   user: UserData;
 };
 
-
 interface FormData {
   name: string;
   webURL: string;
@@ -109,5 +108,23 @@ interface CloudinaryAsset {
   width: number;
 }
 
+export interface Metadata {
+  title: string;
+  description: string;
+  keywords?: string[];
+  opengraph?: OpenGraphData;
+  twitter?: TwitterCardData;
+}
+
+export interface OpenGraphData {
+  title: string;
+  description: string;
+  image: string; // URL to the image
+}
+
+export interface TwitterCardData {
+  card: string; // e.g., 'summary' or 'summary_large_image'
+  site: string; // Twitter username of the site
+}
 
 export type { User, FormData, CloudinaryAsset };

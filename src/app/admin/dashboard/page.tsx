@@ -7,7 +7,7 @@ import Uploade from "./upload";
 import { supabase } from "@/libs/supabase";
 import { OAuthResponse, Provider } from "@supabase/supabase-js";
 import axios from "axios";
-import { User } from "../../../../types/types";
+import { User } from "@/types/types";
 import { create } from "@/app/actions/create";
 
 function page() {

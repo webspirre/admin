@@ -11,10 +11,7 @@ import toast from "react-hot-toast";
 
 import Select from "react-select";
 
-import {
-  CloudinaryAsset,
-  FormData as MyFormData,
-} from "../../../../types/types";
+import { CloudinaryAsset, FormData as MyFormData } from "@/types/types";
 
 const categories = [
   "AI",
@@ -477,7 +474,7 @@ const Form = () => {
             </div>
 
             {/* categories */}
-            <div className="py-8">
+            {/* <div className="py-8">
               <label htmlFor="category">Category</label>
 
               <div className="w-full py-4 border rounded-md justify-between flex items-center px-4  border-gray-300">
@@ -539,7 +536,7 @@ const Form = () => {
                   )}
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/*  Category Field*/}
 
@@ -606,7 +603,7 @@ const Form = () => {
               )}
             </div>
 
-            <div className="w-full py-8">
+            {/* <div className="w-full py-8">
               <label htmlFor="pageType">Page type</label>
               <div className="w-full py-4 border rounded-md justify-between flex items-center px-4  border-gray-300">
                 <label htmlFor="pageType" className="text-[gray]">
@@ -667,7 +664,7 @@ const Form = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             <div className="w-full py-8">
               <label htmlFor="shortDescription">Short Discription</label>

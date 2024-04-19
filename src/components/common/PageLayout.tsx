@@ -5,11 +5,7 @@ interface PageLayoutProps {
 }
 
 const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
-  return (
-    <main className="">
-      <>{children}</>
-    </main>
-  );
+  return <main>{children} </main>;
 };
 
 export default PageLayout;

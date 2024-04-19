@@ -2,7 +2,7 @@
 // "use server";
 
 import Image from "next/image";
-import { ChangeEvent, FormEvent, useState, useRef, useEffect } from "react";
+import { ChangeEvent, FormEvent, useState, useRef, useEffect, FC } from "react";
 import FileUpload from "./FileUpload";
 import cloudinary from "@/libs/cloudinary";
 import { supabase } from "@/libs/supabase";
@@ -11,10 +11,7 @@ import toast from "react-hot-toast";
 
 import Select from "react-select";
 
-import {
-  CloudinaryAsset,
-  FormData as MyFormData,
-} from "../../../../types/types";
+import { CloudinaryAsset, FormData as MyFormData } from "@/types/types";
 
 const categories = [
   "AI",
@@ -82,7 +79,7 @@ const initialFormData: Map = {
   }),
 };
 
-const Form = () => {
+const Form: FC<{handleLoading: () => void, loading: boolean }> = ({handleLoading}) => {
   // const { resources: sneakers } = await cloudinary.api.resources_by_tag(
   //   "nextjs-server-actions-upload-sneakers",
   //   { context: true }
@@ -99,7 +96,7 @@ const Form = () => {
   const [categoryOption, setCategoryOption] = useState<Option>();
 
   const handleChangePageType = (selectedOption: Option) => {
-    setFormData({ ...formData, pageTypes: selectedOption.value });
+    setFormData({ ...formData, pageType: selectedOption.value });
     setSelectedOption(selectedOption);
   };
 
@@ -221,7 +218,7 @@ const Form = () => {
   ) => {
     setFormData({
       ...formData,
-      // [type]: file ,
+      // [type]: file,
       [type]: file as unknown as string,
     });
     const formDataForCloudinary = new FormData();
@@ -232,6 +229,7 @@ const Form = () => {
     formDataForCloudinary.append("upload_preset", "webspirre");
 
     try {
+      handleLoading()
       const cloudinaryResponse: CloudinaryAsset = await fetch(
         "https://api.cloudinary.com/v1_1/dwqantex4/image/upload",
         {
@@ -246,8 +244,10 @@ const Form = () => {
         [type]: file as unknown as string,
         [filename]: cloudinaryResponse.secure_url,
       });
+     
       toast.success(`${filename} link generated`, { duration: 3000 });
       console.log("new formDa", formData);
+      handleLoading()
     } catch (error) {
       console.error("Error:", error);
     }
@@ -477,7 +477,7 @@ const Form = () => {
             </div>
 
             {/* categories */}
-            <div className="py-8">
+            {/* <div className="py-8">
               <label htmlFor="category">Category</label>
 
               <div className="w-full py-4 border rounded-md justify-between flex items-center px-4  border-gray-300">
@@ -539,7 +539,7 @@ const Form = () => {
                   )}
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/*  Category Field*/}
 
@@ -606,7 +606,7 @@ const Form = () => {
               )}
             </div>
 
-            <div className="w-full py-8">
+            {/* <div className="w-full py-8">
               <label htmlFor="pageType">Page type</label>
               <div className="w-full py-4 border rounded-md justify-between flex items-center px-4  border-gray-300">
                 <label htmlFor="pageType" className="text-[gray]">
@@ -667,7 +667,7 @@ const Form = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             <div className="w-full py-8">
               <label htmlFor="shortDescription">Short Discription</label>

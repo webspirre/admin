@@ -220,7 +220,15 @@ function page() {
                       className="text-black font-bold hover:text-slate-500 transition duration-150 "
                       onClick={loginWithGoogle}
                     >
-                      Login with Google
+                      <div className="bg-white flex items-center p-4 border rounded-full">
+                        <img
+                          src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1713534276/utilities/Google_Icons-09-512_howar9.webp"
+                          alt=""
+                          width="34px"
+                          height="34px"
+                        />{" "}
+                        Sign In with Google
+                      </div>
                     </button>
                   )}
                 </div>

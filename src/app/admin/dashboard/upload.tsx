@@ -9,28 +9,10 @@ import { supabase } from "@/libs/supabase";
 // import { create } from "../../actions/create";
 import toast from "react-hot-toast";
 
-import Select from "react-select";
+import Select, { ActionMeta, MultiValue } from "react-select";
 
 import { CloudinaryAsset, FormData as MyFormData } from "@/types/types";
 
-const categories = [
-  "AI",
-  "Fintech",
-  "Marketplace",
-  "E-commerce",
-  "Crypto & Web 3",
-  "Software & SaaS",
-  "Travel & Hospitality",
-  "Agency & Corporate",
-];
-const pageTypes = [
-  "Landing page",
-  "Pricing page",
-  "About page",
-  "Login page",
-  "Sign up page",
-  "404 page",
-];
 const categories_: Option[] = [
   { value: "ai", label: "AI" },
   { value: "fintech", label: "Fintech" },
@@ -57,7 +39,7 @@ interface Option {
 }
 
 interface Map {
-  [key: string]: string | string[] | undefined;
+  [key: string]: string | string[] | undefined | Option | Option[];
 }
 
 const initialFormData: Map = {
@@ -79,97 +61,37 @@ const initialFormData: Map = {
   }),
 };
 
-const Form: FC<{handleLoading: () => void, loading: boolean }> = ({handleLoading}) => {
-  // const { resources: sneakers } = await cloudinary.api.resources_by_tag(
-  //   "nextjs-server-actions-upload-sneakers",
-  //   { context: true }
-  // );
+const Form: FC<{ handleLoading: () => void; loading: boolean }> = ({
+  handleLoading,
+}) => {
   const [formData, setFormData] = useState(initialFormData);
 
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<Option[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isOpen1, setIsOpen1] = useState(false);
   const [selectedPageTypes1, setSelectedPageTypes1] = useState<string[]>([]);
   const dropdownRef1 = useRef<HTMLDivElement>(null);
   const [selectedOption, setSelectedOption] = useState<Option>();
-  const [categoryOption, setCategoryOption] = useState<Option>();
 
-  const handleChangePageType = (selectedOption: Option) => {
-    setFormData({ ...formData, pageType: selectedOption.value });
-    setSelectedOption(selectedOption);
-  };
-
-  const handleChangeCategories = (selectedOption: Option) => {
-    setFormData({ ...formData, categories: selectedOption.value });
-    setCategoryOption(categoryOption);
-  };
-
-  // const handleCategoryChange = (category: string) => {
-  //   if (selectedCategories.includes(category)) {
-  //     setSelectedCategories(selectedCategories.filter((c) => c !== category));
-  //   } else {
-  //     setSelectedCategories([...selectedCategories, category]);
-  //   }
-  // };
-
-  /**
-   * handleCategoryChange
-   * @description Triggers when the category selection changes
-   * @param category - Array of strings representing the selected categories
-   */
-
-  const handleCategoriesChange = (category: string[]) => {
-    // Check if the category array contains any elements
-    if (category.length === 0) return;
-
-    // Check if the first category in the array is already selected
-    if (selectedCategories.includes(category[0])) {
-      // Remove all categories present in the category array from selectedCategories
-      setSelectedCategories(
-        selectedCategories.filter((c) => !category.includes(c))
-      );
-    } else {
-      // Add all categories in the category array to selectedCategories
-      setSelectedCategories([...selectedCategories, ...category]);
-      // Update formData with the new category
-      setFormData({
-        ...formData,
-        categories: [...(formData.categories as string[]), ...category],
-      });
-    }
-  };
-  const handleCategoriesChange_ = (category: Option[]) => {
-    // Check if the category array contains any elements
-    if (category.length === 0) return;
-
-    // Extract values from Option objects
-    const categoryValues = category.map((cat) => cat.value);
-
-    // Check if any category is already selected
-    if (categoryValues.some((value) => selectedCategories.includes(value))) {
-      // Remove selected categories from selectedCategories
-      setSelectedCategories(
-        selectedCategories.filter((c) => !categoryValues.includes(c))
-      );
-    } else {
-      // Add selected categories to selectedCategories
-      setSelectedCategories([...selectedCategories, ...categoryValues]);
-      // Update formData with new categories
-      setFormData({
-        ...formData,
-        categories: [...(formData.categories as string[]), ...categoryValues],
-      });
+  // Function to handle page type change
+  const handleChangePageType = (selectedOption: Option | null) => {
+    if (selectedOption) {
+      setFormData({ ...formData, pageType: selectedOption.value });
+      setSelectedOption(selectedOption);
     }
   };
 
-  const handlePageTypeChange1 = (pageType: string) => {
-    if (selectedPageTypes1.includes(pageType)) {
-      setSelectedPageTypes1(
-        selectedPageTypes1.filter((type) => type !== pageType)
-      );
-    } else {
-      setSelectedPageTypes1([...selectedPageTypes1, pageType]);
+  // Function to handle category change
+
+ const handleCategoriesChange_ = (
+    newValue: MultiValue<Option>,
+    actionMeta: ActionMeta<Option>
+  ) => {
+    if (newValue) {
+      const categoryValues = newValue.map((option) => option.value);
+      setFormData({ ...formData, categories: categoryValues });
+      setSelectedCategories(newValue as Option[]);
     }
   };
 
@@ -229,7 +151,7 @@ const Form: FC<{handleLoading: () => void, loading: boolean }> = ({handleLoading
     formDataForCloudinary.append("upload_preset", "webspirre");
 
     try {
-      handleLoading()
+      handleLoading();
       const cloudinaryResponse: CloudinaryAsset = await fetch(
         "https://api.cloudinary.com/v1_1/dwqantex4/image/upload",
         {
@@ -244,10 +166,10 @@ const Form: FC<{handleLoading: () => void, loading: boolean }> = ({handleLoading
         [type]: file as unknown as string,
         [filename]: cloudinaryResponse.secure_url,
       });
-     
+
       toast.success(`${filename} link generated`, { duration: 3000 });
       console.log("new formDa", formData);
-      handleLoading()
+      handleLoading();
     } catch (error) {
       console.error("Error:", error);
     }
@@ -278,33 +200,6 @@ const Form: FC<{handleLoading: () => void, loading: boolean }> = ({handleLoading
         }
       }
     }
-
-    // Iterate over all file types and append them to FormData for Cloudinary
-    const fileTypes = [
-      "logoImageURL",
-      "desktopSsURL",
-      "mobileSsURL",
-      "desktopFpURL",
-      "mobileFpURL",
-    ];
-    // fileTypes.forEach((fieldName) => {
-    //   const files = formData[fieldName];
-    //   console.log("file names", files)
-    //   if (files) {
-    //     if (Array.isArray(files)) {
-    //       // If multiple files are selected for the field
-    //       files.forEach((file) => {
-    //         console.log("file name", file)
-    //         formDataForCloudinary.append("file", file);
-    //       });
-    //     } else {
-    //       // If only one file is selected for the field
-    //       formDataForCloudinary.append("file", files);
-    //     }
-    //     // Clear the URL after upload to avoid redundant uploads
-    //     formDataForSupabase[fieldName] = "";
-    //   }
-    // });
 
     formDataForCloudinary.append("upload_preset", "webspirre");
 
@@ -401,40 +296,11 @@ const Form: FC<{handleLoading: () => void, loading: boolean }> = ({handleLoading
 
       // Handle success
       console.log("Data inserted into Supabase:", data);
+      console.log("selecca", formData);
       setFormData(initialFormData); // Clear the form fields after successful submission
+      toast.success("Document Created successfully!", { duration: 3000 });
     } catch (error) {
       console.error("Error:", error);
-    }
-  };
-  const [file, setFile] = useState<File | null>(null);
-
-  const handleFileChanges = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files) {
-      setFile(event.target.files[0]);
-    }
-  };
-
-  const handleUpload = async () => {
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Image uploaded:", data.imageUrl);
-        // Handle the Cloudinary URL as needed (e.g., display the image)
-      } else {
-        console.error("Failed to upload image:", response.statusText);
-      }
-    } catch (error) {
-      console.error("Error uploading image:", error);
     }
   };
 
@@ -445,11 +311,7 @@ const Form: FC<{handleLoading: () => void, loading: boolean }> = ({handleLoading
           Upload details
         </p>
       </div>
-      <form
-        onSubmit={addWebsiteHandler}
-        // action={handleOnSubmit}
-        // onSubmit={handleOnSubmit}
-      >
+      <form onSubmit={addWebsiteHandler}>
         <div className="grid grid-cols-2 gap-20 w-full text-slate-700">
           <div className=" ">
             <div className="w-full py-8">
@@ -476,78 +338,14 @@ const Form: FC<{handleLoading: () => void, loading: boolean }> = ({handleLoading
               />
             </div>
 
-            {/* categories */}
-            {/* <div className="py-8">
-              <label htmlFor="category">Category</label>
-
-              <div className="w-full py-4 border rounded-md justify-between flex items-center px-4  border-gray-300">
-                <label htmlFor="category" className="text-[gray]">
-                  Select
-                </label>
-                <div
-                  ref={dropdownRef}
-                  className="relative inline-block text-left "
-                >
-                  <div>
-                    <span className="rounded-md shadow-sm">
-                      <button
-                        type="button"
-                        onClick={() => setIsOpen(!isOpen)}
-                        className="inline-flex justify-center w-full rounded-md  px-4 py-2 bg-white text-sm font-medium text-gray-700 focus:outline-none focus:border-blue-300 focus:ring focus:ring-blue-200 active:bg-gray-50 active:text-gray-800"
-                        id="options-menu"
-                        aria-haspopup="true"
-                        aria-expanded={isOpen ? "true" : "false"}
-                      >
-                        <Image
-                          height={20}
-                          width={20}
-                          src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1708133810/utilities/fi_chevron-down_yid0fo.svg"
-                          alt="rice"
-                          className="rounded-lg"
-                        />{" "}
-                      </button>
-                    </span>
-                  </div>
-                  {isOpen && (
-                    <div
-                      className="origin-top-right absolute z-10 right-0 mt-6 w-[500px] rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
-                      role="menu"
-                      aria-orientation="vertical"
-                      aria-labelledby="options-menu"
-                    >
-                      <div className="py-1" role="none">
-                        {categories.map((category) => (
-                          <label
-                            key={category}
-                            className="flex items-center py-2 px-4"
-                          >
-                            <input
-                              type="checkbox"
-                              className="form-checkbox h-5 w-5 text-blue-600"
-                              checked={selectedCategories.includes(category)}
-                              onChange={() =>
-                                handleCategoriesChange([category])
-                              }
-                            />
-                            <span className="ml-2 text-sm text-gray-700">
-                              {category}
-                            </span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div> */}
-
             {/*  Category Field*/}
 
             <div className="w-full py-8">
               <h2>Select a Category:</h2>
               <Select
-                value={categoryOption}
-                onChange={() => handleCategoriesChange_}
+                value={selectedCategories}
+                name="categories"
+                onChange={handleCategoriesChange_}
                 options={categories_}
                 placeholder="Select Category..."
                 isMulti
@@ -566,12 +364,16 @@ const Form: FC<{handleLoading: () => void, loading: boolean }> = ({handleLoading
                   }),
                 }}
               />
-              {categoryOption && (
+              {/* {selectedCategories && (
                 <div className="p-20">
                   <h3>Selected Category:</h3>
-                  <p>{categoryOption.label}</p>
+                  <p>
+                    {selectedCategories.map((_) => (
+                      <>{_.label} </>
+                    ))}
+                  </p>
                 </div>
-              )}
+              )} */}
             </div>
 
             {/* PageType Field */}
@@ -579,8 +381,9 @@ const Form: FC<{handleLoading: () => void, loading: boolean }> = ({handleLoading
             <div className="w-full py-8">
               <h2>Select a PageType:</h2>
               <Select
+                name="pageType"
                 value={selectedOption}
-                onChange={() => handleChangePageType}
+                onChange={handleChangePageType}
                 options={pageTypes_}
                 placeholder="Select PageType..."
                 styles={{
@@ -598,76 +401,13 @@ const Form: FC<{handleLoading: () => void, loading: boolean }> = ({handleLoading
                   }),
                 }}
               />
-              {selectedOption && (
+              {/* {selectedOption && (
                 <div className="p-20">
                   <h3>Selected PageType:</h3>
                   <p>{selectedOption.label}</p>
                 </div>
-              )}
+              )} */}
             </div>
-
-            {/* <div className="w-full py-8">
-              <label htmlFor="pageType">Page type</label>
-              <div className="w-full py-4 border rounded-md justify-between flex items-center px-4  border-gray-300">
-                <label htmlFor="pageType" className="text-[gray]">
-                  Select
-                </label>
-                <div
-                  ref={dropdownRef}
-                  className="relative inline-block text-left "
-                >
-                  <div className="relative inline-block text-left">
-                    <div>
-                      <span className="rounded-md shadow-sm">
-                        <button
-                          type="button"
-                          onClick={() => setIsOpen1(!isOpen1)}
-                          className="inline-flex justify-center w-full rounded-md  px-4 py-2 bg-white text-sm font-medium text-gray-700 focus:outline-none focus:border-blue-300 focus:ring focus:ring-blue-200 active:bg-gray-50 active:text-gray-800"
-                          id="options-menu"
-                          aria-haspopup="true"
-                          aria-expanded={isOpen ? "true" : "false"}
-                        >
-                          <Image
-                            height={20}
-                            width={20}
-                            src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1708133810/utilities/fi_chevron-down_yid0fo.svg"
-                            alt="rice"
-                            className="rounded-lg"
-                          />{" "}
-                        </button>
-                      </span>
-                    </div>
-                    {isOpen1 && (
-                      <div
-                        className="origin-top-right absolute right-0 mt-6 w-[500px] rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
-                        role="menu"
-                        aria-orientation="vertical"
-                        aria-labelledby="options-menu"
-                      >
-                        <div className="py-1" role="none">
-                          {pageTypes.map((pageType) => (
-                            <label
-                              key={pageType}
-                              className="flex items-center py-2 px-4"
-                            >
-                              <input
-                                type="checkbox"
-                                className="form-checkbox h-5 w-5 text-blue-600"
-                                checked={selectedPageTypes1.includes(pageType)}
-                                onChange={() => handlePageTypeChange1(pageType)}
-                              />
-                              <span className="ml-2 text-sm text-gray-700">
-                                {pageType}
-                              </span>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div> */}
 
             <div className="w-full py-8">
               <label htmlFor="shortDescription">Short Discription</label>
@@ -749,7 +489,7 @@ const Form: FC<{handleLoading: () => void, loading: boolean }> = ({handleLoading
                 type="text"
                 name="date"
                 placeholder="Date updated"
-                value={formData.date}
+                value={formData.date as string}
                 onChange={handleChange}
                 className="border-2 rounded-lg p-4 w-full"
               />

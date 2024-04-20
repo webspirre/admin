@@ -2,10 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, {useEffect} from "react";
 import { supabase } from "@/libs/supabase";
+import axios from "axios";
 
 function Login() {
+
+
 
    const loginWithGoogle = async () => {
      try {
@@ -27,6 +30,51 @@ function Login() {
      }
    };
 
+   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.hash.substring(1));
+    const accessToken = urlParams.get("access_token");
+
+    if (accessToken) {
+      localStorage.setItem("accessToken", accessToken);
+
+      const fetchUser = async (): Promise<void> => {
+        try {
+          const response = await axios.get(
+            "https://nawqzhetlcutvfqhyjsv.supabase.co/auth/v1/user",
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          );
+
+          localStorage.setItem("userData", JSON.stringify(response.data));
+        } catch (error: any) {
+          if (error.response && error.response.status === 401) {
+            const refreshToken = localStorage.getItem("refreshToken");
+            if (refreshToken) {
+              const response = await axios.post(
+                "https://nawqzhetlcutvfqhyjsv.supabase.co/auth/v1/token?grant_type=refresh_token&refresh_token=" +
+                  refreshToken
+              );
+              const newAccessToken = response.data.access_token;
+
+              localStorage.setItem("accessToken", newAccessToken);
+
+              return fetchUser();
+            } else {
+              console.error("Refresh token not found.");
+            }
+          } else {
+            console.error("Error fetching user data:", error);
+          }
+        }
+      };
+
+      fetchUser();
+    }
+  }, []);
+
   return (
     <div className="mt-[100px] w-full flex justify-center items-center">
       <div className="flex flex-col items-center justify-center gap-4  bg-white rounded-lg shadow-lg w-fit p-[20px] py-[100px]">
@@ -40,7 +88,7 @@ function Login() {
           />
         </Link>
 
-        <div className="w-[800px]">
+        <div className="w-[800px] text-black" >
           <h1 className="text-center text-[12px] py-4 font-bold">
             Welcome Back, Sir
           </h1>

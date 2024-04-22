@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import Uploade from "./upload";
 import { supabase } from "@/libs/supabase";
+import { useRouter } from "next/navigation";
 import { OAuthResponse, Provider } from "@supabase/supabase-js";
 import axios from "axios";
 import { User } from "@/types/types";
@@ -14,7 +15,9 @@ import Loader from "@/components/Loader";
 function Page() {
   const [userData, setUserData] = useState<User | null | string>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   const handleLoading = () => setIsLoading((prev) => !prev);
+  const router = useRouter();
 
   const loginWithGoogle = async () => {
     try {
@@ -39,6 +42,8 @@ function Page() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.hash.substring(1));
     const accessToken = urlParams.get("access_token");
+    let isMounted = true;
+    const controller = new AbortController();
 
     if (accessToken) {
       localStorage.setItem("accessToken", accessToken);
@@ -54,7 +59,8 @@ function Page() {
             }
           );
 
-          localStorage.setItem("userData", JSON.stringify(response.data));
+          isMounted &&
+            localStorage.setItem("userData", JSON.stringify(response.data));
         } catch (error: any) {
           if (error.response && error.response.status === 401) {
             const refreshToken = localStorage.getItem("refreshToken");
@@ -73,12 +79,17 @@ function Page() {
             }
           } else {
             console.error("Error fetching user data:", error);
+            router.push("/admin/auth/login");
           }
         }
       };
 
       fetchUser();
     }
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
   }, []);
 
   useEffect(() => {
@@ -133,7 +144,18 @@ function Page() {
 
   return (
     <div>
-      {isLoading && <Loader />}
+      {isFetching && (
+        <Loader
+          loaderText=" loading Admin Studio"
+          handleLoading={handleLoading}
+        />
+      )}
+      {isLoading && (
+        <Loader
+          loaderText=" Uploading Asset ..."
+          handleLoading={handleLoading}
+        />
+      )}
       <div className=" ">
         <div className="flex items-center border-b-2 border-[#BBBBBB]  bg-white">
           <div className="flex w-[300px] pl-10   bg-white h-100px">

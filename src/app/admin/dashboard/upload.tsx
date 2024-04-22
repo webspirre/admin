@@ -1,17 +1,13 @@
 "use client";
-// "use server";
 
-import Image from "next/image";
-import { ChangeEvent, FormEvent, useState, useRef, useEffect, FC } from "react";
+import { useState, useEffect, FC } from "react";
 import FileUpload from "./FileUpload";
-import cloudinary from "@/libs/cloudinary";
 import { supabase } from "@/libs/supabase";
-// import { create } from "../../actions/create";
 import toast from "react-hot-toast";
 
 import Select, { ActionMeta, MultiValue } from "react-select";
 
-import { CloudinaryAsset, FormData as MyFormData } from "@/types/types";
+import { CloudinaryAsset } from "@/types/types";
 
 const categories_: Option[] = [
   { value: "ai", label: "AI" },
@@ -66,12 +62,7 @@ const Form: FC<{ handleLoading: () => void; loading: boolean }> = ({
 }) => {
   const [formData, setFormData] = useState(initialFormData);
 
-  const [isOpen, setIsOpen] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<Option[]>([]);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const [isOpen1, setIsOpen1] = useState(false);
-  const [selectedPageTypes1, setSelectedPageTypes1] = useState<string[]>([]);
-  const dropdownRef1 = useRef<HTMLDivElement>(null);
   const [selectedOption, setSelectedOption] = useState<Option>();
 
   // Function to handle page type change
@@ -84,7 +75,7 @@ const Form: FC<{ handleLoading: () => void; loading: boolean }> = ({
 
   // Function to handle category change
 
- const handleCategoriesChange_ = (
+  const handleCategoriesChange_ = (
     newValue: MultiValue<Option>,
     actionMeta: ActionMeta<Option>
   ) => {
@@ -96,10 +87,6 @@ const Form: FC<{ handleLoading: () => void; loading: boolean }> = ({
   };
 
   useEffect(() => {
-    // const currentDate = new Date().toLocaleString("en-US", {
-    //   month: "long",
-    //   year: "numeric",
-    // });
     const currentDate = new Date().toLocaleString("en-US", {
       year: "numeric",
       month: "2-digit",
@@ -180,69 +167,6 @@ const Form: FC<{ handleLoading: () => void; loading: boolean }> = ({
    * handleOnSubmit
    * @description Triggers when the main form is submitted
    */
-  async function handleOnSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    const formDataForCloudinary = new FormData();
-    const formDataForSupabase: Map = {
-      ...formData,
-    };
-
-    // Upload images to Cloudinary
-    // const formDataKeys: (keyof FormData)[] = ['logoImageURL', 'desktopSsURL', 'mobileSsURL', 'desktopFpURL', 'mobileFpURL'];
-    for (const fieldName in formData) {
-      if (formData.hasOwnProperty(fieldName)) {
-        const imageUrl = formData[fieldName];
-        if (imageUrl) {
-          formDataForCloudinary.append("file", imageUrl as string);
-          // Clear the URL after upload to avoid redundant uploads
-          formDataForSupabase[fieldName] = "";
-        }
-      }
-    }
-
-    formDataForCloudinary.append("upload_preset", "webspirre");
-
-    try {
-      const cloudinaryResponse = await fetch(
-        "https://api.cloudinary.com/v1_1/dwqantex4/image/upload",
-        {
-          method: "POST",
-          body: formDataForCloudinary,
-        }
-      ).then((r) => r.json());
-
-      console.log("data", cloudinaryResponse);
-
-      // Update formData with Cloudinary URLs
-      for (const fieldName in cloudinaryResponse) {
-        if (cloudinaryResponse.hasOwnProperty(fieldName)) {
-          const fieldValue = cloudinaryResponse[fieldName];
-          if (fieldValue) {
-            formDataForSupabase[fieldName] = fieldValue;
-          }
-        }
-      }
-
-      // Insert formData into Supabase
-      const { data, error } = await supabase
-        .from("website.website")
-        .insert([formDataForSupabase])
-        .select();
-
-      // Handle errors
-      if (error) {
-        console.error("Error inserting data into Supabase:", error.message);
-        return;
-      }
-
-      // Handle success
-      console.log("Data inserted into Supabase:", data);
-      setFormData(initialFormData); // Clear the form fields after successful submission
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  }
 
   const addWebsiteHandler = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();

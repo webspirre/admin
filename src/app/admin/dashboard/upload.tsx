@@ -221,7 +221,7 @@ const Form: FC<{ handleLoading: () => void; loading: boolean }> = ({
       // Handle success
       console.log("Data inserted into Supabase:", data);
       console.log("selecca", formData);
-      setFormData(initialFormData); // Clear the form fields after successful submission
+      setFormData({ ...formData, ...initialFormData }); // Clear the form fields after successful submission
       toast.success("Document Created successfully!", { duration: 3000 });
     } catch (error) {
       console.error("Error:", error);

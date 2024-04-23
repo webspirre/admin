@@ -3,21 +3,23 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import Uploade from "./upload";
+import Upload from "@/app/admin/dashboard/upload";
 import { supabase } from "@/libs/supabase";
 import { useRouter } from "next/navigation";
-import { OAuthResponse, Provider } from "@supabase/supabase-js";
-import axios from "axios";
-import { User } from "@/types/types";
-import { create } from "@/app/actions/create";
+import useAxiosPrivate from "@/hooks/usePrivateAxios";
 import Loader from "@/components/Loader";
+import useAuth from "@/hooks/useAuth";
+import useSendUserToDB from "@/hooks/useSendUserToDB";
 
 function Page() {
-  const [userData, setUserData] = useState<User | null | string>(null);
+  //   const [userData, setUserData] = useState<User | null | string>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const handleLoading = () => setIsLoading((prev) => !prev);
   const router = useRouter();
+  const axiosPrivate = useAxiosPrivate();
+  const { setAuth, auth } = useAuth();
+  const sendUserToDb = useSendUserToDB();
 
   const loginWithGoogle = async () => {
     try {
@@ -46,32 +48,28 @@ function Page() {
     const controller = new AbortController();
 
     if (accessToken) {
-      localStorage.setItem("accessToken", accessToken);
+      //   localStorage.setItem("accessToken", accessToken);
 
       const fetchUser = async (): Promise<void> => {
         try {
-          const response = await axios.get(
-            "https://nawqzhetlcutvfqhyjsv.supabase.co/auth/v1/user",
-            {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            }
-          );
+          const response = await axiosPrivate.get("/user", {
+            signal: controller.signal,
+          });
 
-          isMounted &&
-            localStorage.setItem("userData", JSON.stringify(response.data));
+          isMounted && setAuth(response.data);
         } catch (error: any) {
           if (error.response && error.response.status === 401) {
-            const refreshToken = localStorage.getItem("refreshToken");
+            const refreshToken = auth?.access_token;
             if (refreshToken) {
-              const response = await axios.post(
-                "https://nawqzhetlcutvfqhyjsv.supabase.co/auth/v1/token?grant_type=refresh_token&refresh_token=" +
-                  refreshToken
+              const response = await axiosPrivate.post(
+                "/token?grant_type=refresh_token&refresh_token=" + refreshToken
               );
               const newAccessToken = response.data.access_token;
 
-              localStorage.setItem("accessToken", newAccessToken);
+              setAuth({
+                user: response.data.user,
+                access_token: newAccessToken,
+              });
 
               return fetchUser();
             } else {
@@ -93,54 +91,18 @@ function Page() {
   }, []);
 
   useEffect(() => {
-    const storedUserDataString =
-      typeof window !== "undefined"
-        ? localStorage.getItem("sb-nawqzhetlcutvfqhyjsv-auth-token")
-        : null;
-
-    if (storedUserDataString) {
-      const parsedUserData = JSON.parse(storedUserDataString);
-      setUserData(parsedUserData);
-    }
-
-    setUserData(
-      JSON.parse(
-        JSON.stringify(JSON.parse(storedUserDataString as string), null, 2)
-      )
-    );
-  }, []);
-
-  useEffect(() => {
-    const sendToDb = async (data: User) => {
-      if (data) {
-        const { user } = data;
-        const { id, email } = user;
-        const idAsBigInt = String(BigInt(`0x${id.replace(/-/g, "")}`));
-        const { data: userData, error: insertError } = await supabase
-          .from("administrators")
-          .insert([
-            {
-              email,
-              created_at: new Date(),
-              userid: id,
-              role: "admin",
-            },
-          ]);
-
-        if (insertError) {
-          console.log(insertError);
-          console.log("Error Message", insertError.message);
-          throw insertError;
-        }
+    const fetchData = async () => {
+      if (typeof auth === "object" && auth !== null) {
+        await sendUserToDb(auth);
       }
     };
 
-    if (typeof userData === "object" && userData !== null) {
-      sendToDb(userData);
-    }
-  }, [userData]);
+    fetchData();
 
-  const returnValues: User = JSON.parse(JSON.stringify(userData, null, 2));
+    // Note: Since fetchData doesn't return a cleanup function, the cleanup logic is omitted
+  }, [auth]);
+
+  //   const returnValues: User = JSON.parse(JSON.stringify(userData, null, 2));
 
   return (
     <div>
@@ -173,24 +135,23 @@ function Page() {
             <p className="text-[32px] font-bold">Upload</p>
             <div className="flex">
               <div className="flex justify-end">
-                <div>
+                <div className="flex space-x-5">
+                  <p className="text-[32px] font-bold cursor-pointer">LogOut</p>
                   <div className="text-black">
-                    {returnValues ? (
+                    {auth ? (
                       <>
                         <div>
                           <div className="p-2 flex flex-row gap-2 rounded-full ">
                             <Image
                               height={20}
                               width={40}
-                              src={returnValues?.user?.user_metadata?.picture}
+                              src={auth?.user?.user_metadata?.picture}
                               alt="rice"
                               className="z-10 rounded-full"
                             />
                             <div className="text-[12px] pr-[50px]">
-                              <p>{returnValues?.user?.email as string}</p>
-                              <p>
-                                {returnValues?.user?.user_metadata?.full_name}{" "}
-                              </p>
+                              <p>{auth?.user?.email as string}</p>
+                              <p>{auth?.user?.user_metadata?.full_name} </p>
                             </div>
                           </div>
                         </div>
@@ -231,7 +192,7 @@ function Page() {
             </Link>
           </div>
           <div className=" flex w-full pt-[45px] bg-[#ececec]">
-            <Uploade handleLoading={handleLoading} loading={isLoading} />
+            <Upload handleLoading={handleLoading} loading={isLoading} />
           </div>
         </div>
       </div>

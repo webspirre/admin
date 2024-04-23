@@ -66,8 +66,12 @@ interface UserMetadata {
 }
 
 type User = {
-  access_token: string;
+  access_token?: string;
   user: UserData;
+  token_type?: string;
+  expires_in?: number;
+  expires_at?: number;
+  refresh_token?: string;
 };
 
 interface FormData {

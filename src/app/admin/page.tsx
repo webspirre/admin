@@ -1,25 +1,33 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import usePersistToken from "@/hooks/usePersistance";
+import Page from "./dashboard/page";
 
 export default function Admin() {
-  const [isClient, setIsClient] = useState(false);
-  const router = useRouter();
+  const { isLoading } = usePersistToken();
+  // const [isClient, setIsClient] = useState(false);
+  // const router = useRouter();
 
-  useEffect(() => {
-    setIsClient(true);
+  // useEffect(() => {
+  //   setIsClient(true);
 
-    if (isClient) {
-      const token = localStorage.getItem("accessToken");
+  //   if (isClient) {
+  //     const token = localStorage.getItem("accessToken");
 
-      if (token) {
-        router.push("/admin/dashboard");
-      } else {
-        router.push("/admin/auth/login");
-      }
-    }
-  }, [isClient, router]);
+  //     if (token) {
+  //       router.push("/admin/dashboard");
+  //     } else {
+  //       router.push("/admin/auth/login");
+  //     }
+  //   }
+  // }, [isClient, router]);
 
-  return null;
+  if (isLoading) {
+    return <p>Loading...</p>;
+  }
+
+  // return null;
+  return <Page />;
 }

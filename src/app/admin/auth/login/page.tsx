@@ -2,64 +2,70 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import { supabase } from "@/libs/supabase";
-import axios from "axios";
+import { useRouter } from "next/navigation";
+import useAuth from "@/hooks/useAuth";
+import useAxiosPrivate from "@/hooks/usePrivateAxios";
+import axios from "@/config/axios";
+import toast from "react-hot-toast";
 
 function Login() {
+  const axiosPrivate = useAxiosPrivate();
+  const { setAuth, auth } = useAuth();
+  const router = useRouter();
 
+  const loginWithGoogle = async () => {
+    try {
+      const { error, data } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
+        },
+      });
 
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
+      console.error("Error logging in with Google:", error);
+    }
+  };
 
-   const loginWithGoogle = async () => {
-     try {
-       const { error, data } = await supabase.auth.signInWithOAuth({
-         provider: "google",
-         options: {
-           queryParams: {
-             access_type: "offline",
-             prompt: "consent",
-           },
-         },
-       });
-
-       if (error) {
-         throw error;
-       }
-     } catch (error) {
-       console.error("Error logging in with Google:", error);
-     }
-   };
-
-   useEffect(() => {
+  useEffect(() => {
     const urlParams = new URLSearchParams(window.location.hash.substring(1));
     const accessToken = urlParams.get("access_token");
+    let isMounted = true;
+    const controller = new AbortController();
 
     if (accessToken) {
-      localStorage.setItem("accessToken", accessToken);
-
+      console.log("urlparams", accessToken);
+      // localStorage.setItem("accessToken", accessToken);
       const fetchUser = async (): Promise<void> => {
         try {
-          const response = await axios.get(
-            "https://nawqzhetlcutvfqhyjsv.supabase.co/auth/v1/user",
-            {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            }
-          );
+          const response = await axios.get("/user", {
+            signal: controller.signal,
+          });
 
-          localStorage.setItem("userData", JSON.stringify(response.data));
+          isMounted && setAuth(response.data);
+          console.log("mouned User", response.data);
+          router.push("/admin/dashboard");
         } catch (error: any) {
           if (error.response && error.response.status === 401) {
-            const refreshToken = localStorage.getItem("refreshToken");
+            const refreshToken = auth?.access_token;
             if (refreshToken) {
               const response = await axios.post(
-                "https://nawqzhetlcutvfqhyjsv.supabase.co/auth/v1/token?grant_type=refresh_token&refresh_token=" +
-                  refreshToken
+                "/token?grant_type=refresh_token&refresh_token=" + refreshToken
               );
               const newAccessToken = response.data.access_token;
 
-              localStorage.setItem("accessToken", newAccessToken);
+              setAuth({
+                user: response.data.user,
+                access_token: newAccessToken,
+              });
 
               return fetchUser();
             } else {
@@ -67,6 +73,8 @@ function Login() {
             }
           } else {
             console.error("Error fetching user data:", error);
+            toast.error(error, { duration: 2000 });
+            router.push("/admin/auth/login");
           }
         }
       };
@@ -88,7 +96,7 @@ function Login() {
           />
         </Link>
 
-        <div className="w-[800px] text-black" >
+        <div className="w-[800px] text-black">
           <h1 className="text-center text-[12px] py-4 font-bold">
             Welcome Back, Sir
           </h1>

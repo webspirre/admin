@@ -48,14 +48,28 @@ export default function Home() {
       fetchUser();
     }
   }, []);
-  return (
+
+  const Content = auth ? (
     <>
+      {" "}
       <AuthProvider>
         <Admin />
       </AuthProvider>
+    </>
+  ) : (
+    <>
+      {" "}
       <div className="w-full h-auto justify-center items-center bg-slate-800 text-white">
         <p>Webspirre Admin Studio Loading</p>
       </div>
+    </>
+  );
+  return (
+    <>
+      {" "}
+      <AuthProvider>
+        <Admin />
+      </AuthProvider>
     </>
   );
 }

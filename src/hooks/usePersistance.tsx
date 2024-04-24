@@ -14,37 +14,43 @@ const usePersistToken = () => {
 
   useEffect(() => {
     let isMounted = true;
+
     const verifyRefreshToken = async () => {
       try {
         await refresh();
-      } catch (error) {
-        console.error(error);
+      } catch (err) {
+        console.error(err);
       } finally {
         isMounted && setIsLoading(false);
       }
     };
 
-    if (!auth || !auth.access_token ) {
+    // Check if access token is not available and persist is enabled
+    if (!auth?.access_token && persist) {
       verifyRefreshToken();
     } else {
       setIsLoading(false);
     }
+
+    return () => {
+      isMounted = false;
+    };
   }, [auth, persist, refresh]);
 
   useEffect(() => {
     console.log(`isLoading: ${isLoading}`);
-    console.log(`accessToken: ${auth?.access_token}`);
-  }, [isLoading, auth?.access_token]); // Added null check for auth access_token
+    console.log(`aT: ${JSON.stringify(auth?.access_token)}`);
+  }, [isLoading, auth]);
 
-  useEffect(() => {
-    // Redirect to login if token is not present
-    if (!auth || !auth.access_token|| !isLoading) {
-      // Added null check for auth
-      router.push("/admin/auth/login");
-    }
-  }, [auth, persist, isLoading, router]);
+  // useEffect(() => {
+  //   // Redirect to login if token is not present
+  //   if (!auth || !auth.access_token || !isLoading) {
+  //     // Added null check for auth
+  //     router.push("/admin/auth/login");
+  //   }
+  // }, [auth]);
 
-  return { isLoading };
+  return { isLoading, persist };
 };
 
 export default usePersistToken;

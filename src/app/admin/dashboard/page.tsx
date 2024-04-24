@@ -13,9 +13,11 @@ import useSendUserToDB from "@/hooks/useSendUserToDB";
 import { UserMetadata } from "@/types/types";
 import useLogout from "@/hooks/useLogout";
 import useRefreshToken from "@/hooks/useRefreshToken";
+import { Session } from "@supabase/supabase-js";
 
 function Page() {
   const [userData, setUserData] = useState<UserMetadata | null | string>(null);
+  const [authData, setAuthData] = useState<Session | null | string>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const handleLoading = () => setIsLoading((prev) => !prev);
@@ -64,10 +66,10 @@ function Page() {
       const fetchUser = async (): Promise<void> => {
         try {
           const response = await axiosPrivate.get("/user", {
-            signal: controller.signal,
+            // signal: controller.signal,
           });
           console.log("Dashboard", response.data);
-          isMounted && setAuth(response.data);
+          setAuth(response.data);
         } catch (error: any) {
           if (error.response && error.response.status === 401) {
             await refresh().then((_) => {
@@ -84,10 +86,10 @@ function Page() {
 
       fetchUser();
     }
-    return () => {
-      isMounted = false;
-      controller.abort();
-    };
+    // return () => {
+    //   isMounted = false;
+    //   controller.abort();
+    // };
   }, []);
 
   useEffect(() => {
@@ -116,6 +118,9 @@ function Page() {
     };
 
     fetchData();
+    setAuthData(auth);
+    console.log("________", auth);
+    console.log("________", authData);
 
     // Note: Since fetchData doesn't return a cleanup function, the cleanup logic is omitted
   }, [auth]);
@@ -124,6 +129,7 @@ function Page() {
     JSON.stringify(userData, null, 2)
   );
   console.log("dashboard values", returnValues);
+  console.log("dashboard Auth", auth);
 
   return (
     <div>
@@ -163,41 +169,47 @@ function Page() {
                   >
                     LogOut
                   </p>
+                  {/* {JSON.stringify(auth)} */}
                   <div className="text-black">
-                    {returnValues ? (
+                    {auth ? (
                       <>
-                        {JSON.stringify(userData)}
+                        {/* {JSON.stringify(userData)} */}
                         <div>
                           <div className="p-2 flex flex-row gap-2 rounded-full ">
                             <Image
                               height={20}
                               width={40}
-                              src={returnValues?.picture}
+                              src={auth?.user?.user_metadata?.picture}
                               alt="rice"
                               className="z-10 rounded-full"
                             />
                             <div className="text-[12px] pr-[50px]">
-                              <p>{returnValues?.email as string}</p>
-                              <p>{returnValues?.full_name} </p>
+                              <p>
+                                {auth?.user?.user_metadata?.email as string}
+                              </p>
+                              <p>{auth?.user?.user_metadata?.full_name} </p>
                             </div>
                           </div>
                         </div>
                       </>
                     ) : (
-                      <button
-                        className="text-black font-bold hover:text-slate-500 transition duration-150 "
-                        onClick={loginWithGoogle}
-                      >
-                        <div className="bg-white flex items-center p-4 border rounded-full">
-                          <img
-                            src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1713534276/utilities/Google_Icons-09-512_howar9.webp"
-                            alt=""
-                            width="34px"
-                            height="34px"
-                          />{" "}
-                          Sign In with Google
-                        </div>
-                      </button>
+                      <>
+                        {userData}
+                        <button
+                          className="text-black font-bold hover:text-slate-500 transition duration-150 "
+                          onClick={loginWithGoogle}
+                        >
+                          <div className="bg-white flex items-center p-4 border rounded-full">
+                            <img
+                              src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1713534276/utilities/Google_Icons-09-512_howar9.webp"
+                              alt=""
+                              width="34px"
+                              height="34px"
+                            />{" "}
+                            Sign In with Google
+                          </div>
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>

@@ -6,11 +6,15 @@ import React, { useEffect } from "react";
 import useAuth from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { AuthProvider } from "@/context/AuthProvider";
+import useRefreshToken from "@/hooks/useRefreshToken";
 
 export default function Home() {
   const axiosPrivate = useAxiosPrivate();
   const { setAuth, auth } = useAuth();
   const router = useRouter();
+  const refresh = useRefreshToken();
+
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.hash.substring(1));
     const accessToken = urlParams.get("access_token");
@@ -29,26 +33,14 @@ export default function Home() {
           router.push("/admin/dashboard");
         } catch (error: any) {
           if (error.response && error.response.status === 401) {
-            const refreshToken = auth?.access_token;
-            if (refreshToken) {
-              const response = await axiosPrivate.post(
-                "/token?grant_type=refresh_token&refresh_token=" + refreshToken
-              );
-              const newAccessToken = response.data.access_token;
-
-              setAuth({
-                user: response.data.user,
-                access_token: newAccessToken,
-              });
-
-              return fetchUser();
-            } else {
-              console.error("Refresh token not found.");
-            }
+            await refresh().then((_) => {
+              console.log("refresh feedback", _);
+              // setUserData(JSON.stringify(_?.user_metadata));
+            });
           } else {
             console.error("Error fetching user data:", error);
-            toast.error(error, { duration: 2000 });
             // router.push("/admin/auth/login");
+            router.push("/admin/dashboard");
           }
         }
       };
@@ -58,7 +50,12 @@ export default function Home() {
   }, []);
   return (
     <>
-      <Admin />
+      <AuthProvider>
+        <Admin />
+      </AuthProvider>
+      <div className="w-full h-auto justify-center items-center bg-slate-800 text-white">
+        <p>Webspirre Admin Studio Loading</p>
+      </div>
     </>
   );
 }

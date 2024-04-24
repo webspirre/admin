@@ -13,7 +13,7 @@ const useLogout = () => {
     try {
       await supabase.auth.signOut();
       setAuth(null); // Clear the authentication state
-      router.push("/login"); // Redirect to login page after logout
+      router.push("/admin/auth/login"); // Redirect to login page after logout
     } catch (error) {
       console.error("Error during logout:", error);
     }
@@ -22,8 +22,9 @@ const useLogout = () => {
   useEffect(() => {
     // Redirect to login if token is not present
     if (!auth || !auth.access_token) {
-      localStorage.removeItem("sb-nawqzhetlcutvfqhyjsv-auth-token");
       localStorage.removeItem("user_data");
+      localStorage.removeItem("sb-nawqzhetlcutvfqhyjsv-auth-token");
+      localStorage.removeItem("persist");
       router.push("/admin/dashboard");
     }
   }, [auth, router]);

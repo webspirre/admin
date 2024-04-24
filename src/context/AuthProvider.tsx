@@ -1,5 +1,5 @@
 import { User, UserMetadata } from "@/types/types";
-import { User as SupabaseUser } from "@supabase/supabase-js";
+import { Session, User as SupabaseUser } from "@supabase/supabase-js";
 import React, {
   createContext,
   useState,
@@ -10,8 +10,8 @@ import React, {
 } from "react";
 
 export interface AuthContextType {
-  auth: User | null;
-  setAuth: Dispatch<SetStateAction<User | null>>;
+  auth: Session | null;
+  setAuth: Dispatch<SetStateAction<Session | null>>;
   setAuthUser: Dispatch<SetStateAction<UserMetadata | null>>;
   authUser: UserMetadata | null;
 }
@@ -28,7 +28,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [auth, setAuth] = useState<User | null>(null);
+  const [auth, setAuth] = useState<Session | null>(null);
   const [authUser, setAuthUser] = useState<UserMetadata | null>(null);
 
   useEffect(() => {
@@ -64,6 +64,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       )
     );
   }, []);
+
   return (
     <AuthContext.Provider value={{ auth, setAuth, authUser, setAuthUser }}>
       {children}

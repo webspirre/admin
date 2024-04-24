@@ -9,11 +9,13 @@ import useAuth from "@/hooks/useAuth";
 import useAxiosPrivate from "@/hooks/usePrivateAxios";
 import axios from "@/config/axios";
 import toast from "react-hot-toast";
+import useRefreshToken from "@/hooks/useRefreshToken";
 
 function Login() {
   const axiosPrivate = useAxiosPrivate();
   const { setAuth, auth } = useAuth();
   const router = useRouter();
+  const refresh = useRefreshToken();
 
   const loginWithGoogle = async () => {
     try {
@@ -52,30 +54,16 @@ function Login() {
           isMounted && setAuth(response.data);
           console.log("mouned User", response.data);
           router.push("/admin/dashboard");
-          // router.push("/admin/auth/login");
         } catch (error: any) {
           if (error.response && error.response.status === 401) {
-            const refreshToken = auth?.access_token;
-            if (refreshToken) {
-              const response = await axiosPrivate.post(
-                "/token?grant_type=refresh_token&refresh_token=" + refreshToken
-              );
-              const newAccessToken = response.data.access_token;
-
-              setAuth({
-                user: response.data.user,
-                access_token: newAccessToken,
-              });
-
-              return fetchUser();
-            } else {
-              console.error("Refresh token not found.");
-            }
+            await refresh().then((_) => {
+              console.log("refresh feedback", _);
+              // setUserData(JSON.stringify(_?.user_metadata));
+            });
           } else {
             console.error("Error fetching user data:", error);
-            toast.error(error, { duration: 2000 });
-            router.push("/admin/auth/login");
-            // router.push("/admin/dashboard");
+            // router.push("/admin/auth/login");
+            router.push("/admin/dashboard");
           }
         }
       };

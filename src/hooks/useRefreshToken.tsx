@@ -3,6 +3,7 @@ import { supabase } from "@/libs/supabase";
 import { useEffect } from "react";
 import useAuth, { AuthState } from "./useAuth";
 import { User, UserMetadata } from "@/types/types";
+import { Session } from "@supabase/supabase-js";
 
 type RefreshTokenFunction = () => Promise<{
   access_token: string | null;
@@ -28,22 +29,35 @@ const useRefreshToken = () => {
         "user_data",
         JSON.stringify(refreshedSession?.user?.user_metadata)
       );
-      setAuth((prev) => {
+            // @ts-ignore
+      setAuthUser((prev) => {
         console.log(JSON.stringify(prev));
         console.log(refreshedSession);
         return {
           ...prev,
+          ...refreshedSession?.user?.user_metadata,
+        };
+      });
+      // @ts-ignore
+      setAuth((prev: Session | null) => {
+        console.log(JSON.stringify(prev));
+        return {
+          ...prev,
+          // access_token: refreshedSession?.access_token,
           ...refreshedSession,
         };
       });
 
-      setAuthUser(
-        // @ts-ignore
-        typeof window !== "undefined" ? localStorage.getItem("user_data") : null
+      // setAuthUser(
+      //   // @ts-ignore
+      //   typeof window !== "undefined" ? localStorage.getItem("user_data") : null
+      // );
+      console.log(
+        "Refreshed token session",
+        refreshedSession?.user.user_metadata
       );
-      console.log(" user session", userData);
-      console.log("Refreshed token session", refreshedSession);
-      console.log("Refreshed token session", auth);
+      console.log("Refreshed token auhuser", authUser);
+      console.log("Refreshed token aufh", auth);
       return {
         access_token: refreshedSession?.access_token || null,
         user_metadata: refreshedSession?.user?.user_metadata || null,

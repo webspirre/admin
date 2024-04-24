@@ -6,7 +6,7 @@ import usePersistToken from "@/hooks/usePersistance";
 import Page from "./dashboard/page";
 
 export default function Admin() {
-  const { isLoading } = usePersistToken();
+  const { isLoading, persist } = usePersistToken();
   // const [isClient, setIsClient] = useState(false);
   // const router = useRouter();
 
@@ -24,10 +24,20 @@ export default function Admin() {
   //   }
   // }, [isClient, router]);
 
-  if (!isLoading) {
-    return <p>Loading...</p>;
-  }
-
-  // return null;
-  return <Page />;
+  return (
+    <>
+      {!persist ? (
+        // Render the component if persist is not enabled
+        // You can replace this with your Next.js routing logic
+        <Page />
+      ) : isLoading ? (
+        // Render loading state if persist is enabled and still loading
+        <p>Loading...</p>
+      ) : (
+        // Render the component if persist is enabled and not loading
+        // You can replace this with your Next.js routing logic
+        <Page />
+      )}
+    </>
+  );
 }

@@ -251,20 +251,20 @@ const Form: FC<{ handleLoading: () => void; loading: boolean }> = ({
         </p>
       </div>
       <form
-        // onSubmit={addWebsiteHandler}
-        onSubmit={handleSubmit}
+        onSubmit={addWebsiteHandler}
+        // onSubmit={handleSubmit}
       >
         <div className="grid grid-cols-2 gap-20 w-full text-slate-700">
           <div className=" ">
             <div className="w-full py-8">
               <label htmlFor="name">Name of website</label>
               <input
-                // type="text"
-                // name="name"
-                // required
-                // placeholder="Name"
-                // onChange={handleChange}
-                {...inputAttributes.name}
+                type="text"
+                name="name"
+                required
+                placeholder="Name"
+                onChange={handleChange}
+                // {...inputAttributes.name}
                 className="border-2 rounded-lg p-4 w-full"
               />
             </div>
@@ -272,12 +272,12 @@ const Form: FC<{ handleLoading: () => void; loading: boolean }> = ({
               <label htmlFor="webURL">URL of website</label>
 
               <input
-                {...inputAttributes.webURL}
-                // type="text"
-                // name="webURL"
-                // required
-                // placeholder="Website URL"
-                // onChange={handleChange}
+                // {...inputAttributes.webURL}
+                type="text"
+                name="webURL"
+                required
+                placeholder="Website URL"
+                onChange={handleChange}
                 className="border-2 rounded-lg p-4 w-full"
               />
             </div>
@@ -357,10 +357,10 @@ const Form: FC<{ handleLoading: () => void; loading: boolean }> = ({
               <label htmlFor="shortDescription">Short Discription</label>
 
               <textarea
-                // name="shortDescription"
-                // placeholder="Short Description"
-                // onChange={handleChange}
-                {...inputAttributes.shortDescription}
+                name="shortDescription"
+                placeholder="Short Description"
+                onChange={handleChange}
+                // {...inputAttributes.shortDescription}
                 className="border-2 rounded-lg p-4 w-full"
               />
             </div>
@@ -368,10 +368,10 @@ const Form: FC<{ handleLoading: () => void; loading: boolean }> = ({
               <label htmlFor="longDescription">Long description</label>
 
               <textarea
-                // name="longDescription"
-                // placeholder="Long Description"
-                // onChange={handleChange}
-                {...inputAttributes.longDescription}
+                name="longDescription"
+                placeholder="Long Description"
+                onChange={handleChange}
+                // {...inputAttributes.longDescription}
                 className="border-2 rounded-lg p-4 w-full"
               />
             </div>
@@ -417,12 +417,12 @@ const Form: FC<{ handleLoading: () => void; loading: boolean }> = ({
             <div className="w-full py-8">
               <label htmlFor="date">Date updated</label>
               <input
-                // type="text"
-                // name="date"
-                // placeholder="Date updated"
-                // value={formData.date as string}
-                // onChange={handleChange}
-                {...inputAttributes.date}
+                type="text"
+                name="date"
+                placeholder="Date updated"
+                value={formData.date as string}
+                onChange={handleChange}
+                // {...inputAttributes.date}
                 className="border-2 rounded-lg p-4 w-full"
               />
             </div>

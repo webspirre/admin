@@ -24,7 +24,7 @@ export default function Admin() {
   //   }
   // }, [isClient, router]);
 
-  if (isLoading) {
+  if (!isLoading) {
     return <p>Loading...</p>;
   }
 

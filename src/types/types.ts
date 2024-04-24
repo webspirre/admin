@@ -131,4 +131,4 @@ export interface TwitterCardData {
   site: string; // Twitter username of the site
 }
 
-export type { User, FormData, CloudinaryAsset };
+export type { User, FormData, CloudinaryAsset, UserMetadata };

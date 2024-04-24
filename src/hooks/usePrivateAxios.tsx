@@ -27,7 +27,9 @@ const useAxiosPrivate = (): typeof axios => {
           prevRequest.sent = true;
           try {
             const newAccessToken = await refresh();
-            prevRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+            prevRequest.headers[
+              "Authorization"
+            ] = `Bearer ${newAccessToken?.access_token}`;
             return axiosPrivate(prevRequest);
           } catch (refreshError) {
             // Handle token refresh error

@@ -10,9 +10,12 @@ import useAxiosPrivate from "@/hooks/usePrivateAxios";
 import Loader from "@/components/Loader";
 import useAuth from "@/hooks/useAuth";
 import useSendUserToDB from "@/hooks/useSendUserToDB";
+import { UserMetadata } from "@/types/types";
+import useLogout from "@/hooks/useLogout";
+import useRefreshToken from "@/hooks/useRefreshToken";
 
 function Page() {
-  //   const [userData, setUserData] = useState<User | null | string>(null);
+  const [userData, setUserData] = useState<UserMetadata | null | string>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const handleLoading = () => setIsLoading((prev) => !prev);
@@ -20,6 +23,8 @@ function Page() {
   const axiosPrivate = useAxiosPrivate();
   const { setAuth, auth } = useAuth();
   const sendUserToDb = useSendUserToDB();
+  const refresh = useRefreshToken();
+  const logOut = useLogout();
 
   const loginWithGoogle = async () => {
     try {
@@ -41,6 +46,14 @@ function Page() {
     }
   };
 
+  const handleLogOut = async () => {
+    try {
+      await logOut();
+    } catch (error) {
+      console.error("error signing out", error);
+    }
+  };
+
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.hash.substring(1));
     const accessToken = urlParams.get("access_token");
@@ -48,36 +61,23 @@ function Page() {
     const controller = new AbortController();
 
     if (accessToken) {
-      //   localStorage.setItem("accessToken", accessToken);
-
       const fetchUser = async (): Promise<void> => {
         try {
           const response = await axiosPrivate.get("/user", {
             signal: controller.signal,
           });
-
+          console.log("Dashboard", response.data);
           isMounted && setAuth(response.data);
         } catch (error: any) {
           if (error.response && error.response.status === 401) {
-            const refreshToken = auth?.access_token;
-            if (refreshToken) {
-              const response = await axiosPrivate.post(
-                "/token?grant_type=refresh_token&refresh_token=" + refreshToken
-              );
-              const newAccessToken = response.data.access_token;
-
-              setAuth({
-                user: response.data.user,
-                access_token: newAccessToken,
-              });
-
-              return fetchUser();
-            } else {
-              console.error("Refresh token not found.");
-            }
+            await refresh().then((_) => {
+              console.log("refresh feedback", _);
+              // setUserData(JSON.stringify(_?.user_metadata));
+            });
           } else {
             console.error("Error fetching user data:", error);
-            router.push("/admin/auth/login");
+            // router.push("/admin/auth/login");
+            router.push("/admin/dashboard");
           }
         }
       };
@@ -88,6 +88,24 @@ function Page() {
       isMounted = false;
       controller.abort();
     };
+  }, []);
+
+  useEffect(() => {
+    const storedUserDataString =
+      typeof window !== "undefined" ? localStorage.getItem("user_data") : null;
+
+    if (storedUserDataString) {
+      const parsedUserData = JSON.parse(storedUserDataString);
+      setUserData(parsedUserData);
+    }
+
+    console.log("storedUserDataString", storedUserDataString);
+
+    setUserData(
+      JSON.parse(
+        JSON.stringify(JSON.parse(storedUserDataString as string), null, 2)
+      )
+    );
   }, []);
 
   useEffect(() => {
@@ -102,7 +120,10 @@ function Page() {
     // Note: Since fetchData doesn't return a cleanup function, the cleanup logic is omitted
   }, [auth]);
 
-  //   const returnValues: User = JSON.parse(JSON.stringify(userData, null, 2));
+  const returnValues: UserMetadata = JSON.parse(
+    JSON.stringify(userData, null, 2)
+  );
+  console.log("dashboard values", returnValues);
 
   return (
     <div>
@@ -135,23 +156,29 @@ function Page() {
             <p className="text-[32px] font-bold">Upload</p>
             <div className="flex">
               <div className="flex justify-end">
-                <div className="flex space-x-5">
-                  <p className="text-[32px] font-bold cursor-pointer">LogOut</p>
+                <div className="flex space-x-5 items-center">
+                  <p
+                    className="text-[32px] font-bold cursor-pointer"
+                    onClick={handleLogOut}
+                  >
+                    LogOut
+                  </p>
                   <div className="text-black">
-                    {auth ? (
+                    {returnValues ? (
                       <>
+                        {JSON.stringify(userData)}
                         <div>
                           <div className="p-2 flex flex-row gap-2 rounded-full ">
                             <Image
                               height={20}
                               width={40}
-                              src={auth?.user?.user_metadata?.picture}
+                              src={returnValues?.picture}
                               alt="rice"
                               className="z-10 rounded-full"
                             />
                             <div className="text-[12px] pr-[50px]">
-                              <p>{auth?.user?.email as string}</p>
-                              <p>{auth?.user?.user_metadata?.full_name} </p>
+                              <p>{returnValues?.email as string}</p>
+                              <p>{returnValues?.full_name} </p>
                             </div>
                           </div>
                         </div>

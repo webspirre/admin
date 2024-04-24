@@ -43,21 +43,21 @@ function Login() {
 
     if (accessToken) {
       console.log("urlparams", accessToken);
-      // localStorage.setItem("accessToken", accessToken);
       const fetchUser = async (): Promise<void> => {
         try {
-          const response = await axios.get("/user", {
+          const response = await axiosPrivate.get("/user", {
             signal: controller.signal,
           });
 
           isMounted && setAuth(response.data);
           console.log("mouned User", response.data);
           router.push("/admin/dashboard");
+          // router.push("/admin/auth/login");
         } catch (error: any) {
           if (error.response && error.response.status === 401) {
             const refreshToken = auth?.access_token;
             if (refreshToken) {
-              const response = await axios.post(
+              const response = await axiosPrivate.post(
                 "/token?grant_type=refresh_token&refresh_token=" + refreshToken
               );
               const newAccessToken = response.data.access_token;
@@ -75,6 +75,7 @@ function Login() {
             console.error("Error fetching user data:", error);
             toast.error(error, { duration: 2000 });
             router.push("/admin/auth/login");
+            // router.push("/admin/dashboard");
           }
         }
       };

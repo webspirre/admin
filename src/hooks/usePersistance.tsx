@@ -10,7 +10,7 @@ const usePersistToken = () => {
   const router = useRouter();
   const refresh = useRefreshToken();
   const { auth } = useAuth();
-  const [persist] = useLocalStorage("persist", false);
+  const [persist] = useLocalStorage("persist", true);
 
   useEffect(() => {
     let isMounted = true;
@@ -20,18 +20,16 @@ const usePersistToken = () => {
       } catch (error) {
         console.error(error);
       } finally {
-        setIsLoading(false);
+        isMounted && setIsLoading(false);
       }
     };
 
-    if (!auth || (!auth.access_token && persist)) {
-      // Added null check for auth
+    if (!auth || !auth.access_token ) {
       verifyRefreshToken();
     } else {
       setIsLoading(false);
     }
-    // return () => isMounted = false;
-  }, [auth, persist, refresh]); // Added dependencies to useEffect
+  }, [auth, persist, refresh]);
 
   useEffect(() => {
     console.log(`isLoading: ${isLoading}`);
@@ -40,11 +38,11 @@ const usePersistToken = () => {
 
   useEffect(() => {
     // Redirect to login if token is not present
-    if (!auth || (!auth.access_token && persist && !isLoading)) {
+    if (!auth || !auth.access_token|| !isLoading) {
       // Added null check for auth
       router.push("/admin/auth/login");
     }
-  }, [auth, persist, isLoading, router]); // Added dependencies to useEffect
+  }, [auth, persist, isLoading, router]);
 
   return { isLoading };
 };

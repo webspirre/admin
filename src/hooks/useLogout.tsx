@@ -22,7 +22,9 @@ const useLogout = () => {
   useEffect(() => {
     // Redirect to login if token is not present
     if (!auth || !auth.access_token) {
-      router.push("/login");
+      localStorage.removeItem("sb-nawqzhetlcutvfqhyjsv-auth-token");
+      localStorage.removeItem("user_data");
+      router.push("/admin/dashboard");
     }
   }, [auth, router]);
 

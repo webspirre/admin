@@ -120,15 +120,11 @@ function Page() {
     fetchData();
     setAuthData(auth);
     console.log("________", auth);
-    console.log("________", authData);
-
-    // Note: Since fetchData doesn't return a cleanup function, the cleanup logic is omitted
   }, [auth]);
 
   const returnValues: UserMetadata = JSON.parse(
     JSON.stringify(userData, null, 2)
   );
-  console.log("dashboard values", returnValues);
   console.log("dashboard Auth", auth);
 
   return (

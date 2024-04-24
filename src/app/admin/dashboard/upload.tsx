@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import Select, { ActionMeta, MultiValue } from "react-select";
 
 import { CloudinaryAsset } from "@/types/types";
+import useFormInput from "@/hooks/useFormInput";
 
 const categories_: Option[] = [
   { value: "ai", label: "AI" },
@@ -52,8 +53,12 @@ const initialFormData: Map = {
   desktopFpURL: "",
   mobileFpURL: "",
   date: new Date().toLocaleString("en-US", {
-    month: "long",
     year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
   }),
 };
 
@@ -64,6 +69,11 @@ const Form: FC<{ handleLoading: () => void; loading: boolean }> = ({
 
   const [selectedCategories, setSelectedCategories] = useState<Option[]>([]);
   const [selectedOption, setSelectedOption] = useState<Option>();
+
+  const [formDataMore, resetForm, inputAttributes] = useFormInput(
+    "form_data",
+    initialFormData
+  );
 
   // Function to handle page type change
   const handleChangePageType = (selectedOption: Option | null) => {
@@ -161,7 +171,6 @@ const Form: FC<{ handleLoading: () => void; loading: boolean }> = ({
       console.error("Error:", error);
     }
   };
-  const handleCloudinaryFileChange = async (file: File, type: string) => {};
 
   /**
    * handleOnSubmit
@@ -227,7 +236,13 @@ const Form: FC<{ handleLoading: () => void; loading: boolean }> = ({
       console.error("Error:", error);
     }
   };
-
+  // Example function to handle form submission
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    // Handle form submission logic here using formData state
+    console.log("Form Data:", formDataMore);
+    resetForm();
+  };
   return (
     <div className="p-4 rounded-[20px] w-full m-4 bg-white">
       <div className="border-b">
@@ -235,17 +250,21 @@ const Form: FC<{ handleLoading: () => void; loading: boolean }> = ({
           Upload details
         </p>
       </div>
-      <form onSubmit={addWebsiteHandler}>
+      <form
+        // onSubmit={addWebsiteHandler}
+        onSubmit={handleSubmit}
+      >
         <div className="grid grid-cols-2 gap-20 w-full text-slate-700">
           <div className=" ">
             <div className="w-full py-8">
               <label htmlFor="name">Name of website</label>
               <input
-                type="text"
-                name="name"
-                required
-                placeholder="Name"
-                onChange={handleChange}
+                // type="text"
+                // name="name"
+                // required
+                // placeholder="Name"
+                // onChange={handleChange}
+                {...inputAttributes.name}
                 className="border-2 rounded-lg p-4 w-full"
               />
             </div>
@@ -253,11 +272,12 @@ const Form: FC<{ handleLoading: () => void; loading: boolean }> = ({
               <label htmlFor="webURL">URL of website</label>
 
               <input
-                type="text"
-                name="webURL"
-                required
-                placeholder="Website URL"
-                onChange={handleChange}
+                {...inputAttributes.webURL}
+                // type="text"
+                // name="webURL"
+                // required
+                // placeholder="Website URL"
+                // onChange={handleChange}
                 className="border-2 rounded-lg p-4 w-full"
               />
             </div>
@@ -337,9 +357,10 @@ const Form: FC<{ handleLoading: () => void; loading: boolean }> = ({
               <label htmlFor="shortDescription">Short Discription</label>
 
               <textarea
-                name="shortDescription"
-                placeholder="Short Description"
-                onChange={handleChange}
+                // name="shortDescription"
+                // placeholder="Short Description"
+                // onChange={handleChange}
+                {...inputAttributes.shortDescription}
                 className="border-2 rounded-lg p-4 w-full"
               />
             </div>
@@ -347,9 +368,10 @@ const Form: FC<{ handleLoading: () => void; loading: boolean }> = ({
               <label htmlFor="longDescription">Long description</label>
 
               <textarea
-                name="longDescription"
-                placeholder="Long Description"
-                onChange={handleChange}
+                // name="longDescription"
+                // placeholder="Long Description"
+                // onChange={handleChange}
+                {...inputAttributes.longDescription}
                 className="border-2 rounded-lg p-4 w-full"
               />
             </div>
@@ -361,18 +383,12 @@ const Form: FC<{ handleLoading: () => void; loading: boolean }> = ({
                 onFileChange={(file) =>
                   handleFileChange(file, "logo", "logoImageURL")
                 }
-                onCloudinaryFileChange={(file) =>
-                  handleCloudinaryFileChange(file, "logo")
-                }
                 filename={"logoImageURL"}
               />
               <FileUpload
                 label="Desktop screenshot"
                 onFileChange={(file) =>
                   handleFileChange(file, "desktopSs", "desktopSsURL")
-                }
-                onCloudinaryFileChange={(file) =>
-                  handleCloudinaryFileChange(file, "desktopSs")
                 }
                 filename={"desktopSsURL"}
               />
@@ -381,18 +397,12 @@ const Form: FC<{ handleLoading: () => void; loading: boolean }> = ({
                 onFileChange={(file) =>
                   handleFileChange(file, "mobileSs", "mobileSsURL")
                 }
-                onCloudinaryFileChange={(file) =>
-                  handleCloudinaryFileChange(file, "mobileSs")
-                }
                 filename={"mobileSsURL"}
               />
               <FileUpload
                 label="Desktop full page"
                 onFileChange={(file) =>
                   handleFileChange(file, "desktopFp", "desktopFpURL")
-                }
-                onCloudinaryFileChange={(file) =>
-                  handleCloudinaryFileChange(file, "desktopFp")
                 }
                 filename={"desktopFpURL"}
               />
@@ -401,20 +411,18 @@ const Form: FC<{ handleLoading: () => void; loading: boolean }> = ({
                 onFileChange={(file) =>
                   handleFileChange(file, "mobileFp", "mobileFpURL")
                 }
-                onCloudinaryFileChange={(file) =>
-                  handleCloudinaryFileChange(file, "mobileFp")
-                }
                 filename={"mobileFpURL"}
               />
             </div>
             <div className="w-full py-8">
               <label htmlFor="date">Date updated</label>
               <input
-                type="text"
-                name="date"
-                placeholder="Date updated"
-                value={formData.date as string}
-                onChange={handleChange}
+                // type="text"
+                // name="date"
+                // placeholder="Date updated"
+                // value={formData.date as string}
+                // onChange={handleChange}
+                {...inputAttributes.date}
                 className="border-2 rounded-lg p-4 w-full"
               />
             </div>

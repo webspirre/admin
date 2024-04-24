@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import useAuth, { AuthState } from "./useAuth";
 import { User, UserMetadata } from "@/types/types";
 import { Session } from "@supabase/supabase-js";
+import toast from "react-hot-toast";
 
 type RefreshTokenFunction = () => Promise<{
   access_token: string | null;
@@ -32,7 +33,6 @@ const useRefreshToken = () => {
             // @ts-ignore
       setAuthUser((prev) => {
         console.log(JSON.stringify(prev));
-        console.log(refreshedSession);
         return {
           ...prev,
           ...refreshedSession?.user?.user_metadata,
@@ -56,7 +56,6 @@ const useRefreshToken = () => {
         "Refreshed token session",
         refreshedSession?.user.user_metadata
       );
-      console.log("Refreshed token auhuser", authUser);
       console.log("Refreshed token aufh", auth);
       return {
         access_token: refreshedSession?.access_token || null,
@@ -64,6 +63,7 @@ const useRefreshToken = () => {
       };
     } else {
       console.error("No refresh token found in session");
+      toast.error("No refresh token found in session")
       return null;
     }
   };

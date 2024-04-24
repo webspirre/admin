@@ -44,7 +44,6 @@ function Login() {
     const controller = new AbortController();
 
     if (accessToken) {
-      console.log("urlparams", accessToken);
       const fetchUser = async (): Promise<void> => {
         try {
           const response = await axiosPrivate.get("/user", {
@@ -52,7 +51,6 @@ function Login() {
           });
 
           isMounted && setAuth(response.data);
-          console.log("mouned User", response.data);
           router.push("/admin/dashboard");
         } catch (error: any) {
           if (error.response && error.response.status === 401) {
@@ -62,6 +60,7 @@ function Login() {
             });
           } else {
             console.error("Error fetching user data:", error);
+            toast.error(error);
             // router.push("/admin/auth/login");
             router.push("/admin/dashboard");
           }

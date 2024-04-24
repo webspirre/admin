@@ -26,7 +26,6 @@ const useSendUserToDB = () => {
         ]);
 
       if (insertError) {
-        console.log(insertError);
         console.log("Error Message", insertError.message);
         throw insertError;
       }

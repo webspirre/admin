@@ -29,7 +29,6 @@ export default function Home() {
           });
 
           isMounted && setAuth(response.data);
-          console.log("Mounted User", response.data);
           router.push("/admin/dashboard");
         } catch (error: any) {
           if (error.response && error.response.status === 401) {

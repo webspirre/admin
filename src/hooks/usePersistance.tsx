@@ -24,7 +24,6 @@ const usePersistToken = () => {
         isMounted && setIsLoading(false);
       }
     };
-
     // Check if access token is not available and persist is enabled
     if (!auth?.access_token && persist) {
       verifyRefreshToken();
@@ -46,7 +45,7 @@ const usePersistToken = () => {
   //   // Redirect to login if token is not present
   //   if (!auth || !auth.access_token || !isLoading) {
   //     // Added null check for auth
-  //     router.push("/admin/auth/login");
+  //     router.push("/login");
   //   }
   // }, [auth]);
 

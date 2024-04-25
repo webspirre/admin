@@ -48,10 +48,6 @@ const useRefreshToken = () => {
         };
       });
 
-      // setAuthUser(
-      //   // @ts-ignore
-      //   typeof window !== "undefined" ? localStorage.getItem("user_data") : null
-      // );
       console.log(
         "Refreshed token session",
         refreshedSession?.user.user_metadata
@@ -63,7 +59,7 @@ const useRefreshToken = () => {
       };
     } else {
       console.error("No refresh token found in session");
-      toast.error("No refresh token found in session")
+      // toast.error("No refresh token found in session")
       return null;
     }
   };

@@ -33,6 +33,7 @@ const useAxiosPrivate = (): typeof axios => {
             return axiosPrivate(prevRequest);
           } catch (refreshError) {
             // Handle token refresh error
+            console.log("Token Refresh Error", refreshError);
             return Promise.reject(refreshError);
           }
         }

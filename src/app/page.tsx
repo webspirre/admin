@@ -1,7 +1,6 @@
 "use client";
 
 import useAxiosPrivate from "@/hooks/usePrivateAxios";
-import Admin from "./admin/page";
 import React, { useEffect } from "react";
 import useAuth from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
@@ -29,45 +28,39 @@ export default function Home() {
           });
 
           isMounted && setAuth(response.data);
-          router.push("/admin/dashboard");
+          router.push("/dashboard");
         } catch (error: any) {
           if (error.response && error.response.status === 401) {
             await refresh().then((_) => {
               console.log("refresh feedback", _);
-              // setUserData(JSON.stringify(_?.user_metadata));
+              router.push("/dashboard");
             });
           } else {
             console.error("Error fetching user data:", error);
-            // router.push("/admin/auth/login");
-            router.push("/admin/dashboard");
+            router.push("/login");
+            // router.push("/dashboard");
           }
         }
       };
 
       fetchUser();
+    } else {
+      router.push("/login");
     }
-  }, []);
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+  }, [auth]);
 
-  const Content = auth ? (
-    <>
-      {" "}
-      <AuthProvider>
-        <Admin />
-      </AuthProvider>
-    </>
-  ) : (
-    <>
-      {" "}
-      <div className="w-full h-auto justify-center items-center bg-slate-800 text-white">
-        <p>Webspirre Admin Studio Loading</p>
-      </div>
-    </>
-  );
   return (
     <>
-      {" "}
       <AuthProvider>
-        <Admin />
+        <section className=" w-full h-screen justify-center items-center text-center bg-slate-800 text-white">
+          <div className="w-full h-full items-center justify-center text">
+            <p>Webspirre Admin Studio Loading</p>
+          </div>
+        </section>
       </AuthProvider>
     </>
   );

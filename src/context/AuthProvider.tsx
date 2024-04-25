@@ -33,22 +33,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   useEffect(() => {
     const storedUserDataString =
-      typeof window !== "undefined" ? localStorage.getItem("user_data") : null;
-
-    if (storedUserDataString) {
-      const parsedUserData = JSON.parse(storedUserDataString);
-      setAuthUser(parsedUserData);
-    }
-
-    setAuthUser(
-      JSON.parse(
-        JSON.stringify(JSON.parse(storedUserDataString as string), null, 2)
-      )
-    );
-  }, []);
-
-  useEffect(() => {
-    const storedUserDataString =
       typeof window !== "undefined"
         ? localStorage.getItem("sb-nawqzhetlcutvfqhyjsv-auth-token")
         : null;

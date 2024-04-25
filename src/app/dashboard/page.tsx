@@ -81,7 +81,7 @@ function Page() {
           } else {
             console.error("Error fetching user data:", error);
             // router.push("/login");
-            router.push("/dashboard");
+            router.push("/");
           }
         }
       };
@@ -127,6 +127,7 @@ function Page() {
   const returnValues: UserMetadata = JSON.parse(
     JSON.stringify(userData, null, 2)
   );
+  console.log("dashboard VAlueAuth", returnValues);
   console.log("dashboard Auth", auth);
 
   const content = (

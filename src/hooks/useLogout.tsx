@@ -13,6 +13,7 @@ const useLogout = () => {
     try {
       await supabase.auth.signOut();
       setAuth(null); // Clear the authentication state
+      localStorage.clear();
       router.push("/login"); // Redirect to login page after logout
     } catch (error) {
       console.error("Error during logout:", error);
@@ -26,9 +27,9 @@ const useLogout = () => {
       localStorage.removeItem("sb-nawqzhetlcutvfqhyjsv-auth-token");
       localStorage.removeItem("persist");
       // router.push("/dashboard");
-      router.push("/login"); // Redirect to login page after logout
+      // router.push("/login"); // Redirect to login page after logout
     }
-  }, [auth, router]);
+  }, [auth ]);
 
   return logout;
 };

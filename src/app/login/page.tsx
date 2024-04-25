@@ -52,7 +52,7 @@ function Login() {
           });
 
           isMounted && setAuth(response.data);
-          router.push("/dashboard");
+          router.push("/");
         } catch (error: any) {
           if (error.response && error.response.status === 401) {
             await refresh().then((_) => {
@@ -63,7 +63,7 @@ function Login() {
             console.error("Error fetching user data:", error);
             toast.error(error);
             // router.push("/login");
-            router.push("/dashboard");
+            router.push("/");
           }
         }
       };

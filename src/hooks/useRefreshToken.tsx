@@ -2,17 +2,10 @@ import { supabase } from "@/libs/supabase";
 
 import { useEffect } from "react";
 import useAuth, { AuthState } from "./useAuth";
-import { User, UserMetadata } from "@/types/types";
 import { Session } from "@supabase/supabase-js";
-import toast from "react-hot-toast";
-
-type RefreshTokenFunction = () => Promise<{
-  access_token: string | null;
-  user_metadata: UserMetadata | null;
-} | null>;
 
 const useRefreshToken = () => {
-  const { auth, setAuth, setAuthUser, authUser } = useAuth();
+  const { auth, setAuth } = useAuth();
 
   const refresh = async () => {
     const { error, data } = await supabase.auth.getSession();
@@ -30,20 +23,12 @@ const useRefreshToken = () => {
         "user_data",
         JSON.stringify(refreshedSession?.user?.user_metadata)
       );
-            // @ts-ignore
-      setAuthUser((prev) => {
-        console.log(JSON.stringify(prev));
-        return {
-          ...prev,
-          ...refreshedSession?.user?.user_metadata,
-        };
-      });
+
       // @ts-ignore
       setAuth((prev: Session | null) => {
         console.log(JSON.stringify(prev));
         return {
           ...prev,
-          // access_token: refreshedSession?.access_token,
           ...refreshedSession,
         };
       });
@@ -59,15 +44,13 @@ const useRefreshToken = () => {
       };
     } else {
       console.error("No refresh token found in session");
-      // toast.error("No refresh token found in session")
       return null;
     }
   };
 
-  // Automatically refresh the token when the component mounts
   useEffect(() => {
     refresh();
-  }, []);
+  }, [auth]);
 
   return refresh;
 };

@@ -34,7 +34,7 @@ const usePersistToken = () => {
     return () => {
       isMounted = false;
     };
-  }, [auth, persist, refresh]);
+  }, [auth, refresh]);
 
   useEffect(() => {
     console.log(`isLoading: ${isLoading}`);

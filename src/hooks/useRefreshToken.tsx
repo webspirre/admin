@@ -20,6 +20,10 @@ const useRefreshToken = () => {
       const userData = refreshData?.user;
       const refreshedSession = refreshData?.session;
       localStorage.setItem(
+        "access_tk",
+        refreshedSession?.access_token as string
+      );
+      localStorage.setItem(
         "user_data",
         JSON.stringify(refreshedSession?.user?.user_metadata)
       );
@@ -50,7 +54,7 @@ const useRefreshToken = () => {
 
   useEffect(() => {
     refresh();
-  }, [auth]);
+  }, []);
 
   return refresh;
 };

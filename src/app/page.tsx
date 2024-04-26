@@ -16,10 +16,10 @@ import useRefreshToken from "@/hooks/useRefreshToken";
 import { Session } from "@supabase/supabase-js";
 import usePersistToken from "@/hooks/usePersistance";
 import { AuthProvider } from "@/context/AuthProvider";
+import useAuthRedirect from "@/hooks/useAuthenticated";
 
 function Page() {
   const [userData, setUserData] = useState<UserMetadata | null | string>(null);
-  const [authData, setAuthData] = useState<Session | null | string>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const { isLoading: IsPersistLoading, persist } = usePersistToken();
@@ -30,6 +30,7 @@ function Page() {
   const sendUserToDb = useSendUserToDB();
   const refresh = useRefreshToken();
   const logOut = useLogout();
+  useAuthRedirect();
 
   const loginWithGoogle = async () => {
     try {
@@ -77,7 +78,7 @@ function Page() {
           if (error.response && error.response.status === 401) {
             await refresh().then((_) => {
               console.log("refresh feedback", _);
-              localStorage.setItem("access_tk", _?.access_token as string);
+              // localStorage.setItem("access_tk", _?.access_token as string);
               // @ts-ignore
               setAuth((prev: Session | null) => {
                 console.log(JSON.stringify(prev));
@@ -86,14 +87,15 @@ function Page() {
                   ..._,
                 };
               });
+              console.log("new auth data", auth);
             });
           } else {
             console.error("Error fetching user data:", error);
             // router.push("/login");
-            router.push("/");
           }
         }
       };
+      // if (!accessToken || !auth?.access_token) router.push("/login"); // redirect user to login page
 
       fetchUser();
     }
@@ -113,12 +115,6 @@ function Page() {
     }
 
     console.log("storedUserDataString", storedUserDataString);
-
-    setUserData(
-      JSON.parse(
-        JSON.stringify(JSON.parse(storedUserDataString as string), null, 2)
-      )
-    );
   }, []);
 
   useEffect(() => {
@@ -129,8 +125,6 @@ function Page() {
     };
 
     fetchData();
-    setAuthData(auth);
-    console.log("________", auth);
   }, [auth]);
 
   const returnValues: UserMetadata = JSON.parse(
@@ -179,30 +173,26 @@ function Page() {
                       >
                         LogOut
                       </p>
-                      {JSON.stringify(returnValues)}
-                      {/* {JSON.stringify(auth)} */}
+                      {/* {JSON.stringify(returnValues)} */}
                       <div className="text-black">
-                        {auth ? (
+                        {returnValues ? (
                           <div>
                             <div className="p-2 flex flex-row gap-2 rounded-full">
                               <Image
                                 height={20}
                                 width={40}
-                                src={auth?.user?.user_metadata?.picture}
+                                src={returnValues?.picture}
                                 alt="rice"
                                 className="z-10 rounded-full"
                               />
                               <div className="text-[12px] pr-[50px]">
-                                <p>
-                                  {auth?.user?.user_metadata?.email as string}
-                                </p>
-                                <p>{auth?.user?.user_metadata?.full_name}</p>
+                                <p>{returnValues?.email as string}</p>
+                                <p>{returnValues?.full_name}</p>
                               </div>
                             </div>
                           </div>
                         ) : (
                           <>
-                            {userData}
                             <button
                               className="text-black font-bold hover:text-slate-500 transition duration-150 "
                               onClick={loginWithGoogle}

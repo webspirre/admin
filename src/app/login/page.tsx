@@ -11,12 +11,16 @@ import axios from "@/config/axios";
 import toast from "react-hot-toast";
 import useRefreshToken from "@/hooks/useRefreshToken";
 import { AuthProvider } from "@/context/AuthProvider";
+import useAuthRedirect from "@/hooks/useAuthenticated";
 
 function Login() {
   const axiosPrivate = useAxiosPrivate();
   const { setAuth, auth } = useAuth();
   const router = useRouter();
   const refresh = useRefreshToken();
+
+  useAuthRedirect()
+
 
   const loginWithGoogle = async () => {
     try {

@@ -39,14 +39,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     if (storedUserDataString) {
       const parsedUserData = JSON.parse(storedUserDataString);
-      setAuth(parsedUserData);
+      console.log("parsedUserData", parsedUserData);
+      // @ts-ignore
+      setAuth((prev: Session | null) => {
+        // console.log(JSON.stringify(prev));
+        return {
+          ...prev,
+          ...parsedUserData,
+        };
+      });
+
+      // Set authUser state
+      setAuthUser(parsedUserData.user);
     }
 
-    setAuth(
-      JSON.parse(
-        JSON.stringify(JSON.parse(storedUserDataString as string), null, 2)
-      )
-    );
+    console.log("storedUser Auth", auth);
+    console.log("storedUser AuthUser", authUser);
   }, []);
 
   return (

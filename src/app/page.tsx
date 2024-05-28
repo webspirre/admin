@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { createClient } from "../../lib/supabase/server";
 import SignIn from "@/components/signin/page";
 import Loader from "@/components/common/loader/index";
+import { redirect } from "next/navigation";
 /// export MetaData
 const meta = {
   title: "Webspirre Admin Management Dashboard",
@@ -50,6 +51,11 @@ export default async function Page() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  if (user) {
+    // Redirect logged in users to the dashboard
+    redirect("/dashboard");
+  }
 
   console.log("USER LOG", user);
 

@@ -79,7 +79,7 @@ const Navbar: React.FC<NavProps> = ({ user }) => {
                           />
                           <div className="text-[12px] pr-[50px]">
                             <p>{user?.email as string}</p>
-                            <p>{user?.user_metadata?.full_name}</p>
+                            <p className="capitalize">{user?.role}</p>
                           </div>
                         </div>
                       </div>

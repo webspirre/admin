@@ -65,10 +65,10 @@ export default async function Page() {
 
   const content = (
     <>
-      {/* <AuthProvider> */}
-      {/* <div>{!user ? <SignIn /> : <Loader />}</div> */}
-      <Home user={user} />
-      {/* </AuthProvider> */}
+      <AuthProvider>
+        {/* <div>{!user ? <SignIn /> : <Loader />}</div> */}
+        <Home user={user} />
+      </AuthProvider>
     </>
   );
 

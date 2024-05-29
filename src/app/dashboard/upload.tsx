@@ -72,6 +72,8 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
   const [selectedCategories, setSelectedCategories] = useState<Option[]>([]);
   const [selectedOption, setSelectedOption] = useState<Option>();
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [formDataMore, resetForm, inputAttributes] = useFormInput(
     "form_data",
     initialFormData
@@ -98,6 +100,17 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
     }
   };
 
+  const resetCurrentDate = () => {
+    const currentDate = new Date().toLocaleString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+    return currentDate;
+  };
   useEffect(() => {
     const currentDate = new Date().toLocaleString("en-US", {
       year: "numeric",
@@ -181,7 +194,8 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
 
   const addWebsiteHandler = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // await addWebsite(formData);
+    setIsSubmitting(true); // Set loading state to true
+
     try {
       // Destructure formData object
       const {
@@ -233,19 +247,19 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
       console.log("selecca", formData);
       setFormData({ ...formData, ...initialFormData }); // Clear the form fields after successful submission
       toast.success("Document Created successfully!", { duration: 3000 });
-      resetForm();
+      setIsSubmitting(false); // Set loading state to false after request completes
+      setFormData(initialFormData); // Clear the form fields after successful submission
+      setSelectedCategories([]); // Clear selected categories
+      // @ts-ignore
+      setSelectedOption(null); // Clear selected page type
+      resetCurrentDate();
     } catch (error) {
       console.error("Error:", error);
     }
   };
-  // Example function to handle form submission
-  // const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-  //   event.preventDefault();
-  //   // Handle form submission logic here using formData state
-  //   console.log("Form Data:", formDataMore);
-  //   resetForm();
-  // };
+
   return (
+    // <div>
     <div className="p-4 rounded-[20px] w-full m-4 bg-white">
       <div className="border-b">
         <p className="py-2 border-b-4 border-black text-center w-fit px-6">
@@ -433,9 +447,18 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
         <div className="flex justify-end m-4">
           <button
             type="submit"
-            className="bg-black text-white px-[50px] py-2 rounded-lg"
+            className="bg-black text-white px-[50px] py-2 rounded-lg disabled:bg-opacity-35 disabled:cursor-not-allowed"
+            disabled={isSubmitting}
           >
-            Save
+            {isSubmitting ? (
+              <div className="flex items-center">
+                <div className="loader"></div> {/* Add a loader here */}
+                <span className="ml-2">Submitting Design...</span>{" "}
+                {/* Loading text */}
+              </div>
+            ) : (
+              "Submit"
+            )}
           </button>
         </div>
       </form>

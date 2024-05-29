@@ -3,25 +3,20 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-
 import { useRouter } from "next/navigation";
 import { signInWithPassword } from "../../../lib/auth-helpers/server";
 import { handleRequest } from "../../../lib/auth-helpers/client";
 
-// export const metadata: Metadata = {
-//   title: "CoreReg Transaction Management Dashboard",
-//   description: "This is a transaction management dashboard",
-// };
-
 const SignIn: React.FC = () => {
   let redirectMethod = "client";
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const router = redirectMethod === "client" ? useRouter() : null;
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    setIsSubmitting(true); // Disable the button while the request is being handled
+    e.preventDefault();
+    setIsSubmitting(true); // Set loading state to true
     await handleRequest(e, signInWithPassword, router);
-    setIsSubmitting(false);
+    setIsSubmitting(false); // Set loading state to false after request completes
   };
 
   return (
@@ -32,14 +27,13 @@ const SignIn: React.FC = () => {
             <Image
               width={166}
               height={32}
-              src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1715418225/utilities/Frame_672_ynbhv2.svg"
+              src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1705721941/utilities/logo_e8rxwj.svg"
               alt="Logo"
               className="mt-[20px]"
               priority
             />
-
             <div className="w-full p-4 ">
-              <form noValidate={true} onSubmit={(e) => handleSubmit(e)}>
+              <form noValidate={true} onSubmit={handleSubmit}>
                 <div className="mb-4">
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
                     Email
@@ -58,10 +52,9 @@ const SignIn: React.FC = () => {
                     />
                   </div>
                 </div>
-
                 <div className="mb-6">
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
-                    Password{" "}
+                    Password
                   </label>
                   <div className="relative">
                     <input
@@ -74,19 +67,46 @@ const SignIn: React.FC = () => {
                     />
                   </div>
                 </div>
-
                 <div className="mb-5 flex w-full items-center justify-center">
-                  <input
+                  <button
                     type="submit"
-                    value="Login"
                     className="w- cursor-pointer rounded-lg border border-primary bg-[#4608AD] px-6 py-2 font-bold text-white transition hover:bg-opacity-90"
-                  />
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <div className="flex items-center">
+                        <div className="loader"></div> {/* Add a loader here */}
+                        <span className="ml-2">Logging in...</span>{" "}
+                        {/* Loading text */}
+                      </div>
+                    ) : (
+                      "Login"
+                    )}
+                  </button>
                 </div>
               </form>
             </div>
           </div>
         </div>
       </div>
+      <style jsx>{`
+        .loader {
+          border: 4px solid #f3f3f3;
+          border-top: 4px solid #3498db;
+          border-radius: 50%;
+          width: 20px;
+          height: 20px;
+          animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
     </div>
   );
 };

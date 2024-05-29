@@ -25,7 +25,7 @@ const usePersistToken = () => {
       }
     };
     // Check if access token is not available and persist is enabled
-    if (!auth?.access_token && persist) {
+    if (!auth?.user_metadata?.access_token && persist) {
       verifyRefreshToken();
     } else {
       setIsLoading(false);
@@ -38,7 +38,7 @@ const usePersistToken = () => {
 
   useEffect(() => {
     console.log(`isLoading: ${isLoading}`);
-    console.log(`aT: ${JSON.stringify(auth?.access_token)}`);
+    console.log(`aT: ${JSON.stringify(auth?.user_metadata?.access_token)}`);
   }, [isLoading, auth]);
 
   // useEffect(() => {

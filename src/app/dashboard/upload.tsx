@@ -2,13 +2,14 @@
 
 import { useState, useEffect, FC } from "react";
 import FileUpload from "./FileUpload";
-import { supabase } from "@/libs/supabase";
+// import { supabase } from "@/libs/supabase";
 import toast from "react-hot-toast";
 
 import Select, { ActionMeta, MultiValue } from "react-select";
 
 import { CloudinaryAsset } from "@/types/types";
 import useFormInput from "@/hooks/useFormInput";
+import { createClient } from "../../../lib/supabase/client";
 
 const categories_: Option[] = [
   { value: "ai", label: "AI" },
@@ -62,9 +63,10 @@ const initialFormData: Map = {
   }),
 };
 
-const Form: FC<{ handleLoading: () => void; loading: boolean }> = ({
+const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
   handleLoading,
 }) => {
+  const supabase = createClient();
   const [formData, setFormData] = useState(initialFormData);
 
   const [selectedCategories, setSelectedCategories] = useState<Option[]>([]);
@@ -198,10 +200,9 @@ const Form: FC<{ handleLoading: () => void; loading: boolean }> = ({
         date,
       } = formData;
       // Insert formData into Supabase
+      // @ts-ignore
       const { data, error } = await supabase
         .from("website")
-        // .from("website.website")
-        // .insert([formData])
         .insert([
           {
             name,
@@ -232,17 +233,18 @@ const Form: FC<{ handleLoading: () => void; loading: boolean }> = ({
       console.log("selecca", formData);
       setFormData({ ...formData, ...initialFormData }); // Clear the form fields after successful submission
       toast.success("Document Created successfully!", { duration: 3000 });
+      resetForm();
     } catch (error) {
       console.error("Error:", error);
     }
   };
   // Example function to handle form submission
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    // Handle form submission logic here using formData state
-    console.log("Form Data:", formDataMore);
-    resetForm();
-  };
+  // const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  //   event.preventDefault();
+  //   // Handle form submission logic here using formData state
+  //   console.log("Form Data:", formDataMore);
+  //   resetForm();
+  // };
   return (
     <div className="p-4 rounded-[20px] w-full m-4 bg-white">
       <div className="border-b">

@@ -1,13 +1,10 @@
 "use client";
 
 import "./globals.css";
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import Loader from "@/components/common/loader/index";
 import { Toaster } from "react-hot-toast";
 import React, { useEffect, useState } from "react";
-
-const inter = Inter({ subsets: ["latin"] });
+import { AuthProvider } from "@/context/AuthProvider";
 
 export default function RootLayout({
   children,
@@ -20,9 +17,12 @@ export default function RootLayout({
   }, []);
   return (
     <html lang="en">
-      <body className={inter.className} suppressHydrationWarning={true}>
+      <body suppressHydrationWarning={true}>
         <Toaster />
-        <div> {loading ? <Loader /> : children}</div>
+        <div>
+          {" "}
+          {loading ? <Loader /> : <AuthProvider>{children}</AuthProvider>}
+        </div>
       </body>
     </html>
   );

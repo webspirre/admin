@@ -5,6 +5,8 @@ import { createClient } from "../../lib/supabase/server";
 import SignIn from "@/components/signin/page";
 import Loader from "@/components/common/loader/index";
 import { redirect } from "next/navigation";
+import useAuth from "@/hooks/useAuth";
+import Home from "@/components/Home";
 /// export MetaData
 const meta = {
   title: "Webspirre Admin Management Dashboard",
@@ -52,6 +54,8 @@ export default async function Page() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // const { setAuth } = useAuth();
+  // setAuth(user);
   if (user) {
     // Redirect logged in users to the dashboard
     redirect("/dashboard");
@@ -62,7 +66,8 @@ export default async function Page() {
   const content = (
     <>
       {/* <AuthProvider> */}
-      <div>{!user ? <SignIn /> : <Loader />}</div>
+      {/* <div>{!user ? <SignIn /> : <Loader />}</div> */}
+      <Home user={user} />
       {/* </AuthProvider> */}
     </>
   );

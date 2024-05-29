@@ -5,6 +5,15 @@ export type Json =
   | null
   | { [key: string]: Json | undefined }
   | Json[];
+interface Option {
+  value: string;
+  label: string;
+}
+interface Map2 {
+  [key: string]: string | string[] | undefined | Option | Option[];
+}
+export type Map = string | string[] | null | Option | Option[]
+
 
 export interface Database {
   public: {
@@ -49,8 +58,8 @@ export interface Database {
           currency?: string | null;
           id: string;
           interval?:
-            | Database["public"]["Enums"]["pricing_plan_interval"]
-            | null;
+          | Database["public"]["Enums"]["pricing_plan_interval"]
+          | null;
           interval_count?: number | null;
           product_id?: string | null;
           trial_period_days?: number | null;
@@ -62,8 +71,8 @@ export interface Database {
           currency?: string | null;
           id?: string;
           interval?:
-            | Database["public"]["Enums"]["pricing_plan_interval"]
-            | null;
+          | Database["public"]["Enums"]["pricing_plan_interval"]
+          | null;
           interval_count?: number | null;
           product_id?: string | null;
           trial_period_days?: number | null;
@@ -238,6 +247,55 @@ export interface Database {
         };
         Relationships: [];
       };
+      website: {
+        Row: {
+          name: Map | null;
+          webURL: Map | null;
+          category: Map | null;
+          pageType: Map | null;
+          shortDescription: Map | null;
+          longDescription: Map | null;
+          logoImageURL: Map | null;
+          desktopSsURL: Map | null;
+          mobileSsURL: Map | null;
+          desktopFpURL: Map | null;
+          mobileFpURL: Map | null;
+          categories: Map | null;
+          date: Map | null;
+        };
+        Insert: {
+          name?: Map | null;
+          webURL?: Map | null;
+          category?: Map | null;
+          pageType?: Map | null;
+          shortDescription?: Map | null;
+          longDescription?: Map | null;
+          logoImageURL?: Map | null;
+          desktopSsURL?: Map | null;
+          mobileSsURL?: Map | null;
+          desktopFpURL?: Map | null;
+          mobileFpURL?: Map | null;
+          categories?: Map | null;
+          date?: Map | null;
+        };
+        Update: {
+          name?: Map | null;
+          webURL?: Map | null;
+          category?: Map | null;
+          pageType?: Map | null;
+          shortDescription?: Map | null;
+          longDescription?: Map | null;
+          logoImageURL?: Map | null;
+          desktopSsURL?: Map | null;
+          mobileSsURL?: Map | null;
+          desktopFpURL?: Map | null;
+          mobileFpURL?: Map | null;
+          categories?: Map | null;
+          date?: Map | null;
+        };
+        Relationships: [];
+      };
+
     };
     Views: {
       [_ in never]: never;
@@ -249,14 +307,14 @@ export interface Database {
       pricing_plan_interval: "day" | "week" | "month" | "year";
       pricing_type: "one_time" | "recurring";
       subscription_status:
-        | "trialing"
-        | "active"
-        | "canceled"
-        | "incomplete"
-        | "incomplete_expired"
-        | "past_due"
-        | "unpaid"
-        | "paused";
+      | "trialing"
+      | "active"
+      | "canceled"
+      | "incomplete"
+      | "incomplete_expired"
+      | "past_due"
+      | "unpaid"
+      | "paused";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -266,80 +324,80 @@ export interface Database {
 
 export type Tables<
   PublicTableNameOrOptions extends
-    | keyof (Database["public"]["Tables"] & Database["public"]["Views"])
-    | { schema: keyof Database },
+  | keyof (Database["public"]["Tables"] & Database["public"]["Views"])
+  | { schema: keyof Database },
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+  ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+    Database[PublicTableNameOrOptions["schema"]]["Views"])
+  : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+    Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R;
     }
-    ? R
-    : never
+  ? R
+  : never
   : PublicTableNameOrOptions extends keyof (Database["public"]["Tables"] &
-        Database["public"]["Views"])
-    ? (Database["public"]["Tables"] &
-        Database["public"]["Views"])[PublicTableNameOrOptions] extends {
-        Row: infer R;
-      }
-      ? R
-      : never
-    : never;
+    Database["public"]["Views"])
+  ? (Database["public"]["Tables"] &
+    Database["public"]["Views"])[PublicTableNameOrOptions] extends {
+      Row: infer R;
+    }
+  ? R
+  : never
+  : never;
 
 export type TablesInsert<
   PublicTableNameOrOptions extends
-    | keyof Database["public"]["Tables"]
-    | { schema: keyof Database },
+  | keyof Database["public"]["Tables"]
+  | { schema: keyof Database },
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+  ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I;
-    }
-    ? I
-    : never
+    Insert: infer I;
+  }
+  ? I
+  : never
   : PublicTableNameOrOptions extends keyof Database["public"]["Tables"]
-    ? Database["public"]["Tables"][PublicTableNameOrOptions] extends {
-        Insert: infer I;
-      }
-      ? I
-      : never
-    : never;
+  ? Database["public"]["Tables"][PublicTableNameOrOptions] extends {
+    Insert: infer I;
+  }
+  ? I
+  : never
+  : never;
 
 export type TablesUpdate<
   PublicTableNameOrOptions extends
-    | keyof Database["public"]["Tables"]
-    | { schema: keyof Database },
+  | keyof Database["public"]["Tables"]
+  | { schema: keyof Database },
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+  ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U;
-    }
-    ? U
-    : never
+    Update: infer U;
+  }
+  ? U
+  : never
   : PublicTableNameOrOptions extends keyof Database["public"]["Tables"]
-    ? Database["public"]["Tables"][PublicTableNameOrOptions] extends {
-        Update: infer U;
-      }
-      ? U
-      : never
-    : never;
+  ? Database["public"]["Tables"][PublicTableNameOrOptions] extends {
+    Update: infer U;
+  }
+  ? U
+  : never
+  : never;
 
 export type Enums<
   PublicEnumNameOrOptions extends
-    | keyof Database["public"]["Enums"]
-    | { schema: keyof Database },
+  | keyof Database["public"]["Enums"]
+  | { schema: keyof Database },
   EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+  ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+  : never = never,
 > = PublicEnumNameOrOptions extends { schema: keyof Database }
   ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : PublicEnumNameOrOptions extends keyof Database["public"]["Enums"]
-    ? Database["public"]["Enums"][PublicEnumNameOrOptions]
-    : never;
+  ? Database["public"]["Enums"][PublicEnumNameOrOptions]
+  : never;

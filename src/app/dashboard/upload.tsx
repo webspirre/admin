@@ -65,6 +65,7 @@ const initialFormData: Map = {
 
 const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
   handleLoading,
+  loading,
 }) => {
   const supabase = createClient();
   const [formData, setFormData] = useState(initialFormData);
@@ -400,8 +401,9 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
                   handleFileChange(file, "logo", "logoImageURL")
                 }
                 filename={"logoImageURL"}
+                loading={loading}
               />
-              <FileUpload
+              {/* <FileUpload
                 label="Desktop screenshot"
                 onFileChange={(file) =>
                   handleFileChange(file, "desktopSs", "desktopSsURL")
@@ -414,13 +416,14 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
                   handleFileChange(file, "mobileSs", "mobileSsURL")
                 }
                 filename={"mobileSsURL"}
-              />
+              /> */}
               <FileUpload
                 label="Desktop full page"
                 onFileChange={(file) =>
                   handleFileChange(file, "desktopFp", "desktopFpURL")
                 }
                 filename={"desktopFpURL"}
+                loading={loading}
               />
               <FileUpload
                 label="Mobile full page"
@@ -428,6 +431,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
                   handleFileChange(file, "mobileFp", "mobileFpURL")
                 }
                 filename={"mobileFpURL"}
+                loading={loading}
               />
             </div>
             <div className="w-full py-8">

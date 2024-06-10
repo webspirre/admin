@@ -4,12 +4,14 @@ import React from "react";
 interface UploadPreviewProp {
   imgPreview: string | null;
   setImagePreview: React.Dispatch<React.SetStateAction<string | null>>;
+  filename: string;
 }
 let imglink =
   "https://res.cloudinary.com/dwqantex4/image/upload/v1717091843/webspirre_assests/wyduuzzl7allegx5rsin.webp";
 
 const UploadPreview: React.FC<UploadPreviewProp> = ({
   imgPreview,
+  filename,
   setImagePreview,
 }) => {
   return (
@@ -50,7 +52,7 @@ const UploadPreview: React.FC<UploadPreviewProp> = ({
             className="object-contain "
           />
         )}
-        <p>image.png</p>
+        <p>{filename}.png</p>
       </div>
     </div>
   );

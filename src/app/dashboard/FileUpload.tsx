@@ -75,6 +75,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
           <Preview
             imgPreview={imagePreview}
             setImagePreview={setImagePreview}
+            filename={filename}
           />
         ) : (
           // : loading && !imagePreview ? (

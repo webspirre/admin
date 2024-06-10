@@ -2,6 +2,7 @@
 
 import { useState, useEffect, FC } from "react";
 import FileUpload from "./FileUpload";
+import FileUpload2 from "@/components/common/FileUpload";
 // import { supabase } from "@/libs/supabase";
 import toast from "react-hot-toast";
 
@@ -418,6 +419,13 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
                 }
                 filename={"mobileSsURL"}
               /> */}
+              <FileUpload2
+                label="Mobile screenshot"
+                onFileChange={(file) =>
+                  handleFileChange(file, "mobileSs", "mobileSsURL")
+                }
+                filename={"mobileSsURL"}
+              />
               <FileUpload
                 label="Desktop full page"
                 onFileChange={(file) =>

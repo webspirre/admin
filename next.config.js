@@ -1,5 +1,5 @@
 const nextConfig = {
-  output: "export",
+  // output: "export",
   images: {
     domains: ["res.cloudinary.com", "lh3.googleusercontent.com"],
   },

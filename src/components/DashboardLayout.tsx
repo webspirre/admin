@@ -24,7 +24,7 @@ const DashboardLayout: React.FC<DashboardProps> = () => {
       )}
       <div className="flex h-screen mt-12 sn:mt-24">
         {/* Sidebar Component */}
-        <div className="w-[250px] z-10 pl-10 bg-white fixed h-full border-l border-l-slate-500 shadow-md">
+        <div className="w-[250px] z-10 pl-10 bg-white fixed h-full border-l border-l-slate-500 shadow-md mt-10">
           {sidebarLinks.map((item) => (
             <div key={item.name} className="relative mt-3 group">
               <Link

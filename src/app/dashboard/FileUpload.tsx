@@ -55,19 +55,19 @@ const FileUpload: React.FC<FileUploadProps> = ({
       <label htmlFor={label}>{label}</label>
       <div
         {...getRootProps({ className: "dropzone" })}
-        className="p-4 flex w-full rounded-md justify-between items-center cursor-pointer"
+        className="flex w-full rounded-md justify-between items-center cursor-pointer"
       >
         <input {...getInputProps()} />
         {isDragActive ? (
           <div className="bg-[#FDFAF7] px-auto w-full py-20 justify-center items-center flex flex-col space-y-4">
             <img
-              height={60}
-              width={60}
+              height={50}
+              width={50}
               src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1708135436/utilities/Laptop_Upload_1_basxso.svg"
               alt="Upload icon"
               className="cursor-pointer"
             />
-            <p className="text-xl text-[#94A3B8] font-semibold ">
+            <p className="text-[15px] text-[#94A3B8] font-semibold ">
               Drop the file here...
             </p>
           </div>
@@ -81,9 +81,10 @@ const FileUpload: React.FC<FileUploadProps> = ({
           // : loading && !imagePreview ? (
           //   <UploadLoader />
           // )
+
           <UploadInitial fileSize={filesize as string} />
         )}
-        {imagePreview ? (
+        {/* {imagePreview ? (
           <img
             src={imagePreview}
             alt="Uploaded preview"
@@ -99,7 +100,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
             alt="Upload icon"
             className="cursor-pointer"
           />
-        )}
+        )} */}
       </div>
     </div>
   );

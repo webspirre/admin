@@ -29,9 +29,9 @@ const Navbar: React.FC<NavProps> = ({ user }) => {
   // console.log("USER LOG", user);
   return (
     <>
-      <div className=" ">
+      <div className="fixed top-0 left-0 right-0 z-50 w-full">
         <div className="flex items-center border-b-2 border-[#BBBBBB]  bg-white">
-          <div className="flex w-[300px] pl-10   bg-white h-100px">
+          <div className="flex w-[300px] pl-10 bg-white h-100px">
             <Link href="/">
               <Image
                 height={60}
@@ -79,7 +79,7 @@ const Navbar: React.FC<NavProps> = ({ user }) => {
                           />
                           <div className="text-[12px] pr-[50px]">
                             <p>{user?.email as string}</p>
-                            <p className="capitalize">{user?.role}</p>
+                            <p className="capitalize">Admin</p>
                           </div>
                         </div>
                       </div>

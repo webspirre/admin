@@ -21,16 +21,17 @@ const UploadPreview: React.FC<UploadPreviewProp> = ({
         alt="Background"
         className="absolute inset-0 w-full h-full object-cover opacity-20"
       />
+
       <p
-        className="bg-white p-1 cursor-pointer z-[99]"
+        className="absolute top-2.5 right-3.5 w-10 h-10 bg-white p-2 cursor-pointer z-[999] flex items-center justify-center rounded-md"
         onClick={() => setImagePreview(null)}
       >
         <Image
           src="https://res.cloudinary.com/dwqantex4/image/upload/v1717939355/Delete_s0cip0.png"
-          alt={"delete"}
-          width={20}
-          height={20}
-          className="absolute top-2.5 right-3"
+          alt="delete"
+          width={25}
+          height={25}
+          className=""
         />
       </p>
 
@@ -39,8 +40,8 @@ const UploadPreview: React.FC<UploadPreviewProp> = ({
           <img
             src={imgPreview}
             alt="Uploaded preview"
-            height={"400px"}
-            width={"100px"}
+            height={80}
+            width={80}
             className="object-contain"
           />
         ) : (

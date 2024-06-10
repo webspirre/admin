@@ -412,20 +412,13 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
                 }
                 filename={"desktopSsURL"}
               />
-              <FileUpload
-                label="Mobile screenshot"
-                onFileChange={(file) =>
-                  handleFileChange(file, "mobileSs", "mobileSsURL")
-                }
-                filename={"mobileSsURL"}
-              /> */}
               <FileUpload2
                 label="Mobile screenshot"
                 onFileChange={(file) =>
                   handleFileChange(file, "mobileSs", "mobileSsURL")
                 }
                 filename={"mobileSsURL"}
-              />
+              /> */}
               <FileUpload
                 label="Desktop full page"
                 onFileChange={(file) =>

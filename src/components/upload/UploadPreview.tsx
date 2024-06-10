@@ -3,11 +3,15 @@ import React from "react";
 
 interface UploadPreviewProp {
   imgPreview: string | null;
+  setImagePreview: React.Dispatch<React.SetStateAction<string | null>>;
 }
 let imglink =
   "https://res.cloudinary.com/dwqantex4/image/upload/v1717091843/webspirre_assests/wyduuzzl7allegx5rsin.webp";
 
-const UploadPreview: React.FC<UploadPreviewProp> = ({ imgPreview }) => {
+const UploadPreview: React.FC<UploadPreviewProp> = ({
+  imgPreview,
+  setImagePreview,
+}) => {
   return (
     <div className="relative w-full py-10 flex flex-col items-center justify-center space-y-2 bg-[#FDFAF7]">
       <img
@@ -15,7 +19,10 @@ const UploadPreview: React.FC<UploadPreviewProp> = ({ imgPreview }) => {
         alt="Background"
         className="absolute inset-0 w-full h-full object-cover opacity-20"
       />
-      <p className="bg-white p-1 cursor-pointer">
+      <p
+        className="bg-white p-1 cursor-pointer z-[99]"
+        onClick={() => setImagePreview(null)}
+      >
         <Image
           src="https://res.cloudinary.com/dwqantex4/image/upload/v1717939355/Delete_s0cip0.png"
           alt={"delete"}

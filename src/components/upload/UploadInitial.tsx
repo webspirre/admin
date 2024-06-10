@@ -1,6 +1,8 @@
 import React from "react";
-
-const UploadInitial = () => {
+interface UploadInitiaProp {
+  fileSize: string;
+}
+const UploadInitial: React.FC<UploadInitiaProp> = ({ fileSize }) => {
   return (
     <>
       <div className="bg-[#FDFAF7] px-auto w-full py-20 justify-center items-center flex flex-col space-y-4">
@@ -15,7 +17,10 @@ const UploadInitial = () => {
           Drag and drop here or <span className="text-black">Upload </span>{" "}
           Image
         </p>
-        <p>Recommended size 400px x 400px</p>
+        <p>
+          Recommended sized{" "}
+          <span className="text-slate-900 font-semibold">{fileSize}</span>{" "}
+        </p>
       </div>
     </>
   );

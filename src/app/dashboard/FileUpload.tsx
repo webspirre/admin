@@ -7,6 +7,7 @@ interface FileUploadProps {
   filename: string;
   onFileChange: (file: File, type: string, filename: string) => void;
   loading?: boolean;
+  filesize?: string;
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({
@@ -14,6 +15,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
   filename,
   onFileChange,
   loading,
+  filesize,
 }) => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [files, setFiles] = useState<File[]>([]);
@@ -24,6 +26,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
       if (acceptedFiles.length > 0) {
         const file = acceptedFiles[0];
         const reader = new FileReader();
+        console.log("Reader File URL ", reader.result);
         reader.onloadend = () => {
           setImagePreview(reader.result as string);
         };
@@ -69,12 +72,15 @@ const FileUpload: React.FC<FileUploadProps> = ({
             </p>
           </div>
         ) : !isDragActive && !loading && imagePreview ? (
-          <Preview imgPreview={imagePreview} />
+          <Preview
+            imgPreview={imagePreview}
+            setImagePreview={setImagePreview}
+          />
         ) : (
           // : loading && !imagePreview ? (
           //   <UploadLoader />
           // )
-          <UploadInitial />
+          <UploadInitial fileSize={filesize as string} />
         )}
         {imagePreview ? (
           <img

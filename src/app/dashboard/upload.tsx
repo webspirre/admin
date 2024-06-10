@@ -401,6 +401,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
                   handleFileChange(file, "logo", "logoImageURL")
                 }
                 filename={"logoImageURL"}
+                filesize="400px x 400px"
                 loading={loading}
               />
               {/* <FileUpload
@@ -423,6 +424,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
                   handleFileChange(file, "desktopFp", "desktopFpURL")
                 }
                 filename={"desktopFpURL"}
+                filesize="1440px x 900px"
                 loading={loading}
               />
               <FileUpload
@@ -432,6 +434,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
                 }
                 filename={"mobileFpURL"}
                 loading={loading}
+                filesize="812px x 414px"
               />
             </div>
             <div className="w-full py-8">

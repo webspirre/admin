@@ -26,7 +26,7 @@ const UploadPreview: React.FC<UploadPreviewProp> = ({
       />
 
       <p
-        className="absolute top-2.5 right-3.5 w-10 h-10 bg-white p-2 cursor-default z-[999] flex items-center justify-center rounded-md"
+        className="absolute top-2.5 right-3.5 w-10 h-10 bg-white p-2 cursor-default z-[10] flex items-center justify-center rounded-md"
         onClick={() => setImagePreview}
       >
         <Image

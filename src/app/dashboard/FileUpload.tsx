@@ -71,36 +71,17 @@ const FileUpload: React.FC<FileUploadProps> = ({
               Drop the file here...
             </p>
           </div>
-        ) : !isDragActive && !loading && imagePreview ? (
+        ) : loading ? (
+          <UploadLoader />
+        ) : imagePreview ? (
           <Preview
             imgPreview={imagePreview}
             setImagePreview={setImagePreview}
             filename={filename}
           />
         ) : (
-          // : loading && !imagePreview ? (
-          //   <UploadLoader />
-          // )
-
           <UploadInitial fileSize={filesize as string} />
         )}
-        {/* {imagePreview ? (
-          <img
-            src={imagePreview}
-            alt="Uploaded preview"
-            height={40}
-            width={40}
-            className="cursor-not-allowed"
-          />
-        ) : (
-          <img
-            height={20}
-            width={20}
-            src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1708135436/utilities/Laptop_Upload_1_basxso.svg"
-            alt="Upload icon"
-            className="cursor-pointer"
-          />
-        )} */}
       </div>
     </div>
   );

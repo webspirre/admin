@@ -23,11 +23,11 @@ const UploadLoader = () => {
           alt="Upload icon"
           className="cursor-pointer"
         />
-        <p className="text-lg text-[#94A3B8] font-semibold">
+        <p className="text-[14px] text-[#94A3B8] font-semibold">
           Drag and drop here or <span className="text-black">Upload </span>{" "}
           Image
         </p>
-        <div className="w-full bg-gray-200 rounded-full h-4 mt-4">
+        <div className="w-full mx-40 bg-gray-200 rounded-full h-4 mt-4">
           <div
             className="bg-slate-900 h-4 rounded-full transition-all duration-300"
             style={{ width: `${progress}%` }}

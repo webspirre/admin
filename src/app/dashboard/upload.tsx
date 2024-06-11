@@ -71,6 +71,12 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
   const supabase = createClient();
   const [formData, setFormData] = useState(initialFormData);
 
+  const [loadingState, setLoadingState] = useState({
+    desktopFpURL: false,
+    mobileFpURL: false,
+    logoImageUrl: false,
+  });
+
   const [selectedCategories, setSelectedCategories] = useState<Option[]>([]);
   const [selectedOption, setSelectedOption] = useState<Option>();
 
@@ -81,11 +87,39 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
     initialFormData
   );
 
+  // Load data from localStorage when the component mounts
+  useEffect(() => {
+    const savedFormData = localStorage.getItem("formData");
+    if (savedFormData) {
+      setFormData(JSON.parse(savedFormData));
+    }
+
+    const savedCategories = localStorage.getItem("selectedCategories");
+    if (savedCategories) {
+      setSelectedCategories(JSON.parse(savedCategories));
+    }
+
+    const savedPageType = localStorage.getItem("selectedPageType");
+    if (savedPageType) {
+      setSelectedOption(JSON.parse(savedPageType));
+    }
+  }, []);
+
   // Function to handle page type change
   const handleChangePageType = (selectedOption: Option | null) => {
+    // if (selectedOption) {
+    //   setFormData({ ...formData, pageType: selectedOption.value });
+    //   setSelectedOption(selectedOption);
+    // }
     if (selectedOption) {
-      setFormData({ ...formData, pageType: selectedOption.value });
+      const newFormData = {
+        ...formData,
+        pageType: selectedOption.value,
+      };
+      setFormData(newFormData);
       setSelectedOption(selectedOption);
+      localStorage.setItem("formData", JSON.stringify(newFormData));
+      localStorage.setItem("selectedPageType", JSON.stringify(selectedOption));
     }
   };
 
@@ -95,10 +129,21 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
     newValue: MultiValue<Option>,
     actionMeta: ActionMeta<Option>
   ) => {
+    // if (newValue) {
+    //   const categoryValues = newValue.map((option) => option.value);
+    //   setFormData({ ...formData, categories: categoryValues });
+    //   setSelectedCategories(newValue as Option[]);
+    // }
     if (newValue) {
       const categoryValues = newValue.map((option) => option.value);
-      setFormData({ ...formData, categories: categoryValues });
+      const newFormData = {
+        ...formData,
+        categories: categoryValues,
+      };
+      setFormData(newFormData);
       setSelectedCategories(newValue as Option[]);
+      localStorage.setItem("formData", JSON.stringify(newFormData));
+      localStorage.setItem("selectedCategories", JSON.stringify(newValue));
     }
   };
 
@@ -136,10 +181,16 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
-    setFormData({
+    // setFormData({
+    //   ...formData,
+    //   [e.target.name]: e.target.value,
+    // });
+    const newFormData = {
       ...formData,
       [e.target.name]: e.target.value,
-    });
+    };
+    setFormData(newFormData);
+    localStorage.setItem("formData", JSON.stringify(newFormData));
   };
 
   /**
@@ -166,6 +217,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
 
     try {
       handleLoading();
+      setLoadingState((prevState) => ({ ...prevState, [filename]: true }));
       const cloudinaryResponse: CloudinaryAsset = await fetch(
         "https://api.cloudinary.com/v1_1/dwqantex4/image/upload",
         {
@@ -175,15 +227,26 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
       ).then((r) => r.json());
 
       console.log("data", cloudinaryResponse);
-      setFormData({
-        ...formData,
-        [type]: file as unknown as string,
-        [filename]: cloudinaryResponse.secure_url,
+      // setFormData({
+      //   ...formData,
+      //   [type]: file as unknown as string,
+      //   [filename]: cloudinaryResponse.secure_url,
+      // });
+      setFormData((prevState) => {
+        const updatedFormData = {
+          ...prevState,
+          [type]: file as unknown as string,
+          [filename]: cloudinaryResponse.secure_url,
+        };
+        localStorage.setItem("formData", JSON.stringify(updatedFormData));
+        return updatedFormData;
       });
-
       toast.success(`${filename} link generated`, { duration: 3000 });
       console.log("new formDa", formData);
       handleLoading();
+      setTimeout(() => {
+        setLoadingState((prevState) => ({ ...prevState, [filename]: false }));
+      }, 2000); // Simulate upload delay
     } catch (error) {
       console.error("Error:", error);
     }
@@ -247,7 +310,12 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
       // Handle success
       console.log("Data inserted into Supabase:", data);
       console.log("selecca", formData);
+
       setFormData({ ...formData, ...initialFormData }); // Clear the form fields after successful submission
+      localStorage.removeItem("formData");
+      localStorage.removeItem("selectedCategories");
+      localStorage.removeItem("selectedPageType");
+
       toast.success("Document Created successfully!", { duration: 3000 });
       setIsSubmitting(false); // Set loading state to false after request completes
       setFormData(initialFormData); // Clear the form fields after successful submission
@@ -282,6 +350,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
                 required
                 placeholder="Name"
                 onChange={handleChange}
+                value={formData.name as string}
                 // {...inputAttributes.name}
                 className="border-2 rounded-lg p-4 w-full"
               />
@@ -296,6 +365,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
                 required
                 placeholder="Website URL"
                 onChange={handleChange}
+                value={formData.webURL as string}
                 className="border-2 rounded-lg p-4 w-full"
               />
             </div>
@@ -303,7 +373,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
             {/*  Category Field*/}
 
             <div className="w-full py-8">
-              <h2>Select a Category:</h2>
+              <h2>Select Categories:</h2>
               <Select
                 value={selectedCategories}
                 name="categories"
@@ -378,6 +448,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
                 name="shortDescription"
                 placeholder="Short Description"
                 onChange={handleChange}
+                value={formData.shortDescription as string}
                 // {...inputAttributes.shortDescription}
                 className="border-2 rounded-lg p-4 w-full"
               />
@@ -389,6 +460,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
                 name="longDescription"
                 placeholder="Long Description"
                 onChange={handleChange}
+                value={formData.longDescription as string}
                 // {...inputAttributes.longDescription}
                 className="border-2 rounded-lg p-4 w-full"
               />
@@ -403,7 +475,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
                 }
                 filename={"logoImageURL"}
                 filesize="400px x 400px"
-                loading={loading}
+                loading={loadingState.logoImageUrl}
               />
               {/* <FileUpload
                 label="Desktop screenshot"
@@ -426,7 +498,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
                 }
                 filename={"desktopFpURL"}
                 filesize="1440px x 900px"
-                loading={loading}
+                loading={loadingState.desktopFpURL}
               />
               <FileUpload
                 label="Mobile full page"
@@ -434,7 +506,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
                   handleFileChange(file, "mobileFp", "mobileFpURL")
                 }
                 filename={"mobileFpURL"}
-                loading={loading}
+                loading={loadingState.mobileFpURL}
                 filesize="812px x 414px"
               />
             </div>

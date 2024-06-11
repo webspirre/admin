@@ -3,7 +3,10 @@ import React from "react";
 
 interface UploadPreviewProp {
   imgPreview: string | null;
-  setImagePreview: React.Dispatch<React.SetStateAction<string | null>>;
+  // setImagePreview: React.Dispatch<React.SetStateAction<string | null>>;
+  setImagePreview: React.Dispatch<
+    React.SetStateAction<{ [key: string]: string | null }>
+  >;
   filename: string;
 }
 let imglink =
@@ -24,7 +27,7 @@ const UploadPreview: React.FC<UploadPreviewProp> = ({
 
       <p
         className="absolute top-2.5 right-3.5 w-10 h-10 bg-white p-2 cursor-default z-[999] flex items-center justify-center rounded-md"
-        onClick={() => setImagePreview(null)}
+        onClick={() => setImagePreview}
       >
         <Image
           src="https://res.cloudinary.com/dwqantex4/image/upload/v1717939355/Delete_s0cip0.png"

@@ -29,7 +29,7 @@ const Navbar: React.FC<NavProps> = ({ user }) => {
   // console.log("USER LOG", user);
   return (
     <>
-      <div className="fixed top-0 left-0 right-0 z-50 w-full">
+      <div className="fixed top-0 left-0 right-0 z-10 w-full">
         <div className="flex items-center border-b-2 border-[#BBBBBB]  bg-white">
           <div className="flex w-[300px] pl-10 bg-white h-100px">
             <Link href="/">

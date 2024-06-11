@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Preview, UploadInitial, UploadLoader } from "@/components/upload";
+import { ImagePreviewState } from "@/types/imgPreview.type";
 
 interface FileUploadProps {
   label: string;
@@ -8,6 +9,8 @@ interface FileUploadProps {
   onFileChange: (file: File, type: string, filename: string) => void;
   loading?: boolean;
   filesize?: string;
+  imagePreview: string | null;
+  setImagePreview: React.Dispatch<React.SetStateAction<ImagePreviewState>>;
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({
@@ -16,8 +19,10 @@ const FileUpload: React.FC<FileUploadProps> = ({
   onFileChange,
   loading,
   filesize,
+  setImagePreview,
+  imagePreview,
 }) => {
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  // const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [files, setFiles] = useState<File[]>([]);
 
   const onDrop = useCallback(
@@ -28,7 +33,11 @@ const FileUpload: React.FC<FileUploadProps> = ({
         const reader = new FileReader();
         console.log("Reader File URL ", reader.result);
         reader.onloadend = () => {
-          setImagePreview(reader.result as string);
+          // setImagePreview(reader.result as string);
+          setImagePreview((prevState) => ({
+            ...prevState,
+            [filename]: reader.result as string,
+          }));
         };
         reader.readAsDataURL(file);
         onFileChange(file, label, filename);
@@ -76,7 +85,13 @@ const FileUpload: React.FC<FileUploadProps> = ({
         ) : imagePreview ? (
           <Preview
             imgPreview={imagePreview}
-            setImagePreview={setImagePreview}
+            // setImagePreview={setImagePreview}
+            setImagePreview={() =>
+              setImagePreview((prevState) => ({
+                ...prevState,
+                [filename]: null,
+              }))
+            }
             filename={filename}
           />
         ) : (

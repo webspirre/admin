@@ -67,7 +67,7 @@ const Table: React.FC<TableProps> = ({ columns, data }) => {
           <div>
             <p>{row["Last Modified"]}</p>
           </div>
-          <div className="flex gap-6 items-center relative">
+          <div className="flex gap-8 items-center relative pr-[20px]">
             <p>{row["Status"]}</p>
             <button onClick={() => setOpenPopupIndex(rowIndex)}>
               <img src={row["Action Image"]} alt="" />

@@ -30,20 +30,20 @@ const Navbar: React.FC<NavProps> = ({ user }) => {
   return (
     <>
       <div className="fixed top-0 left-0 right-0 z-10 w-full">
-        <div className="flex items-center border-b-2 border-[#BBBBBB]  bg-white">
-          <div className="flex w-[300px] pl-10 bg-white h-100px">
+        <div className="flex items-center border-b-[1px] border-[#BBBBBB]  bg-white">
+          <div className="flex w-[350px] pl-12 bg-white ">
             <Link href="/">
               <Image
                 height={60}
-                width={150}
+                width={100}
                 src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1705721941/utilities/logo_e8rxwj.svg"
                 alt="rice"
                 className="rounded-lg"
               />
             </Link>
           </div>
-          <div className="flex justify-between bg-[#ececec] px-4  items-center w-full border-b-1 text-slate-900  border-[#BBBBBB] h-[100px]">
-            <p className="text-[32px] font-bold">Upload</p>
+          <div className="flex justify-between bg-[#ececec] px-4  items-center w-full border-b-1 text-slate-900  border-[#BBBBBB] h-[60px]">
+            <p className="text-[22px] font-bold">Upload</p>
             <div className="flex">
               <div className="flex justify-end">
                 <div className="flex space-x-5 items-center">

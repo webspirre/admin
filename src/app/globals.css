@@ -46,3 +46,20 @@ body {
 .hide-scrollbar::-webkit-scrollbar {
   display: none; /* Safari and Chrome */
 }
+
+
+.hover-black::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background-color: #F2F2F7;
+  z-index: -1;
+  transition: left 0.5s ease;
+}
+
+.hover-black:hover::before {
+  left: 0;
+}

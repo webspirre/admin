@@ -1,54 +1,68 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import React, { useState } from "react";
 import Upload from "../app/dashboard/upload";
 import { User } from "@supabase/supabase-js";
 import Loader from "./Loader";
-import { sidebarLinks } from "@/util/util";
+import Content from "@/app/dashboard/Content";
 
 interface DashboardProps {
   user: User | null;
 }
+
 const DashboardLayout: React.FC<DashboardProps> = () => {
   const [loading, setLoading] = useState(false);
+  const [showUpload, setShowUpload] = useState(true); // state to track which part is visible
 
   const handleLoading = () => {
     setLoading((prev) => !prev);
   };
+
   return (
     <>
-      {/* {loading && (
+      {loading && (
         <Loader handleLoading={handleLoading} loaderText="Loading Asset" />
-      )} */}
-      <div className="flex h-screen mt-12 sn:mt-24">
-        {/* Sidebar Component */}
-        <div className="w-[250px] z-10 pl-10 bg-white fixed h-full border-l border-l-slate-500 shadow-md mt-10 pt-6">
-          {sidebarLinks.map((item) => (
-            <div key={item.name} className="relative mt-3 group">
-              <Link
-                href="/"
-                className="relative flex items-center gap-4 p-4 rounded-l-lg"
-              >
-                <div className="absolute inset-0 w-0 bg-slate-400 transition-all duration-300 ease-in-out group-hover:w-full rounded-l-lg"></div>
-                <Image
-                  height={60}
-                  width={20}
-                  src={item.imgUrl}
-                  alt={item.name}
-                  className="relative z-10 rounded-full transition-transform duration-300 ease-in-out group-hover:scale-110"
-                />
-                <span className="relative z-10 text-black text-[14px] transition-colors duration-300 ease-in-out group-hover:text-white">
-                  {item.name}
-                </span>
-              </Link>
-            </div>
-          ))}
+      )}
+      <div className="flex ">
+        <div className="w-[350px] min-h-screen px-6 bg-white ">
+          <button
+            className={`flex fixed  gap-4 items-center mt-[100px] w-[250px] rounded-[12px]  px-4 py-3 text-[16px] mb-4 font-semibold hover-black overflow-hidden hover:scale-100 transition-transform duration-300  ${
+              showUpload ? "bg-[#F2F2F7] rounded-[12px] w-full" : ""
+            }`}
+            onClick={() => setShowUpload(true)}
+          >
+            <Image
+              height={60}
+              width={20}
+              src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1708059974/utilities/Laptop_Upload_vzergq.svg"
+              alt="Upload"
+            />
+            Upload
+          </button>
+          <button
+            className={`flex fixed gap-4 items-center mt-[170px] w-[250px] rounded-[12px]  px-4 py-3 text-[16px] mb-4 font-semibold hover-black overflow-hidden hover:scale-100 transition-transform duration-300  ${
+              !showUpload ? "bg-[#F2F2F7] rounded-[12px] w-full" : ""
+            }`}
+            onClick={() => setShowUpload(false)}
+          >
+            <Image
+              height={60}
+              width={20}
+              src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1718468606/utilities/webspirre/Document_fh5fso.svg"
+              alt="Content"
+            />
+            Content
+          </button>
         </div>
-        {/* Main Content */}
-        <div className="ml-[250px] w-full overflow-y-auto pt-[45px] bg-[#ececec] hide-scrollbar">
-          <Upload handleLoading={handleLoading} loading={loading} />
+        <div className="flex w-full pt-[2px] mt-[80px] bg-[#ececec]">
+          <div className="w-full pr-6">
+            {showUpload ? (
+              <Upload handleLoading={handleLoading} loading={loading} />
+            ) : (
+              <Content />
+            )}
+          </div>
         </div>
       </div>
     </>

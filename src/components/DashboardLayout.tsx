@@ -28,7 +28,7 @@ const DashboardLayout: React.FC<DashboardProps> = () => {
         <div className="w-[350px] min-h-screen px-6 bg-white ">
           <button
             className={`flex fixed  gap-4 items-center mt-[100px] w-[250px] rounded-[12px]  px-4 py-3 text-[16px] mb-4 font-semibold hover-black overflow-hidden hover:scale-100 transition-transform duration-300  ${
-              showUpload ? "bg-[#F2F2F7] rounded-[12px] w-full" : ""
+              showUpload ? "bg-[#F2F2F7] rounded-[12px] w-[250px]" : ""
             }`}
             onClick={() => setShowUpload(true)}
           >
@@ -42,7 +42,7 @@ const DashboardLayout: React.FC<DashboardProps> = () => {
           </button>
           <button
             className={`flex fixed gap-4 items-center mt-[170px] w-[250px] rounded-[12px]  px-4 py-3 text-[16px] mb-4 font-semibold hover-black overflow-hidden hover:scale-100 transition-transform duration-300  ${
-              !showUpload ? "bg-[#F2F2F7] rounded-[12px] w-full" : ""
+              !showUpload ? "bg-[#F2F2F7] rounded-[12px] w-[250px]" : ""
             }`}
             onClick={() => setShowUpload(false)}
           >

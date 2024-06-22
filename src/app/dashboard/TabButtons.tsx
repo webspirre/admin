@@ -81,7 +81,7 @@ const TabButtons: React.FC<TabButtonsProps> = ({
         style={{ whiteSpace: "nowrap" }}
       >
         <div
-          className="flex sm:gap-2 custom-scrollbar w-[500px]"
+          className="flex sm:gap-2 custom-scrollbar w-[620px]"
           style={{ overflowX: "auto", scrollbarWidth: "none" }}
         >
           {tabs.map((tab, index) => (

@@ -1,16 +1,29 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signInWithPassword } from "../../../lib/auth-helpers/server";
 import { handleRequest } from "../../../lib/auth-helpers/client";
+import { toast } from "react-hot-toast";
 
 const SignIn: React.FC = () => {
   let redirectMethod = "client";
+  const searchParams = useSearchParams();
   const router = redirectMethod === "client" ? useRouter() : null;
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const error = searchParams.get("error");
+    const errorDescription = searchParams.get("error_description");
+    if (error && errorDescription) {
+      // toast.error(decodeURIComponent(errorDescription), {
+      //   position: "top-center",
+      // });
+      toast.error(decodeURIComponent(errorDescription));
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

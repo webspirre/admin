@@ -290,6 +290,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
       // Insert formData into Supabase
       // @ts-ignore
       const { data, error } = await supabase
+        .schema("webspirre_admin")
         .from("website")
         .insert([
           {

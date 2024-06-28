@@ -5,6 +5,7 @@ import Loader from "@/components/common/loader/index";
 import { Toaster } from "react-hot-toast";
 import React, { useEffect, useState } from "react";
 import { AuthProvider } from "@/context/AuthProvider";
+import { toast, ToastContainer } from "react-toastify";
 
 export default function RootLayout({
   children,
@@ -19,6 +20,7 @@ export default function RootLayout({
     <html lang="en">
       <body suppressHydrationWarning={true}>
         <Toaster />
+        <ToastContainer />
         <div>
           {" "}
           {loading ? <Loader /> : <AuthProvider>{children}</AuthProvider>}

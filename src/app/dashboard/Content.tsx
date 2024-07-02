@@ -109,7 +109,6 @@ const Content: React.FC = () => {
             showFilterOptions={showFilterOptions}
             setShowFilterOptions={setShowFilterOptions}
           />
-          
         </div>
 
         <div className=" px-4 py-6">

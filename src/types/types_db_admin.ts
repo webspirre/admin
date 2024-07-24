@@ -388,6 +388,8 @@ export interface Database {
           full_name: string | null;
           avatar_url: string | null;
           website: string | null;
+          is_admin_can_upload: boolean | null;
+          email: string | null;
         };
         Insert: {
           id: string;
@@ -396,6 +398,8 @@ export interface Database {
           full_name?: string | null;
           avatar_url?: string | null;
           website?: string | null;
+          is_admin_can_upload?: boolean | null;
+          email?: string | null;
         };
         Update: {
           id?: string;
@@ -404,6 +408,8 @@ export interface Database {
           full_name?: string | null;
           avatar_url?: string | null;
           website?: string | null;
+          is_admin_can_upload?: boolean | null;
+          email?: string | null;
         };
         Delete: {
           id?: string;

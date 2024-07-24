@@ -7,6 +7,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { signInWithPassword } from "../../../lib/auth-helpers/server";
 import { handleRequest } from "../../../lib/auth-helpers/client";
 import { toast } from "react-hot-toast";
+import { getAdminUsers } from "../../../lib/supabase/queries";
+import { UserIsAdmin } from "@/types/types";
 
 const SignIn: React.FC = () => {
   let redirectMethod = "client";
@@ -14,22 +16,57 @@ const SignIn: React.FC = () => {
   const router = redirectMethod === "client" ? useRouter() : null;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [email, setEmail] = useState("");
+  const [isAdmin, setIsAdmin] = useState<UserIsAdmin | null>(null);
+
   useEffect(() => {
     const error = searchParams.get("error");
     const errorDescription = searchParams.get("error_description");
     if (error && errorDescription) {
-      // toast.error(decodeURIComponent(errorDescription), {
-      //   position: "top-center",
-      // });
       toast.error(decodeURIComponent(errorDescription));
     }
   }, [searchParams]);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedEmail = localStorage.getItem("email");
+      if (storedEmail) {
+        setEmail(storedEmail);
+      }
+    }
+  }, []);
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const email = e.target.value;
+    setEmail(email);
+    localStorage.setItem("email", email); // Store email in localStorage
+  };
+
+  const checkIsAdmin = async () => {
+    setIsSubmitting(true);
+
+    const adminUsers = await getAdminUsers(email, true);
+
+    if (!adminUsers) {
+      setIsSubmitting(false);
+      toast.error("Unauthorized request to login");
+    }
+    setIsAdmin(adminUsers);
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitting(true); // Set loading state to true
-    await handleRequest(e, signInWithPassword, router);
-    setIsSubmitting(false); // Set loading state to false after request completes
+    setIsSubmitting(true);
+    try {
+      checkIsAdmin();
+      if (isAdmin) {
+        await handleRequest(e, signInWithPassword, router);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -60,6 +97,8 @@ const SignIn: React.FC = () => {
                       autoComplete="email"
                       autoCorrect="off"
                       required
+                      value={email}
+                      onChange={handleEmailChange}
                       placeholder="Enter your email"
                       className="w-full rounded-lg border border-stroke bg-whiten py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                     />
@@ -83,12 +122,13 @@ const SignIn: React.FC = () => {
                 <div className="mb-5 flex w-full items-center justify-center">
                   <button
                     type="submit"
-                    className="w- cursor-pointer rounded-lg border border-primary bg-[#4608AD] px-6 py-2 font-bold text-white transition hover:bg-opacity-90"
+                    className="cursor-pointer rounded-lg border border-primary bg-[#4608AD] px-6 py-2 font-bold text-white transition hover:bg-opacity-90 disabled:cursor-not-allowed"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (
                       <div className="flex items-center">
-                        <div className="loader"></div> {/* Add a loader here */}
+                        <div className="loader "></div>{" "}
+                        {/* Add a loader here */}
                         <span className="ml-2">Logging in...</span>{" "}
                         {/* Loading text */}
                       </div>

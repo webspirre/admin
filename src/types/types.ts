@@ -1,3 +1,5 @@
+import { Database } from "./types_db_admin";
+
 interface UserData {
   id: string;
   aud: string;
@@ -130,5 +132,6 @@ export interface TwitterCardData {
   card: string; // e.g., 'summary' or 'summary_large_image'
   site: string; // Twitter username of the site
 }
-
-export type { User, FormData, CloudinaryAsset, UserMetadata };
+type UserT = Database["public"]["Tables"]["users"]["Row"];
+type UserIsAdmin = Pick<UserT, "is_admin_can_upload">;
+export type { User, FormData, CloudinaryAsset, UserMetadata, UserIsAdmin };

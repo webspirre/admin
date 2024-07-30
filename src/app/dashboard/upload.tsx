@@ -24,6 +24,8 @@ const categories_: Option[] = [
   { value: "travel-hospitality", label: "Travel & Hospitality" },
   { value: "agency-corporate", label: "Agency & Corporate" },
   { value: "devTools", label: "Developer Tools" },
+  { value: "others", label: "Others" },
+  { value: "design-resources", label: "Design Resources" },
 ];
 
 const pageTypes_: Option[] = [

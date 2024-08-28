@@ -158,7 +158,10 @@ const Content: React.FC = () => {
                   src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1718618172/utilities/webspirre/fi_check-square_r2xdvk.svg"
                   alt=""
                 />
-                Select All
+
+                {bulkSelectedRows.length === data.length
+                  ? "Unselect All"
+                  : "Select More"}
               </button>
               <button
                 className="block- w-full text-left px-4 py-2 text-[#FA4C4C] hover:bg-gray-100  flex gap-1 items-center"

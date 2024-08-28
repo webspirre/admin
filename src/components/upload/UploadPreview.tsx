@@ -26,10 +26,11 @@ const UploadPreview: React.FC<UploadPreviewProp> = ({
       />
 
       <button
-        className="absolute top-4 right-4 w-8 h-8 bg-white p-1 rounded-full hover:bg-red-600 duration-100 delay-75 transition cursor-pointer flex items-center"
-        onClick={() =>
-          setImagePreview((prev) => ({ ...prev, [filename]: null }))
-        }
+        className="absolute top-4 right-4 w-8 h-8 bg-white p-1 rounded-full hover:bg-red-600 duration-100 delay-75 transition cursor-pointer"
+        onClick={() => {
+          setImagePreview((prev) => ({ ...prev, [filename]: null }));
+          localStorage.removeItem(`file-${filename}`);
+        }}
       >
         <Image
           src="https://res.cloudinary.com/dwqantex4/image/upload/v1717939355/Delete_s0cip0.png"

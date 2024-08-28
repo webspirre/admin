@@ -80,12 +80,16 @@ const Content: React.FC = () => {
   ];
 
   return (
-    <div>
-      <div className="p-4 px-[50px] rounded-[20px] w-full  m-4 bg-white">
+    <div className="p-8">
+      <div className=" p-[30px] rounded-[20px] w-full   bg-white">
         <div className="flex text-[#888888] text-[12px]  gap-4">
-          <div className="px-2 h-fit py-2 flex items-center border-2 border-[#C7C7C7] gap-4 rounded-full">
-            <div className="border-2  border-[#C7C7C7] rounded-full w-4 h-4"></div>
-            <p>Bulk action</p>
+          <div className="px-2 h-fit w-[160px] py-2 flex justify-between items-center border-2 border-[#C7C7C7] gap-4 rounded-full">
+            <div className=" flex gap-2 items-center">
+              {" "}
+              <div className="border-2  border-[#C7C7C7] rounded-full w-4 h-4"></div>
+              <p className=" line-clamp-1">Bulk action</p>
+            </div>
+
             <img
               src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1718618172/utilities/webspirre/Expand_down_zyhxny.svg"
               alt=""
@@ -96,7 +100,7 @@ const Content: React.FC = () => {
               src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1718618334/utilities/webspirre/magnifier_cqcusg.svg"
               alt=""
             />
-            <p>Search uploads</p>
+            <input type="text" placeholder="Search uploads"  className=" focus:outline-none "/>
           </div>
           {/* Filter bar option section */}
           <TabButtons
@@ -111,7 +115,7 @@ const Content: React.FC = () => {
           />
         </div>
 
-        <div className=" px-4 py-6">
+        <div className=" py-6">
           <Table columns={columns} data={data} />
         </div>
       </div>

@@ -3,11 +3,21 @@ import React, { useState, useRef, useEffect } from "react";
 interface TableProps {
   columns: string[];
   data: { [key: string]: any }[];
+  bulkSelectedRows: number[];
+  individualSelectedRows: number[];
+  setIndividualSelectedRows: (rows: number[]) => void;
 }
 
-const Table: React.FC<TableProps> = ({ columns, data }) => {
+const Table: React.FC<TableProps> = ({
+  columns,
+  data,
+  bulkSelectedRows,
+}) => {
   const [openPopupIndex, setOpenPopupIndex] = useState<number | null>(null);
-  const [selectedRows, setSelectedRows] = useState<number[]>([]);
+ const [individualSelectedRows, setIndividualSelectedRows] = useState<number[]>(
+   []
+ );
+
   const popupRef = useRef<HTMLDivElement | null>(null);
 
   const handleOutsideClick = (event: MouseEvent) => {
@@ -28,15 +38,16 @@ const Table: React.FC<TableProps> = ({ columns, data }) => {
     };
   }, [openPopupIndex]);
 
-  const handleSelect = (rowIndex: number) => {
-    if (selectedRows.includes(rowIndex)) {
-      setSelectedRows(selectedRows.filter((index) => index !== rowIndex));
-    } else {
-      setSelectedRows([...selectedRows, rowIndex]);
-    }
-    setOpenPopupIndex(null); // close the popup after selecting
-  };
-
+ const handleSelect = (rowIndex: number) => {
+   if (individualSelectedRows.includes(rowIndex)) {
+     setIndividualSelectedRows(
+       individualSelectedRows.filter((index) => index !== rowIndex)
+     );
+   } else {
+     setIndividualSelectedRows([...individualSelectedRows, rowIndex]);
+   }
+   setOpenPopupIndex(null); // close the popup after selecting
+ };
   return (
     <div className="text-[#989898]">
       {/* table header */}
@@ -54,10 +65,18 @@ const Table: React.FC<TableProps> = ({ columns, data }) => {
           {/* This should be visible when "Select" is clicked */}
           <div
             className={`h-[18px] w-[18px] border flex justify-center items-center rounded-[4px] p-[2px] border-[#FAB843] ${
-              selectedRows.includes(rowIndex) ? "visible" : "hidden"
+              bulkSelectedRows.includes(rowIndex) ||
+              individualSelectedRows.includes(rowIndex)
+                ? "visible"
+                : "hidden"
             }`}
           >
-            <div className="bg-[#FAB843] flex h-full w-full rounded-[4px]"></div>
+            {/* Main Selection Indecator */}
+            <div
+              className={`bg-[#FAB843] flex h-full w-full rounded-[4px] ${
+                individualSelectedRows.includes(rowIndex) ? "visible" : "hidden"
+              }`}
+            ></div>{" "}
           </div>
 
           <div className="flex border shadow-md justify-between items-center p-2 w-full rounded-[24px] mb-2">
@@ -100,13 +119,15 @@ const Table: React.FC<TableProps> = ({ columns, data }) => {
                   >
                     <img
                       src={
-                        selectedRows.includes(rowIndex)
+                        individualSelectedRows.includes(rowIndex)
                           ? "https://res.cloudinary.com/dcb4ilgmr/image/upload/v1718618172/utilities/webspirre/fi_check-square_r2xdvk.svg"
                           : "https://res.cloudinary.com/dcb4ilgmr/image/upload/v1718618172/utilities/webspirre/fi_check-square_r2xdvk.svg"
                       }
                       alt=""
                     />
-                    {selectedRows.includes(rowIndex) ? "Unselect" : "Select"}
+                    {individualSelectedRows.includes(rowIndex)
+                      ? "Unselect"
+                      : "Select"}
                   </button>
                   <button className="w-full flex items-center gap-2 text-left p-1 hover:bg-gray-100">
                     <img

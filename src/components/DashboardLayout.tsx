@@ -25,10 +25,10 @@ const DashboardLayout: React.FC<DashboardProps> = () => {
         <Loader handleLoading={handleLoading} loaderText="Loading Asset" />
       )}
       <div className="flex ">
-        <div className="w-[350px] min-h-screen px-6 bg-white ">
+        <div className="min-w-[250px] min-h-screen px-6 bg-white ">
           <button
-            className={`flex fixed  gap-4 items-center mt-[100px] w-[250px] rounded-[12px]  px-4 py-3 text-[16px] mb-4 font-semibold hover-black overflow-hidden hover:scale-100 transition-transform duration-300 text-black ${
-              showUpload ? "bg-[#F2F2F7] rounded-[12px] w-[250px]" : ""
+            className={`flex fixed  gap-4 items-center mt-[100px] w-[200px] rounded-[12px]  px-4 py-3 text-[16px] mb-4 font-semibold hover-black overflow-hidden hover:scale-100 transition-transform duration-300 text-black ${
+              showUpload ? "bg-[#F2F2F7] rounded-[12px] w-[200px]" : ""
             }`}
             onClick={() => setShowUpload(true)}
           >
@@ -41,8 +41,8 @@ const DashboardLayout: React.FC<DashboardProps> = () => {
             Upload
           </button>
           <button
-            className={`flex fixed gap-4 items-center mt-[170px] w-[250px] rounded-[12px]  px-4 py-3 text-[16px] mb-4 font-semibold hover-black overflow-hidden hover:scale-100 transition-transform duration-300 text-black  ${
-              !showUpload ? "bg-[#F2F2F7] rounded-[12px] w-[250px]" : ""
+            className={`flex fixed gap-4 items-center mt-[170px] w-[200px] rounded-[12px]  px-4 py-3 text-[16px] mb-4 font-semibold hover-black overflow-hidden hover:scale-100 transition-transform duration-300 text-black  ${
+              !showUpload ? "bg-[#F2F2F7] rounded-[12px] w-[200px]" : ""
             }`}
             onClick={() => setShowUpload(false)}
           >

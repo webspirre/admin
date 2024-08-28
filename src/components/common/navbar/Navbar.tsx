@@ -31,13 +31,13 @@ const Navbar: React.FC<NavProps> = ({ user }) => {
     <>
       <div className="fixed top-0 left-0 right-0 z-10 w-full">
         <div className="flex items-center border-b-[1px] border-[#BBBBBB]  bg-white">
-          <div className="flex w-[350px] pl-12 bg-white ">
+          <div className="flex min-w-[250px] pl-12 bg-white ">
             <Link href="/">
               <Image
                 height={60}
-                width={100}
-                src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1705721941/utilities/logo_e8rxwj.svg"
-                alt="rice"
+                width={120}
+                src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1720865679/utilities/webspirre/webspirre-logo-long_na5afq.svg"
+                alt="logo"
                 className="rounded-lg"
               />
             </Link>

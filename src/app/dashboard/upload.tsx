@@ -2,17 +2,16 @@
 
 import { useState, useEffect, FC } from "react";
 import FileUpload from "./FileUpload";
-import FileUpload2 from "@/components/common/FileUpload";
-// import { supabase } from "@/libs/supabase";
 import toast from "react-hot-toast";
 
 import Select, { ActionMeta, MultiValue } from "react-select";
 
 import { CloudinaryAsset } from "@/types/types";
-import useFormInput from "@/hooks/useFormInput";
 import { createClient } from "../../../lib/supabase/client";
 import SuccessModal from "@/components/modal/UploadSuccessModal";
 import { ImagePreviewState } from "@/types/imgPreview.type";
+import SubmitButton from "@/components/ui/SubmitButton";
+import ErrorMessage from "@/components/ui/ErrorMessage";
 
 const categories_: Option[] = [
   { value: "ai", label: "AI" },
@@ -46,6 +45,10 @@ interface Map {
   [key: string]: string | string[] | undefined | Option | Option[];
 }
 
+interface ErrorMap {
+  [key: string]: string | string[];
+}
+
 const initialFormData: Map = {
   name: "",
   webURL: "",
@@ -69,12 +72,30 @@ const initialFormData: Map = {
   }),
 };
 
+const initialErrorData: ErrorMap = {
+  name: "",
+  webURL: "",
+  category: "",
+  categories: [],
+  pageType: "",
+  shortDescription: "",
+  longDescription: "",
+  logoImageURL: "",
+  desktopSsURL: "",
+  mobileSsURL: "",
+  desktopFpURL: "",
+  mobileFpURL: "",
+  date: "",
+};
+
 const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
   handleLoading,
   loading,
 }) => {
   const supabase = createClient();
   const [formData, setFormData] = useState(initialFormData);
+  const [errorData, setErrorData] = useState(initialErrorData);
+
   /// FILEUPLOAD STATES
   // const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<ImagePreviewState>({
@@ -93,11 +114,6 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toogleModal, setToogleModal] = useState(false);
-
-  const [formDataMore, resetForm, inputAttributes] = useFormInput(
-    "form_data",
-    initialFormData
-  );
 
   // Load data from localStorage when the component mounts
   useEffect(() => {
@@ -141,11 +157,6 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
     newValue: MultiValue<Option>,
     actionMeta: ActionMeta<Option>
   ) => {
-    // if (newValue) {
-    //   const categoryValues = newValue.map((option) => option.value);
-    //   setFormData({ ...formData, categories: categoryValues });
-    //   setSelectedCategories(newValue as Option[]);
-    // }
     if (newValue) {
       const categoryValues = newValue.map((option) => option.value);
       const newFormData = {
@@ -193,16 +204,29 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
-    // setFormData({
-    //   ...formData,
-    //   [e.target.name]: e.target.value,
-    // });
-    const newFormData = {
+    const { name, value } = e.target;
+    let errorMessage = "";
+
+    // Basic validation checks
+    if (name === "name" && value.length < 3) {
+      errorMessage = "Name must be at least 3 characters";
+    } else if (name === "webURL" && !/https?:\/\/\S/.test(value)) {
+      errorMessage = "Invalid URL";
+    } else if (name === "shortDescription" && value.length > 200) {
+      errorMessage = "Short description must be less than 100 characters";
+    }
+
+    setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
-    };
-    setFormData(newFormData);
-    localStorage.setItem("formData", JSON.stringify(newFormData));
+      [name]: value,
+    });
+
+    setErrorData({
+      ...errorData,
+      [name]: errorMessage,
+    });
+
+    localStorage.setItem("formData", JSON.stringify(formData));
   };
 
   /**
@@ -215,11 +239,21 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
     type: string,
     filename: string
   ) => {
+    // Validate input and update errorData accordingly
+    if (type === "name" && file.size < 3) {
+      setErrorData({
+        ...errorData,
+        [type]: "Name must be at least 3 characters",
+      });
+    } else {
+      setErrorData({ ...errorData, [type]: "" });
+    }
     setFormData({
       ...formData,
       // [type]: file,
       [type]: file as unknown as string,
     });
+
     const formDataForCloudinary = new FormData();
 
     // Upload images to Cloudinary
@@ -238,12 +272,8 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
         }
       ).then((r) => r.json());
 
-      console.log("data", cloudinaryResponse);
-      // setFormData({
-      //   ...formData,
-      //   [type]: file as unknown as string,
-      //   [filename]: cloudinaryResponse.secure_url,
-      // });
+      // console.log("data", cloudinaryResponse);
+
       setFormData((prevState) => {
         const updatedFormData = {
           ...prevState,
@@ -254,7 +284,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
         return updatedFormData;
       });
       toast.success(`${filename} link generated`, { duration: 3000 });
-      console.log("new formDa", formData);
+      // console.log("new formDa", formData);
       handleLoading();
       setTimeout(() => {
         setLoadingState((prevState) => ({ ...prevState, [filename]: false }));
@@ -314,20 +344,48 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
         ])
         .select();
 
+      const { data: RecoveryData, error: RecoveryError } = await supabase
+        .schema("webspirre_admin")
+        .from("website_recovery")
+        .insert([
+          {
+            name,
+            webURL,
+            category,
+            pageType,
+            shortDescription,
+            longDescription,
+            logoImageURL,
+            desktopSsURL,
+            mobileSsURL,
+            desktopFpURL,
+            mobileFpURL,
+            date,
+            categories,
+          },
+        ])
+        .select();
+
       // Handle errors
-      if (error) {
-        console.error("Error inserting data into Supabase:", error.message);
+      if (error || RecoveryError) {
+        console.error(
+          "Error inserting data into Supabase:",
+          error?.message,
+          RecoveryError?.message
+        );
         return;
       }
 
       // Handle success
-      console.log("Data inserted into Supabase:", data);
-      console.log("selecca", formData);
+      // console.log("Data inserted into Supabase:", data);
 
       setFormData({ ...formData, ...initialFormData }); // Clear the form fields after successful submission
       localStorage.removeItem("formData");
       localStorage.removeItem("selectedCategories");
       localStorage.removeItem("selectedPageType");
+      localStorage.removeitem('file-desktopFpURL')
+      localStorage.removeitem('file-mobileFpURL')
+      localStorage.removeitem('file-logoImageURL')
 
       toast.success("Document Created successfully!", { duration: 3000 });
       setIsSubmitting(false); // Set loading state to false after request completes
@@ -382,6 +440,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
                   // {...inputAttributes.name}
                   className="border-2 rounded-lg p-4 w-full"
                 />
+                <ErrorMessage message={errorData.name as string} />
               </div>
               <div className="w-full py-8">
                 <label htmlFor="webURL">URL of website</label>
@@ -396,6 +455,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
                   value={formData.webURL as string}
                   className="border-2 rounded-lg p-4 w-full"
                 />
+                <ErrorMessage message={errorData.webURL as string} />
               </div>
 
               {/*  Category Field*/}
@@ -424,16 +484,6 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
                     }),
                   }}
                 />
-                {/* {selectedCategories && (
-                <div className="p-20">
-                  <h3>Selected Category:</h3>
-                  <p>
-                    {selectedCategories.map((_) => (
-                      <>{_.label} </>
-                    ))}
-                  </p>
-                </div>
-              )} */}
               </div>
 
               {/* PageType Field */}
@@ -461,12 +511,6 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
                     }),
                   }}
                 />
-                {/* {selectedOption && (
-                <div className="p-20">
-                  <h3>Selected PageType:</h3>
-                  <p>{selectedOption.label}</p>
-                </div>
-              )} */}
               </div>
 
               <div className="w-full py-8">
@@ -480,6 +524,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
                   // {...inputAttributes.shortDescription}
                   className="border-2 rounded-lg p-4 w-full"
                 />
+                <ErrorMessage message={errorData.shortDescription as string} />
               </div>
               <div className="w-full py-8">
                 <label htmlFor="longDescription">Long description</label>
@@ -492,6 +537,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
                   // {...inputAttributes.longDescription}
                   className="border-2 rounded-lg p-4 w-full"
                 />
+                <ErrorMessage message={errorData.longDescription as string} />
               </div>
             </div>
             <div className="">
@@ -506,21 +552,8 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
                   loading={loadingState.logoImageURL}
                   imagePreview={imagePreview.logoImageURL}
                   setImagePreview={setImagePreview}
+                  errorMsg={errorData.logoImageURL as string}
                 />
-                {/* <FileUpload
-                label="Desktop screenshot"
-                onFileChange={(file) =>
-                  handleFileChange(file, "desktopSs", "desktopSsURL")
-                }
-                filename={"desktopSsURL"}
-              />
-              <FileUpload2
-                label="Mobile screenshot"
-                onFileChange={(file) =>
-                  handleFileChange(file, "mobileSs", "mobileSsURL")
-                }
-                filename={"mobileSsURL"}
-              /> */}
                 <FileUpload
                   label="Desktop full page"
                   onFileChange={(file) =>
@@ -531,6 +564,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
                   loading={loadingState.desktopFpURL}
                   imagePreview={imagePreview.desktopFpURL}
                   setImagePreview={setImagePreview}
+                  errorMsg={errorData.desktopFpURL as string}
                 />
                 <FileUpload
                   label="Mobile full page"
@@ -542,6 +576,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
                   filesize="812px x 414px"
                   imagePreview={imagePreview.mobileFpURL}
                   setImagePreview={setImagePreview}
+                  errorMsg={errorData.mobileFpURL as string}
                 />
               </div>
               <div className="w-full py-8">
@@ -555,25 +590,12 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
                   // {...inputAttributes.date}
                   className="border-2 rounded-lg p-4 w-full"
                 />
+                <ErrorMessage message={errorData.date as string} />
               </div>
             </div>
           </div>
           <div className="flex justify-end m-4">
-            <button
-              type="submit"
-              className="bg-black text-white px-[50px] py-2 rounded-lg disabled:bg-opacity-35 disabled:cursor-not-allowed"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <div className="flex items-center">
-                  <div className="loader"></div> {/* Add a loader here */}
-                  <span className="ml-2">Submitting Design...</span>{" "}
-                  {/* Loading text */}
-                </div>
-              ) : (
-                "Submit"
-              )}
-            </button>
+            <SubmitButton isSubmitting={isSubmitting} formData={formData} />
           </div>
         </form>
       </div>

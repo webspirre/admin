@@ -5,7 +5,7 @@ import Loader from "@/components/common/loader/index";
 import { Toaster } from "react-hot-toast";
 import React, { useEffect, useState } from "react";
 import { AuthProvider } from "@/context/AuthProvider";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 
 export default function RootLayout({
   children,

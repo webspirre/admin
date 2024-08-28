@@ -68,6 +68,57 @@ export interface DesignDatabase {
         };
         Relationships: [];
       };
+      website_recovery: {
+        Row: {
+          name: Map | null;
+          webURL: Map | null;
+          category: Map | null;
+          pageType: Map | null;
+          shortDescription: Map | null;
+          longDescription: Map | null;
+          logoImageURL: Map | null;
+          desktopSsURL: Map | null;
+          mobileSsURL: Map | null;
+          desktopFpURL: Map | null;
+          mobileFpURL: Map | null;
+          categories: Map | null;
+          date: Map | null;
+        };
+        Insert: {
+          name?: Map | null;
+          webURL?: Map | null;
+          category?: Map | null;
+          pageType?: Map | null;
+          shortDescription?: Map | null;
+          longDescription?: Map | null;
+          logoImageURL?: Map | null;
+          desktopSsURL?: Map | null;
+          mobileSsURL?: Map | null;
+          desktopFpURL?: Map | null;
+          mobileFpURL?: Map | null;
+          categories?: Map | null;
+          date?: Map | null;
+        };
+        Update: {
+          name?: Map | null;
+          webURL?: Map | null;
+          category?: Map | null;
+          pageType?: Map | null;
+          shortDescription?: Map | null;
+          longDescription?: Map | null;
+          logoImageURL?: Map | null;
+          desktopSsURL?: Map | null;
+          mobileSsURL?: Map | null;
+          desktopFpURL?: Map | null;
+          mobileFpURL?: Map | null;
+          categories?: Map | null;
+          date?: Map | null;
+        };
+        Delete: {
+          uid: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;

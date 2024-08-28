@@ -5,10 +5,7 @@ import { supabase } from "@/libs/supabase";
 import { NextApiRequest, NextApiResponse } from "next";
 // import { v2 as cloudinary } from "cloudinary";
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function GET(req: NextApiRequest, res: NextApiResponse) {
   try {
     const file = req.body.file; // Assuming the client sends the file in the request body
     const result = await cloudinary.uploader.upload(file); // Upload the file to Cloudinary

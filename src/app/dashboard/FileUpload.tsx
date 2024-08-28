@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Preview, UploadInitial, UploadLoader } from "@/components/upload";
 import { ImagePreviewState } from "@/types/imgPreview.type";
+import ErrorMessage from "@/components/ui/ErrorMessage";
 
 interface FileUploadProps {
   label: string;
@@ -11,6 +12,7 @@ interface FileUploadProps {
   filesize?: string;
   imagePreview: string | null;
   setImagePreview: React.Dispatch<React.SetStateAction<ImagePreviewState>>;
+  errorMsg?: string;
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({
@@ -21,7 +23,17 @@ const FileUpload: React.FC<FileUploadProps> = ({
   filesize,
   setImagePreview,
   imagePreview,
+  errorMsg,
 }) => {
+  React.useEffect(() => {
+    const savedFile = localStorage.getItem(`file-${filename}`);
+    if (savedFile) {
+      setImagePreview((prevState) => ({
+        ...prevState,
+        [filename]: savedFile,
+      }));
+    }
+  }, [filename]);
   // const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [files, setFiles] = useState<File[]>([]);
 
@@ -33,6 +45,8 @@ const FileUpload: React.FC<FileUploadProps> = ({
         const reader = new FileReader();
         console.log("Reader File URL ", reader.result);
         reader.onloadend = () => {
+          const base64String = reader.result as string;
+          localStorage.setItem(`file-${filename}`, base64String);
           // setImagePreview(reader.result as string);
           setImagePreview((prevState) => ({
             ...prevState,
@@ -98,6 +112,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
           <UploadInitial fileSize={filesize as string} />
         )}
       </div>
+      <ErrorMessage message={errorMsg as string} />
     </div>
   );
 };

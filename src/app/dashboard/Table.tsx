@@ -64,7 +64,8 @@ const Table: React.FC<TableProps> = ({
         <div key={rowIndex} className="flex gap-2 items-center">
           {/* This should be visible when "Select" is clicked */}
           <div
-            className={`h-[18px] w-[18px] border flex justify-center items-center rounded-[4px] p-[2px] border-[#FAB843] ${
+            onClick={() => handleSelect(rowIndex)}
+            className={`h-[18px] w-[18px] border flex justify-center items-center rounded-[4px] cursor-pointer p-[2px] border-[#FAB843] ${
               bulkSelectedRows.includes(rowIndex) ||
               individualSelectedRows.includes(rowIndex)
                 ? "visible"

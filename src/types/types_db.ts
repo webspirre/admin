@@ -5,7 +5,7 @@ export type Json =
   | null
   | { [key: string]: Json | undefined }
   | Json[];
-interface Option {
+export interface Option {
   value: string;
   label: string;
 }
@@ -21,7 +21,7 @@ export interface DesignDatabase {
         Row: {
           name: Map | null;
           webURL: Map | null;
-          category: Map | null;
+          // category: Map | null;
           pageType: Map | null;
           shortDescription: Map | null;
           longDescription: Map | null;
@@ -32,11 +32,12 @@ export interface DesignDatabase {
           mobileFpURL: Map | null;
           categories: Map | null;
           date: Map | null;
+          uid?: Map | null;
         };
         Insert: {
           name?: Map | null;
           webURL?: Map | null;
-          category?: Map | null;
+          // category?: Map | null;
           pageType?: Map | null;
           shortDescription?: Map | null;
           longDescription?: Map | null;
@@ -51,7 +52,7 @@ export interface DesignDatabase {
         Update: {
           name?: Map | null;
           webURL?: Map | null;
-          category?: Map | null;
+          // category?: Map | null;
           pageType?: Map | null;
           shortDescription?: Map | null;
           longDescription?: Map | null;
@@ -62,6 +63,7 @@ export interface DesignDatabase {
           mobileFpURL?: Map | null;
           categories?: Map | null;
           date?: Map | null;
+          uid?: Map | null;
         };
         Delete: {
           uid: string;
@@ -83,6 +85,7 @@ export interface DesignDatabase {
           mobileFpURL: Map | null;
           categories: Map | null;
           date: Map | null;
+          uid: Map | null;
         };
         Insert: {
           name?: Map | null;
@@ -98,6 +101,7 @@ export interface DesignDatabase {
           mobileFpURL?: Map | null;
           categories?: Map | null;
           date?: Map | null;
+          uid?: Map | null;
         };
         Update: {
           name?: Map | null;
@@ -113,6 +117,7 @@ export interface DesignDatabase {
           mobileFpURL?: Map | null;
           categories?: Map | null;
           date?: Map | null;
+          uid?: Map | null;
         };
         Delete: {
           uid: string;

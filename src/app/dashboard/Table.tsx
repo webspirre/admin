@@ -1,8 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
+import { DesignDatabase } from "@/types/types_db";
+import useDataFetch from "@/hooks/useDataFetch";
+import InfiniteScroll from "@/hooks/custom-hooks/useInfinityScroll";
+import { useRouter } from "next/navigation";
+import { deleteDesign } from "../../../lib/supabase/queries/designs";
+import toast from "react-hot-toast";
+
+type Design = DesignDatabase["webspirre_admin"]["Tables"]["website"]["Row"];
 
 interface TableProps {
   columns: string[];
-  data: { [key: string]: any }[];
+  data: Design[];
   bulkSelectedRows: number[];
   individualSelectedRows: number[];
   setIndividualSelectedRows: (rows: number[]) => void;
@@ -10,13 +18,34 @@ interface TableProps {
 
 const Table: React.FC<TableProps> = ({
   columns,
-  data,
+  data = [],
   bulkSelectedRows,
 }) => {
+  const handleDesignDelete = async (designID: string, designName: string) => {
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete design with Name ${designName}?`
+    );
+    if (confirmDelete) {
+      const deleted = await deleteDesign(designID);
+      if (deleted) {
+        console.log(`Design with ID ${designID} deleted successfully`);
+        toast.success(`Design with Name ${designName} deleted successfully`);
+      } else {
+        console.log(`Failed to delete design with ID ${designID}`);
+        toast.success(`Failed to delete design with Name ${designName}`);
+      }
+    } else {
+      console.log("Design deletion cancelled");
+    }
+  };
+  const router = useRouter();
   const [openPopupIndex, setOpenPopupIndex] = useState<number | null>(null);
- const [individualSelectedRows, setIndividualSelectedRows] = useState<number[]>(
-   []
- );
+  const [individualSelectedRows, setIndividualSelectedRows] = useState<
+    number[]
+  >([]);
+
+  const { hasNextPage, fetchNextPage, isFetchingNextPage, isLoading } =
+    useDataFetch();
 
   const popupRef = useRef<HTMLDivElement | null>(null);
 
@@ -38,16 +67,18 @@ const Table: React.FC<TableProps> = ({
     };
   }, [openPopupIndex]);
 
- const handleSelect = (rowIndex: number) => {
-   if (individualSelectedRows.includes(rowIndex)) {
-     setIndividualSelectedRows(
-       individualSelectedRows.filter((index) => index !== rowIndex)
-     );
-   } else {
-     setIndividualSelectedRows([...individualSelectedRows, rowIndex]);
-   }
-   setOpenPopupIndex(null); // close the popup after selecting
- };
+  const handleSelect = (rowIndex: number) => {
+    if (individualSelectedRows.includes(rowIndex)) {
+      setIndividualSelectedRows(
+        individualSelectedRows.filter((index) => index !== rowIndex)
+      );
+    } else {
+      setIndividualSelectedRows([...individualSelectedRows, rowIndex]);
+    }
+    setOpenPopupIndex(null); // close the popup after selecting
+  };
+
+  if (!data) return [];
   return (
     <div className="text-[#989898]">
       {/* table header */}
@@ -59,9 +90,27 @@ const Table: React.FC<TableProps> = ({
         ))}
       </div>
 
+      {!isLoading && data.length === 0 && (
+        <div className="flex flex-col items-center justify-center min-h-[50vh]">
+          <div className={`text-center`}>
+            <img
+              src="https://res.cloudinary.com/dwqantex4/image/upload/w_500,f_auto/v1716472523/hero_H1_and_vector_r6n8qn.png" // Replace with the path to your image
+              alt="No designs found"
+              className="mb-6"
+            />
+            <p className="text-lg text-slate-800 font-semibold mb-2">
+              No designs at the moment
+            </p>
+            <p className="text-sm text-slate-500">
+              Please check back later or adjust your filters.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* table rows */}
       {data.map((row, rowIndex) => (
-        <div key={rowIndex} className="flex gap-2 items-center">
+        <div key={row?.uid as string} className="flex gap-2 items-center">
           {/* This should be visible when "Select" is clicked */}
           <div
             onClick={() => handleSelect(rowIndex)}
@@ -82,32 +131,46 @@ const Table: React.FC<TableProps> = ({
 
           <div className="flex border shadow-md justify-between items-center p-2 w-full rounded-[24px] mb-2">
             <div className="flex gap-8 items-center">
-              <div className="relative flex w-fit">
-                <img src={row["Main Image"]} alt="" className="" />
+              <div className="relative flex w-10 h-10">
                 <img
-                  src={row["Profile Image"]}
+                  src={row?.logoImageURL as string}
                   alt=""
-                  className="flex absolute top-[10px] -right-4"
+                  className="w-full h-full rounded-2xl"
+                />
+                <img
+                  src={row.logoImageURL as string}
+                  alt=""
+                  className="absolute rounded top-2.5 -right-2 w-5 h-5"
                 />
               </div>
-              <p className="font-bold text-black">{row["Name of Website"]}</p>
+              <p className="font-bold text-black">{row?.name as string}</p>
             </div>
             <div>
-              <p>{row["Devices"]}</p>
+              <p>Web | Mobile</p>
             </div>
             <div>
-              <p>{row["Category"]}</p>
+              <p>
+                {Array.isArray(row.categories) && (row.categories[0] as string)}
+              </p>
             </div>
             <div>
-              <p>{row["Page Type"]}</p>
+              <p>{row.pageType as string}</p>
             </div>
             <div>
-              <p>{row["Last Modified"]}</p>
+              <p>{row?.date as string}</p>
             </div>
             <div className="flex gap-8 items-center relative pr-[20px]">
-              <p>{row["Status"]}</p>
+              <p>
+                Active
+                {/* {row["Status"]} */}
+              </p>
               <button onClick={() => setOpenPopupIndex(rowIndex)}>
-                <img src={row["Action Image"]} alt="" />
+                <img
+                  src={
+                    "https://res.cloudinary.com/dcb4ilgmr/image/upload/v1718621241/utilities/webspirre/Frame_34_1_prp0wr.svg"
+                  }
+                  alt=""
+                />
               </button>
               {openPopupIndex === rowIndex && (
                 <div
@@ -130,14 +193,29 @@ const Table: React.FC<TableProps> = ({
                       ? "Unselect"
                       : "Select"}
                   </button>
-                  <button className="w-full flex items-center gap-2 text-left p-1 hover:bg-gray-100">
+                  <button
+                    className="w-full flex items-center gap-2 text-left p-1 hover:bg-gray-100"
+                    onClick={(e) => {
+                      e.preventDefault(); // Prevent the default link behavior
+                      window.location.href = `/dashboard/content/edit/${row?.uid}`; // Force a full page reload
+                      router.push(`/dashboard/content/edit/${row?.uid}`);
+                    }}
+                  >
                     <img
                       src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1718762840/utilities/webspirre/Edit_duotone_line_vcq4ls.svg"
                       alt=""
                     />
                     Edit
                   </button>
-                  <button className="flex items-center gap-2 w-full text-left text-[#FA4C4C] p-1 hover:bg-gray-100">
+                  <button
+                    onClick={() =>
+                      handleDesignDelete(
+                        row?.uid as string,
+                        row?.name as string
+                      )
+                    }
+                    className="flex items-center gap-2 w-full text-left text-[#FA4C4C] p-1 hover:bg-gray-100"
+                  >
                     <img
                       src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1718762840/utilities/webspirre/fi_trash-2_pvcgbs.svg"
                       alt=""
@@ -150,6 +228,17 @@ const Table: React.FC<TableProps> = ({
           </div>
         </div>
       ))}
+      {/* INFINITY HANDLER */}
+      {data.length > 0 && hasNextPage && (
+        <InfiniteScroll
+          loadMore={fetchNextPage}
+          height="20px"
+          triggerOnce={false}
+          threshold={0.1}
+          rootMargin="10px"
+          disabled={!hasNextPage || isFetchingNextPage}
+        />
+      )}
     </div>
   );
 };

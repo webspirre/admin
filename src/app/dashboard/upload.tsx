@@ -12,6 +12,8 @@ import SuccessModal from "@/components/modal/UploadSuccessModal";
 import { ImagePreviewState } from "@/types/imgPreview.type";
 import SubmitButton from "@/components/ui/SubmitButton";
 import ErrorMessage from "@/components/ui/ErrorMessage";
+import useDataFetch from "@/hooks/useDataFetch";
+import { formatCategoryOptions, formatPageTypeOption } from "@/util/data.util";
 
 const categories_: Option[] = [
   { value: "ai", label: "AI" },
@@ -92,53 +94,113 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
   handleLoading,
   loading,
 }) => {
+  const { detailDesign } = useDataFetch();
   const supabase = createClient();
-  const [formData, setFormData] = useState(initialFormData);
+  const [formData, setFormData] = useState(
+    detailDesign ? detailDesign : initialFormData
+  );
   const [errorData, setErrorData] = useState(initialErrorData);
-
-  /// FILEUPLOAD STATES
-  // const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imagePreview, setImagePreview] = useState<ImagePreviewState>({
-    desktopFpURL: null,
-    mobileFpURL: null,
-    logoImageURL: null,
-  });
-  const [loadingState, setLoadingState] = useState({
-    desktopFpURL: false,
-    mobileFpURL: false,
-    logoImageURL: false,
-  });
 
   const [selectedCategories, setSelectedCategories] = useState<Option[]>([]);
   const [selectedOption, setSelectedOption] = useState<Option>();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toogleModal, setToogleModal] = useState(false);
+  const categories = formatCategoryOptions(
+    (detailDesign?.categories as string[]) ?? []
+  );
+  // const pageType = formatPageTypeOption(detailDesign?.pageType ?? "");
+  const pageType = detailDesign?.pageType
+    ? formatPageTypeOption(detailDesign.pageType as string)
+    : {};
+
+  useEffect(() => {
+    if (detailDesign) {
+      localStorage.setItem("editformData", JSON.stringify(detailDesign));
+      localStorage.setItem(
+        "editselectedCategories",
+        JSON.stringify(categories)
+      );
+      localStorage.setItem("editselectedPageType", JSON.stringify(pageType));
+    }
+  }, [detailDesign]);
+
+  // Helper function to get data from localStorage
+  const getFromLocalStorage = (key: string) => {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : null;
+  };
 
   // Load data from localStorage when the component mounts
   useEffect(() => {
-    const savedFormData = localStorage.getItem("formData");
+    const formDataKey = detailDesign ? "editformData" : "formData";
+    const categoriesKey = detailDesign
+      ? "editselectedCategories"
+      : "selectedCategories";
+    const pageTypeKey = detailDesign
+      ? "editselectedPageType"
+      : "selectedPageType";
+
+    const savedFormData = getFromLocalStorage(formDataKey);
     if (savedFormData) {
-      setFormData(JSON.parse(savedFormData));
+      setFormData(savedFormData);
     }
 
-    const savedCategories = localStorage.getItem("selectedCategories");
+    const savedCategories = getFromLocalStorage(categoriesKey);
     if (savedCategories) {
-      setSelectedCategories(JSON.parse(savedCategories));
+      setSelectedCategories(savedCategories);
     }
 
-    const savedPageType = localStorage.getItem("selectedPageType");
+    const savedPageType = getFromLocalStorage(pageTypeKey);
     if (savedPageType) {
-      setSelectedOption(JSON.parse(savedPageType));
+      setSelectedOption(savedPageType);
     }
-  }, []);
+  }, [detailDesign]);
+
+  /// FILEUPLOAD STATES
+  const [imagePreview, setImagePreview] = useState<ImagePreviewState>({
+    desktopFpURL:
+      typeof formData?.desktopFpURL === "string" ? formData.desktopFpURL : null,
+    mobileFpURL:
+      typeof formData?.mobileFpURL === "string" ? formData.mobileFpURL : null,
+    logoImageURL:
+      typeof formData?.logoImageURL === "string" ? formData.logoImageURL : null,
+  });
+
+  const [loadingState, setLoadingState] = useState({
+    desktopFpURL: false,
+    mobileFpURL: false,
+    logoImageURL: false,
+  });
+
+  useEffect(() => {
+    if (formData) {
+      setImagePreview({
+        desktopFpURL:
+          typeof formData.desktopFpURL === "string"
+            ? formData.desktopFpURL
+            : null,
+        mobileFpURL:
+          typeof formData.mobileFpURL === "string"
+            ? formData.mobileFpURL
+            : null,
+        logoImageURL:
+          typeof formData.logoImageURL === "string"
+            ? formData.logoImageURL
+            : null,
+      });
+    }
+  }, [formData]);
+
+  // console.log(
+  //   "selectedCategories",
+  //   selectedCategories,
+  //   formData.logoImageURL,
+  //   imagePreview
+  // );
 
   // Function to handle page type change
   const handleChangePageType = (selectedOption: Option | null) => {
-    // if (selectedOption) {
-    //   setFormData({ ...formData, pageType: selectedOption.value });
-    //   setSelectedOption(selectedOption);
-    // }
     if (selectedOption) {
       const newFormData = {
         ...formData,
@@ -212,7 +274,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
       errorMessage = "Name must be at least 3 characters";
     } else if (name === "webURL" && !/https?:\/\/\S/.test(value)) {
       errorMessage = "Invalid URL";
-    } else if (name === "shortDescription" && value.length > 200) {
+    } else if (name === "shortDescription" && value.length > 150) {
       errorMessage = "Short description must be less than 100 characters";
     }
 
@@ -308,7 +370,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
       const {
         name,
         webURL,
-        category,
+        // category,
         pageType,
         shortDescription,
         longDescription,
@@ -329,7 +391,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
           {
             name,
             webURL,
-            category,
+            // category,
             pageType,
             shortDescription,
             longDescription,
@@ -351,7 +413,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
           {
             name,
             webURL,
-            category,
+            // category,
             pageType,
             shortDescription,
             longDescription,
@@ -383,9 +445,9 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
       localStorage.removeItem("formData");
       localStorage.removeItem("selectedCategories");
       localStorage.removeItem("selectedPageType");
-      localStorage.removeitem('file-desktopFpURL')
-      localStorage.removeitem('file-mobileFpURL')
-      localStorage.removeitem('file-logoImageURL')
+      localStorage.removeitem("file-desktopFpURL");
+      localStorage.removeItem("file-mobileFpURL");
+      localStorage.removeItem("file-logoImageURL");
 
       toast.success("Document Created successfully!", { duration: 3000 });
       setIsSubmitting(false); // Set loading state to false after request completes
@@ -399,6 +461,105 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
       console.error("Error:", error);
     }
   };
+  const updateWebsiteHandler = async (
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
+    setIsSubmitting(true); // Set loading state to true
+
+    try {
+      // Destructure formData object
+      const {
+        name,
+        webURL,
+        // category,
+        pageType,
+        shortDescription,
+        longDescription,
+        logoImageURL,
+        desktopSsURL,
+        mobileSsURL,
+        desktopFpURL,
+        mobileFpURL,
+        categories,
+        date,
+      } = formData;
+
+      // Update formData in Supabase
+
+      const uid = detailDesign?.uid;
+      if (uid) {
+        const { data, error } = await supabase
+          .schema("webspirre_admin")
+          .from("website")
+          .update({
+            name,
+            webURL,
+            // category,
+            pageType,
+            shortDescription,
+            longDescription,
+            logoImageURL,
+            desktopSsURL,
+            mobileSsURL,
+            desktopFpURL,
+            mobileFpURL,
+            date,
+            categories,
+          })
+          .eq("uid", uid)
+          .select();
+        // Handle errors
+        if (error) {
+          console.error("Error updating data in Supabase:", error?.message);
+          return;
+        }
+      } else {
+        console.error("detailDesign is undefined");
+      }
+      if (uid) {
+        const { data: RecoveryData, error: RecoveryError } = await supabase
+          .schema("webspirre_admin")
+          .from("website_recovery")
+          .update({
+            name,
+            webURL,
+            // category,
+            pageType,
+            shortDescription,
+            longDescription,
+            logoImageURL,
+            desktopSsURL,
+            mobileSsURL,
+            desktopFpURL,
+            mobileFpURL,
+            date,
+            categories,
+          })
+          .eq("uid", uid)
+          .select();
+        // Handle errors
+        if (RecoveryError) {
+          console.error(
+            "Error updating data in Supabase:",
+            RecoveryError?.message
+          );
+          return;
+        }
+      } else {
+        console.error("detailDesign is undefined");
+      }
+
+      // Handle success
+      toast.success("Document Updated successfully!", { duration: 3000 });
+      setIsSubmitting(false); // Set loading state to false after request completes
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  // Call the handler function based on whether detailDesign exists
+  const handler = detailDesign ? updateWebsiteHandler : addWebsiteHandler;
 
   const resetImagePreviews = () => {
     setImagePreview({
@@ -423,7 +584,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
           </p>
         </div>
         <form
-          onSubmit={addWebsiteHandler}
+          onSubmit={handler}
           // onSubmit={handleSubmit}
         >
           <div className="grid grid-cols-2 gap-20 w-full text-slate-700">
@@ -595,7 +756,15 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
             </div>
           </div>
           <div className="flex justify-end m-4">
-            <SubmitButton isSubmitting={isSubmitting} formData={formData} />
+            <SubmitButton
+              isSubmitting={isSubmitting}
+              formData={formData}
+              submitContent={
+                detailDesign
+                  ? ["Update", "Updating Design..."]
+                  : ["Submit", "Submitting Design..."]
+              }
+            />
           </div>
         </form>
       </div>

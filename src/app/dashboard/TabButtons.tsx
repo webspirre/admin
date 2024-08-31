@@ -1,20 +1,28 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import Image from "next/image";
-
+import Link from "next/link";
 
 interface Tab {
   label: string;
+  value: string;
 }
 
 interface TabButtonsProps {
   tabs: Tab[];
   onTabClick: (index: number) => void;
   activeTab: number;
-  filterOptions: string[];
-  selectedFilters: string[];
-  handleFilterClick: (option: string) => void;
+  filterOptions: {
+    value: string;
+    label: string;
+  }[];
+  // selectedFilters: string[];
+  selectedFilters: string[] | React.Dispatch<React.SetStateAction<string[]>>;
+  handleFilterClick: (option: { value: string; label: string }) => void;
   showFilterOptions: boolean;
   setShowFilterOptions: (show: boolean) => void;
+  categoryRoute: (category: string) => string;
+  categoryId: string;
+  activeTabRef: any;
 }
 
 const TabButtons: React.FC<TabButtonsProps> = ({
@@ -26,9 +34,13 @@ const TabButtons: React.FC<TabButtonsProps> = ({
   handleFilterClick,
   showFilterOptions,
   setShowFilterOptions,
+  categoryRoute,
+  categoryId,
+  activeTabRef,
 }) => {
-  const categoryCounts = tabs.map(({ label }) => ({
+  const categoryCounts = tabs.map(({ label, value }) => ({
     label,
+    value,
     count: 0, // Adjust according to your data
   }));
 
@@ -60,17 +72,20 @@ const TabButtons: React.FC<TabButtonsProps> = ({
                 <div className="custom-checkbox flex">
                   <input
                     type="checkbox"
-                    id={option}
-                    checked={selectedFilters.includes(option)}
+                    id={option.value}
+                    checked={
+                      Array.isArray(selectedFilters) &&
+                      selectedFilters.includes(option.value)
+                    }
                     onChange={() => handleFilterClick(option)}
                     className="mr-2 hidden"
                   />
                   <label
-                    htmlFor={option}
+                    htmlFor={option.value}
                     className="checkbox-label mr-2"
                   ></label>
                 </div>
-                <label htmlFor={option}>{option}</label>
+                <label htmlFor={option.value}>{option.label}</label>
               </div>
             ))}
           </div>
@@ -85,16 +100,21 @@ const TabButtons: React.FC<TabButtonsProps> = ({
           style={{ overflowX: "auto", scrollbarWidth: "none" }}
         >
           {tabs.map((tab, index) => (
-            <button
+            <Link
+              href={categoryRoute(tab.value)}
+              onClick={(e) => {
+                e.preventDefault();
+                window.location.href = categoryRoute(tab.value);
+              }}
+              ref={categoryId === tab.value ? activeTabRef : null}
               key={index}
-              onClick={() => onTabClick(index)}
               className={`px-4 py-1 sm:py-1 border-b-2 mr-2 w-fit text-[12px] ${
-                activeTab === index
+                categoryId === tab.value
                   ? "border-2 rounded-full bg-black text-white font-medium"
                   : "border-2 rounded-full text-black  hover:text-gray-700 hover:border-gray-500"
               }`}
             >
-              {(categoryCounts.find((c) => c.label === tab.label)?.count ?? 0) >
+              {(categoryCounts.find((c) => c.value === tab.value)?.count ?? 0) >
               0 ? (
                 <div className="flex gap-2 items-center">
                   <div>{tab.label}</div>
@@ -112,7 +132,7 @@ const TabButtons: React.FC<TabButtonsProps> = ({
               ) : (
                 tab.label
               )}
-            </button>
+            </Link>
           ))}
         </div>
       </div>

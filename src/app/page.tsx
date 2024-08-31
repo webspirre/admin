@@ -2,32 +2,37 @@ import { AuthProvider } from "@/context/AuthProvider";
 import { getURL } from "../../lib/helpers";
 import type { Metadata } from "next";
 import { createClient } from "../../lib/supabase/server";
-import SignIn from "@/components/signin/page";
-import Loader from "@/components/common/loader/index";
 import { redirect } from "next/navigation";
-import useAuth from "@/hooks/useAuth";
 import Home from "@/components/Home";
-/// export MetaData
 const meta = {
   title: "Webspirre Admin Management Dashboard",
   description: "Webspirre Content Management System (CMS) Platform",
-  cardImage: "/og.png",
+  cardImage: "//webspirre-logo.svg",
   robots: "follow, index",
   favicon: "/favicon.ico",
   url: getURL(),
+  webspirrelogo: "/webspirre-logo.svg",
 };
 
 export async function generateMetadata(): Promise<Metadata> {
+  const absoluteImageUrl = `${meta.url}/webspirre-logo.svg`;
   return {
     title: meta.title,
     description: meta.description,
     referrer: "origin-when-cross-origin",
-    keywords: ["Vercel", "Supabase", "Next.js"],
-    authors: [{ name: "Vercel", url: "https://vercel.com/" }],
-    creator: "Vercel",
-    publisher: "Vercel",
+    keywords: [
+      "Admin Dashboard",
+      "Security",
+      "Analytics",
+      "Content Management System",
+    ],
+    authors: [
+      { name: "Webspirre CMS", url: "https://admin-correbicle.vercel.app/" },
+    ],
+    creator: "Webspirre",
+    publisher: "Webspirre",
     robots: meta.robots,
-    icons: { icon: meta.favicon },
+    icons: { icon: absoluteImageUrl },
     metadataBase: new URL(meta.url),
     openGraph: {
       url: meta.url,
@@ -39,11 +44,11 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     twitter: {
       card: "summary_large_image",
-      site: "@Vercel",
-      creator: "@Vercel",
+      site: "@webspirre",
+      creator: "@webspirre",
       title: meta.title,
       description: meta.description,
-      images: [meta.cardImage],
+      images: [absoluteImageUrl],
     },
   };
 }
@@ -54,8 +59,6 @@ export default async function Page() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // const { setAuth } = useAuth();
-  // setAuth(user);
   if (user) {
     // Redirect logged in users to the dashboard
     redirect("/dashboard");
@@ -65,8 +68,7 @@ export default async function Page() {
 
   const content = (
     <>
-      <AuthProvider>
-        {/* <div>{!user ? <SignIn /> : <Loader />}</div> */}
+      <AuthProvider initialUser={user}>
         <Home user={user} />
       </AuthProvider>
     </>
@@ -74,4 +76,3 @@ export default async function Page() {
 
   return content;
 }
-// export default Page;

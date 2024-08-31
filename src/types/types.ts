@@ -1,3 +1,4 @@
+import { DesignDatabase } from "./types_db";
 import { Database } from "./types_db_admin";
 
 interface UserData {
@@ -134,4 +135,19 @@ export interface TwitterCardData {
 }
 type UserT = Database["public"]["Tables"]["users"]["Row"];
 type UserIsAdmin = Pick<UserT, "is_admin_can_upload">;
-export type { User, FormData, CloudinaryAsset, UserMetadata, UserIsAdmin };
+type Props = {
+  params: { id: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
+type Design = DesignDatabase["webspirre_admin"]["Tables"]["website"]["Row"];
+
+export type {
+  User,
+  FormData,
+  CloudinaryAsset,
+  UserMetadata,
+  UserIsAdmin,
+  Props,
+  Design,
+};

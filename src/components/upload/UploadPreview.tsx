@@ -17,6 +17,7 @@ const UploadPreview: React.FC<UploadPreviewProp> = ({
   filename,
   setImagePreview,
 }) => {
+  // console.log('imgpreview', imgPreview)
   return (
     <div className="relative w-full py-10 flex flex-col items-center justify-center space-y-4 bg-[#FDFAF7] rounded-lg shadow-md">
       <img

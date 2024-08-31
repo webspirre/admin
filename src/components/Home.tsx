@@ -8,8 +8,6 @@ interface HomeProps {
   user: User | null;
 }
 const Home: React.FC<HomeProps> = ({ user }) => {
-  // const { setAuth } = useAuth();
-  // setAuth(user);
   return (
     <>
       <div>{!user ? <SignIn /> : <Loader />}</div>

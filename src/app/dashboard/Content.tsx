@@ -1,59 +1,117 @@
-import React, { useState, useRef, useEffect } from "react";
+"use client";
+
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import Table from "./Table";
 import TabButtons from "./TabButtons";
+import useAuth from "@/hooks/useAuth";
+import {
+  generateFilteredURLAndRoute,
+  isValidCategory,
+  pageTypes,
+  tabs,
+  useFilteredPagetypeValues,
+} from "@/util/data.util";
+import useSessionStorage from "@/hooks/custom-hooks/useSessionStorage";
+import useDataFetch from "@/hooks/useDataFetch";
+import { useRouter } from "next/navigation";
+import useUpdateSelectedFilters from "@/hooks/custom-hooks/useSelectedFilters";
+import { Option } from "@/types/types_db";
+import useSearchInput from "@/hooks/custom-hooks/useSearchInput";
+import SearchInput from "@/components/ui/SearchInput";
+const filterOptions = pageTypes;
 
 const Content: React.FC = () => {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState(0);
   const [showFilterOptions, setShowFilterOptions] = useState(false);
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [selectedFilters, setSelectedFilters] = useSessionStorage<string[]>(
+    "selectedFilters",
+    []
+  );
   const [showBulkActionDropdown, setShowBulkActionDropdown] = useState(false);
+  const [hasFilterToggled, setHasFilterToggled] = useState(false);
+
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
   const searchResultRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [bulkSelectedRows, setBulkSelectedRows] = useState<number[]>([]);
+  const { Designs, categoryId, pageTypes = [], refetch } = useDataFetch();
 
+  console.log("pageTypes", pageTypes);
 
-  const tabs = [
-    { value: "all", label: "All" },
-    { value: "ai", label: "AI" },
-    { value: "fintech", label: "Fintech" },
-    { value: "marketplace", label: "Marketplace" },
-    { value: "e-commerce", label: "E-commerce" },
-    { value: "crypto-web3", label: "Crypto & Web 3" },
-    { value: "software-saas", label: "Software & SaaS" },
-    { value: "travel-hospitality", label: "Travel & Hospitality" },
-    { value: "agency-corporate", label: "Agency & Corporate" },
-  ];
+  const{
+    searchQuery,
+    searchInputRef,
+    handleSearchChange,
+    handleInputFocus,
+    handleInputClear,
+  } = useSearchInput(router,refetch)
 
-  const filterOptions = [
-    "landing",
-    "pricing",
-    "about",
-    "login",
-    "signup",
-    "404",
-  ];
+  const { userId } = useAuth();
+  const filteredURL = useFilteredPagetypeValues(selectedFilters as string[]);
+  const activeTabRef = useRef(null);
 
-  const handleFilterClick = (option: string) => {
-    if (selectedFilters.includes(option)) {
-      setSelectedFilters(selectedFilters.filter((filter) => filter !== option));
-    } else {
-      setSelectedFilters([...selectedFilters, option]);
+  if (typeof setSelectedFilters === "function") {
+    useUpdateSelectedFilters(
+      pageTypes,
+      selectedFilters as string[],
+      (filters) => setSelectedFilters(filters)
+    );
+  }
+
+  const newFilteredURL = useFilteredPagetypeValues(
+    pageTypes && pageTypes.length > 0 ? pageTypes : []
+  );
+
+  const filteredData = useMemo(() => {
+    let filteredResults = Designs;
+
+    if (activeTab !== 0) {
+      const activeCategory = tabs[activeTab].value;
+      filteredResults = filteredResults.filter(
+        (result) =>
+          Array.isArray(result.categories) &&
+          result.categories?.includes(activeCategory as Option & string)
+      );
     }
+    if (hasFilterToggled) {
+      if (selectedFilters.length > 0) {
+        filteredResults = filteredResults.filter(
+          (result) =>
+            Array.isArray(selectedFilters) &&
+            result?.pageType !== null &&
+            selectedFilters.includes(result.pageType.toString())
+        );
+      }
+    }
+
+    return filteredResults;
+  }, [Designs, activeTab, selectedFilters, hasFilterToggled]);
+
+  console.log(filteredData, Designs)
+
+  const handleFilterClick = (option: { value: string; label: string }) => {
+    const newFilters =
+      Array.isArray(selectedFilters) && selectedFilters.includes(option.value)
+        ? selectedFilters.filter((filter) => filter !== option.value)
+        : [...(selectedFilters as string[]), option.value];
+
+    generateFilteredURLAndRoute(option, newFilters, router, categoryId!);
+
+    (setSelectedFilters as (filters: string[]) => void)(newFilters);
   };
 
   const handleBulkActionClick = () => {
-    
     setShowBulkActionDropdown(!showBulkActionDropdown);
   };
 
   const handleSelectAll = () => {
-   if (bulkSelectedRows.length === data.length) {
-     setBulkSelectedRows([]);
-   } else {
-     const allRowIndexes = data.map((_, index) => index);
-     setBulkSelectedRows(allRowIndexes);
-   }
+    if (bulkSelectedRows.length === Designs.length) {
+      setBulkSelectedRows([]);
+    } else {
+      const allRowIndexes = Designs.map((_, index) => index);
+      setBulkSelectedRows(allRowIndexes);
+    }
     setShowBulkActionDropdown(false);
   };
 
@@ -62,6 +120,17 @@ const Content: React.FC = () => {
     setShowBulkActionDropdown(false);
   };
 
+  const categoryRoute = (category: string) => {
+    const isValid =
+      categoryId &&
+      isValidCategory(categoryId) &&
+      pageTypes &&
+      pageTypes.length > 0;
+    const route = isValid
+      ? `/dashboard/content/category/${category}/pagetypes/pagetype?${newFilteredURL}`
+      : `/dashboard/content/category/${category}`;
+    return route;
+  };
 
   const columns = [
     "",
@@ -72,37 +141,6 @@ const Content: React.FC = () => {
     "Last Modified",
     "Status",
     "",
-  ];
-  const data = [
-    {
-      "Main Image":
-        "https://res.cloudinary.com/dcb4ilgmr/image/upload/v1718621035/utilities/webspirre/Frame_676_dtojuh.svg",
-      "Profile Image":
-        "https://res.cloudinary.com/dcb4ilgmr/image/upload/v1718759392/utilities/webspirre/profile_image_w1dtld.svg",
-      "Name of Website": "Gaming Page",
-      Devices: "Web | Mobile",
-      Category: "E-commerce",
-      "Page Type": "Home",
-      "Last Modified": "12 Jun 2024 12:55 am",
-      Status: "Live",
-      "Action Image":
-        "https://res.cloudinary.com/dcb4ilgmr/image/upload/v1718621241/utilities/webspirre/Frame_34_1_prp0wr.svg",
-    },
-    {
-      "Main Image":
-        "https://res.cloudinary.com/dcb4ilgmr/image/upload/v1718621035/utilities/webspirre/Frame_676_dtojuh.svg",
-      "Profile Image":
-        "https://res.cloudinary.com/dcb4ilgmr/image/upload/v1718759392/utilities/webspirre/profile_image_w1dtld.svg",
-      "Name of Website": "Gaming Page",
-      Devices: "Web | Mobile",
-      Category: "Blog",
-      "Page Type": "Article",
-      "Last Modified": "12 Jun 2024 12:55 am",
-      Status: "Live",
-      "Action Image":
-        "https://res.cloudinary.com/dcb4ilgmr/image/upload/v1718621241/utilities/webspirre/Frame_34_1_prp0wr.svg",
-    },
-    // Add more data as needed
   ];
 
   useEffect(() => {
@@ -126,9 +164,8 @@ const Content: React.FC = () => {
     };
   }, [showBulkActionDropdown]);
 
- 
   return (
-    <div className="p-8">
+    <div className="p-4">
       <div className="p-[30px] rounded-[20px] w-full bg-white">
         <div className="flex relative text-[#888888] text-[12px] gap-4">
           <div
@@ -159,7 +196,7 @@ const Content: React.FC = () => {
                   alt=""
                 />
 
-                {bulkSelectedRows.length === data.length
+                {bulkSelectedRows.length === Designs.length
                   ? "Unselect All"
                   : "Select More"}
               </button>
@@ -175,17 +212,16 @@ const Content: React.FC = () => {
               </button>
             </div>
           )}
-          <div className="px-2 pr-8 py-2 h-fit flex items-center border-2 border-[#C7C7C7] gap-2 rounded-full">
-            <img
-              src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1718618334/utilities/webspirre/magnifier_cqcusg.svg"
-              alt=""
-            />
-            <input
-              type="text"
-              placeholder="Search uploads"
-              className="focus:outline-none"
-            />
-          </div>
+          {/* SEARCHINPUT */}
+
+        <SearchInput
+        onBlur={handleInputClear}
+        onChange={handleSearchChange}
+        onFocus={handleInputFocus}
+        value={searchQuery as string}
+        ref={searchInputRef}
+        placeholder={'Search...'}
+         />
           {/* Filter bar option section */}
           <TabButtons
             tabs={tabs}
@@ -196,21 +232,22 @@ const Content: React.FC = () => {
             handleFilterClick={handleFilterClick}
             showFilterOptions={showFilterOptions}
             setShowFilterOptions={setShowFilterOptions}
+            categoryRoute={categoryRoute}
+            categoryId={categoryId as string}
+            activeTabRef={activeTabRef}
           />
         </div>
 
         <div className="py-6">
           <Table
             columns={columns}
-            data={data}
+            data={filteredData}
             bulkSelectedRows={bulkSelectedRows}
             individualSelectedRows={selectedRows}
             setIndividualSelectedRows={setSelectedRows}
           />{" "}
         </div>
       </div>
-      {/* website image, Name of Website, Devices, Category, Page Type, Last
-      modified, Status, */}
     </div>
   );
 };

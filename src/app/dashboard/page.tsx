@@ -1,32 +1,21 @@
-// "use server"
-import Image from "next/image";
-import Link from "next/link";
-import Upload from "@/app/dashboard/upload";
+import UploadWrapper from "@/components/common/UploadWrapper";
+import { AuthProvider } from "@/context/AuthProvider";
 import { createClient } from "../../../lib/supabase/server";
-import Navbar from "@/components/common/navbar/Navbar";
-import DashboardLayout from "@/components/DashboardLayout";
 
-async function Page() {
+const UploadPage = async () => {
   const supabase = createClient();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  console.log("user data", user);
-  const content = (
+  return (
     <>
-      <div>
-        <div className=" ">
-          <Navbar user={user} />
-          {/* DASHBOARD */}
-          <DashboardLayout user={user} />
+      <AuthProvider initialUser={user}>
+        <div>
+          <UploadWrapper />
         </div>
-      </div>
-      {/* </AuthProvider> */}
+      </AuthProvider>
     </>
   );
-
-  return content;
-}
-export default Page;
+};
+export default UploadPage;

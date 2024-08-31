@@ -12,12 +12,12 @@ import useAuth from "@/hooks/useAuth";
 import { User } from "@supabase/supabase-js";
 
 interface NavProps {
-  user: User | null;
+  user?: User | null;
 }
 
-const Navbar: React.FC<NavProps> = ({ user }) => {
+const Navbar: React.FC<NavProps> = ({}) => {
   const supabase = createClient();
-  const {} = useAuth();
+  const { auth: user } = useAuth();
 
   // const {
   //   data: { user },
@@ -32,7 +32,14 @@ const Navbar: React.FC<NavProps> = ({ user }) => {
       <div className="fixed top-0 left-0 right-0 z-10 w-full">
         <div className="flex items-center border-b-[1px] border-[#BBBBBB]  bg-white">
           <div className="flex min-w-[250px] pl-12 bg-white ">
-            <Link href="/">
+            <Link
+              href={user ? "/dashboard/content" : "/"}
+              onClick={(e) => {
+                e.preventDefault(); // Prevent the default link behavior
+                window.location.href = user ? "/dashboard/content" : "/"; // Force a full page reload
+                sessionStorage.removeItem("selectedFilters");
+              }}
+            >
               <Image
                 height={60}
                 width={120}

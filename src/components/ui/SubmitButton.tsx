@@ -1,9 +1,14 @@
 interface SubmitButtonProps {
   isSubmitting: boolean;
   formData: any;
+  submitContent?: string[];
 }
 
-const SubmitButton = ({ isSubmitting, formData }: SubmitButtonProps) => {
+const SubmitButton = ({
+  isSubmitting,
+  formData,
+  submitContent = ["Submit", "Submitting Design..."],
+}: SubmitButtonProps) => {
   const {
     name,
     webURL,
@@ -38,10 +43,10 @@ const SubmitButton = ({ isSubmitting, formData }: SubmitButtonProps) => {
       {isSubmitting ? (
         <div className="flex items-center">
           <div className="loader"></div>
-          <span className="ml-2">Submitting Design...</span>
+          <span className="ml-2">{submitContent[1]}</span>
         </div>
       ) : (
-        "Submit"
+        submitContent[0]
       )}
     </button>
   );

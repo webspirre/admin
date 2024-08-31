@@ -25,6 +25,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
   imagePreview,
   errorMsg,
 }) => {
+  // console.log('imagePreview', imagePreview)
   React.useEffect(() => {
     const savedFile = localStorage.getItem(`file-${filename}`);
     if (savedFile) {
@@ -99,7 +100,6 @@ const FileUpload: React.FC<FileUploadProps> = ({
         ) : imagePreview ? (
           <Preview
             imgPreview={imagePreview}
-            // setImagePreview={setImagePreview}
             setImagePreview={() =>
               setImagePreview((prevState) => ({
                 ...prevState,

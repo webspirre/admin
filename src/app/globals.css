@@ -29,6 +29,43 @@ body {
   height: 20px;
   animation: spin 2s linear infinite;
 }
+
+.custom-checkbox input[type="checkbox"]:checked + .checkbox-label {
+  background-color: black; /* Background color when checked */
+  border-color: black;      /* Border color when checked */
+}
+
+.checkbox-label {
+  display: inline-block;
+  width: 16px;       /* Adjust size as needed */
+  height: 16px;      /* Adjust size as needed */
+  border: 2px solid gray;  /* Border color when unchecked */
+  border-radius: 4px;      /* Rounded corners */
+  cursor: pointer;
+  position: relative;
+  background-color: white; /* Background color when unchecked */
+}
+
+.checkbox-label::after {
+  content: '';
+  display: block;
+  width: 6px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%) rotate(45deg);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.custom-checkbox input[type="checkbox"]:checked + .checkbox-label::after {
+  opacity: 1;
+}
+
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -47,7 +84,6 @@ body {
   display: none; /* Safari and Chrome */
 }
 
-
 .hover-black::before {
   content: "";
   position: absolute;
@@ -55,11 +91,30 @@ body {
   left: -100%;
   width: 100%;
   height: 100%;
-  background-color: #F2F2F7;
+  background-color: #f2f2f7;
   z-index: -1;
   transition: left 0.5s ease;
 }
 
 .hover-black:hover::before {
   left: 0;
+}
+
+/* Custom Loader Animation */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loader {
+  border: 4px solid transparent;
+  border-top: 4px solid #333;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  animation: spin 1s linear infinite;
 }

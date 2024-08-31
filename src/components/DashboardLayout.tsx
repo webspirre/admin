@@ -1,23 +1,32 @@
 "use client";
 
 import Image from "next/image";
-import React, { useState } from "react";
-import Upload from "../app/dashboard/upload";
+import React, { useMemo, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import Loader from "./Loader";
-import Content from "@/app/dashboard/Content";
+import Link from "next/link";
+import useAuth from "@/hooks/useAuth";
+import { usePathname } from "next/navigation";
+import useClearFormStorage from "@/hooks/custom-hooks/localstorage/useClearFormStorage";
 
 interface DashboardProps {
-  user: User | null;
+  user?: User | null;
+  childrenProp?: React.ReactNode;
 }
 
-const DashboardLayout: React.FC<DashboardProps> = () => {
-  const [loading, setLoading] = useState(false);
-  const [showUpload, setShowUpload] = useState(true); // state to track which part is visible
+const DashboardLayout: React.FC<DashboardProps> = ({ childrenProp }) => {
+  const { loading, setLoading } = useAuth();
+  const pathname = usePathname();
 
   const handleLoading = () => {
     setLoading((prev) => !prev);
   };
+
+  const clearForm = () => useClearFormStorage();
+
+  const showUpload =
+    pathname.startsWith("/dashboard") &&
+    !pathname.includes("/dashboard/content");
 
   return (
     <>
@@ -26,11 +35,16 @@ const DashboardLayout: React.FC<DashboardProps> = () => {
       )}
       <div className="flex ">
         <div className="min-w-[250px] min-h-screen px-6 bg-white ">
-          <button
+          <Link
+            href={"/dashboard"}
+            onClick={(e) => {
+              e.preventDefault();
+              window.location.href = "/dashboard";
+              clearForm();
+            }}
             className={`flex fixed  gap-4 items-center mt-[100px] w-[200px] rounded-[12px]  px-4 py-3 text-[16px] mb-4 font-semibold hover-black overflow-hidden hover:scale-100 transition-transform duration-300 text-black ${
               showUpload ? "bg-[#F2F2F7] rounded-[12px] w-[200px]" : ""
             }`}
-            onClick={() => setShowUpload(true)}
           >
             <Image
               height={60}
@@ -39,12 +53,12 @@ const DashboardLayout: React.FC<DashboardProps> = () => {
               alt="Upload"
             />
             Upload
-          </button>
-          <button
+          </Link>
+          <Link
+            href={"/dashboard/content"}
             className={`flex fixed gap-4 items-center mt-[170px] w-[200px] rounded-[12px]  px-4 py-3 text-[16px] mb-4 font-semibold hover-black overflow-hidden hover:scale-100 transition-transform duration-300 text-black  ${
               !showUpload ? "bg-[#F2F2F7] rounded-[12px] w-[200px]" : ""
             }`}
-            onClick={() => setShowUpload(false)}
           >
             <Image
               height={60}
@@ -53,16 +67,10 @@ const DashboardLayout: React.FC<DashboardProps> = () => {
               alt="Content"
             />
             Content
-          </button>
+          </Link>
         </div>
         <div className="flex w-full pt-[2px] mt-[80px] bg-[#ececec]">
-          <div className="w-full pr-6">
-            {showUpload ? (
-              <Upload handleLoading={handleLoading} loading={loading} />
-            ) : (
-              <Content />
-            )}
-          </div>
+          <div className="w-full pr-6">{childrenProp}</div>
         </div>
       </div>
     </>

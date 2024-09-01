@@ -1,25 +1,30 @@
 import { Database } from "@/types/types_db_admin";
 import { createClient } from "./admin_client";
 type User = Database["public"]["Tables"]["users"]["Row"];
-type UserIsAdmin = Pick<User, "is_admin_can_upload">;
+type UserIsAdmin = Pick<User, "is_admin">;
+
 export const getAdminUsers = async (
-  email: string,
-  isAdmin: boolean
-): Promise<UserIsAdmin | null> => {
+  email: string
+): Promise<UserIsAdmin | null | boolean | { error?: string }> => {
   const supabase = createClient();
   const { data, error } = await supabase
+    .schema("public")
     .from("users")
-    .select("id, is_admin_can_upload, email")
+    .select("is_admin")
     .eq("email", email)
-    .eq("is_admin_can_upload", isAdmin)
-    .single();
+    .eq("is_admin", true)
+    .eq("role", "admin")
+    .maybeSingle();
 
   if (error) {
     console.error("Error fetching users:", error);
+    return { error: error.message };
+  }
+
+  if (!data) {
+    console.warn("No users found with the given email.");
     return null;
   }
 
-  return data;
-
-  //   return data.filter((user) => user.is_admin_can_upload === true);
+  return data.is_admin; // Return the is_admin value directly
 };

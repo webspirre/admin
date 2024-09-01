@@ -10,6 +10,7 @@ import { handleRequest } from "../../../../lib/auth-helpers/client";
 import { SignOut } from "../../../../lib/auth-helpers/server";
 import useAuth from "@/hooks/useAuth";
 import { User } from "@supabase/supabase-js";
+import useClearFormStorage from "@/hooks/custom-hooks/localstorage/useClearFormStorage";
 
 interface NavProps {
   user?: User | null;
@@ -19,14 +20,10 @@ const Navbar: React.FC<NavProps> = ({}) => {
   const supabase = createClient();
   const { auth: user } = useAuth();
 
-  // const {
-  //   data: { user },
-  // } = await supabase.auth.getUser();
   const router = getRedirectMethod() === "client" ? useRouter() : null;
 
   const pathname = usePathname();
 
-  // console.log("USER LOG", user);
   return (
     <>
       <div className="fixed top-0 left-0 right-0 z-10 w-full">
@@ -54,7 +51,12 @@ const Navbar: React.FC<NavProps> = ({}) => {
             <div className="flex">
               <div className="flex justify-end">
                 <div className="flex space-x-5 items-center">
-                  <form onSubmit={(e) => handleRequest(e, SignOut, router)}>
+                  <form
+                    onSubmit={(e) => {
+                      handleRequest(e, SignOut, router);
+                      useClearFormStorage();
+                    }}
+                  >
                     <input
                       type="hidden"
                       name="pathName"

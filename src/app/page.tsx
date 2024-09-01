@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { createClient } from "../../lib/supabase/server";
 import { redirect } from "next/navigation";
 import Home from "@/components/Home";
+import useClearFormStorage from "@/hooks/custom-hooks/localstorage/useClearFormStorage";
 const meta = {
   title: "Webspirre Admin Management Dashboard",
   description: "Webspirre Content Management System (CMS) Platform",
@@ -61,6 +62,7 @@ export default async function Page() {
 
   if (user) {
     // Redirect logged in users to the dashboard
+    // useClearFormStorage();
     redirect("/dashboard");
   }
 

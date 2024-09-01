@@ -8,7 +8,7 @@ import { signInWithPassword } from "../../../lib/auth-helpers/server";
 import { handleRequest } from "../../../lib/auth-helpers/client";
 import { toast } from "react-hot-toast";
 import { getAdminUsers } from "../../../lib/supabase/queries";
-import { UserIsAdmin } from "@/types/types";
+import { isAdminUser, UserIsAdmin } from "@/types/auth";
 
 const SignIn: React.FC = () => {
   let redirectMethod = "client";
@@ -17,7 +17,7 @@ const SignIn: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [email, setEmail] = useState("");
-  const [isAdmin, setIsAdmin] = useState<UserIsAdmin | null>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
   useEffect(() => {
     const error = searchParams.get("error");
@@ -42,18 +42,36 @@ const SignIn: React.FC = () => {
     localStorage.setItem("email", email); // Store email in localStorage
   };
 
-  const checkIsAdmin = async () => {
+  const checkIsAdmin = async (): Promise<boolean> => {
     setIsSubmitting(true);
 
-    const adminUsers = await getAdminUsers(email, true);
+    try {
+      const adminUsers = await getAdminUsers(email); // Remove isAdmin parameter from the call
+      console.log(adminUsers);
+      if (adminUsers === null || adminUsers === false) {
+        throw new Error("Unauthorized request to login");
+      }
 
-    if (!adminUsers) {
+      if (typeof adminUsers === "object" && "error" in adminUsers) {
+        throw new Error(adminUsers.error);
+      }
+
+      const isAdmin = adminUsers as boolean;
+      setIsAdmin(isAdmin);
+      return isAdmin;
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error);
+        toast.error(error.message);
+      } else {
+        console.error("An unknown error occurred:", error);
+        toast.error("An unknown error occurred");
+      }
+      return false;
+    } finally {
       setIsSubmitting(false);
-      toast.error("Unauthorized request to login");
     }
-    setIsAdmin(adminUsers);
   };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -122,8 +140,8 @@ const SignIn: React.FC = () => {
                 <div className="mb-5 flex w-full items-center justify-center">
                   <button
                     type="submit"
-                    className="cursor-pointer rounded-lg border border-primary bg-[#4608AD] px-6 py-2 font-bold text-white transition hover:bg-opacity-90 disabled:cursor-not-allowed"
-                    disabled={isSubmitting}
+                    className="cursor-pointer rounded-lg border border-primary bg-[#4608AD] px-6 py-2 font-bold text-white transition hover:bg-opacity-90 disabled:cursor-not-allowed disabled:bg-opacity-40"
+                    disabled={[!email].every(Boolean)}
                   >
                     {isSubmitting ? (
                       <div className="flex items-center">

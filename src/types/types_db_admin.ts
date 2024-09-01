@@ -390,6 +390,8 @@ export interface Database {
           website: string | null;
           is_admin_can_upload: boolean | null;
           email: string | null;
+          role: string | null;
+          is_admin: boolean | null;
         };
         Insert: {
           id: string;
@@ -399,7 +401,9 @@ export interface Database {
           avatar_url?: string | null;
           website?: string | null;
           is_admin_can_upload?: boolean | null;
+          is_admin?: boolean | null;
           email?: string | null;
+          role?: string | null;
         };
         Update: {
           id?: string;
@@ -410,6 +414,8 @@ export interface Database {
           website?: string | null;
           is_admin_can_upload?: boolean | null;
           email?: string | null;
+          role?: string | null;
+          is_admin?: boolean | null;
         };
         Delete: {
           id?: string;

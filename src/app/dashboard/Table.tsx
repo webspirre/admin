@@ -141,7 +141,7 @@ const Table: React.FC<TableProps> = ({
       {/* table header */}
       <div className="flex text-[#989898] text-[12px] text-center justify-between mb-2">
         {columns.map((column, index) => (
-          <p key={index} className="text-center">
+          <p key={index} className="text-center-">
             {column}
           </p>
         ))}
@@ -205,12 +205,20 @@ const Table: React.FC<TableProps> = ({
                   className="absolute rounded top-2.5 -right-2 w-5 h-5"
                 />
               </Link>
-              <p className="font-bold text-black">{row?.name as string}</p>
+              <Link
+                target="_blank"
+                rel="noopener noreferrer"
+                href={`https://www.webspirre.com/detail/${row?.uid}`}
+                className="flex overflow-x-hidden w-[150px]"
+              >
+                {" "}
+                <p className="font-bold text-black ">{row?.name as string}</p>
+              </Link>
             </div>
-            <div>
+            {/* <div>
               <p>Web | Mobile</p>
-            </div>
-            <div>
+            </div> */}
+            <div className="flex overflow-x-hidden w-[150px]">
               <p>
                 {Array.isArray(row.categories) && (row.categories[0] as string)}
               </p>

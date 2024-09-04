@@ -135,7 +135,6 @@ const Content: React.FC = () => {
   const columns = [
     "",
     "Name of Website",
-    "Devices",
     "Category",
     "Page Type",
     "Last Modified",

@@ -14,6 +14,7 @@ import SubmitButton from "@/components/ui/SubmitButton";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import useDataFetch from "@/hooks/useDataFetch";
 import { formatCategoryOptions, formatPageTypeOption } from "@/util/data.util";
+import Link from "next/link";
 
 const categories_: Option[] = [
   { value: "ai", label: "AI" },
@@ -755,7 +756,14 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
               </div>
             </div>
           </div>
-          <div className="flex justify-end m-4">
+          <div className="flex justify-end- justify-between m-4">
+            <Link
+              href="/dashboard/content/"
+              className=" flex justify-center items-center border px-8 rounded-[8px] bg-slate-200 font-"
+            >
+              Back
+            </Link>
+
             <SubmitButton
               isSubmitting={isSubmitting}
               formData={formData}

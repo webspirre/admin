@@ -5,6 +5,50 @@ import InfiniteScroll from "@/hooks/custom-hooks/useInfinityScroll";
 import { useRouter } from "next/navigation";
 import { deleteDesign } from "../../../lib/supabase/queries/designs";
 import toast from "react-hot-toast";
+import Link from "next/link";
+
+interface DeleteModalProps {
+  isOpen: boolean;
+  designName: string;
+  onClose: () => void;
+  onConfirm: () => void;
+}
+
+const DeleteModal: React.FC<DeleteModalProps> = ({
+  isOpen,
+  designName,
+  onClose,
+  onConfirm,
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-md shadow-md">
+        <h2 className="text-lg font-bold mb-4">Confirm Delete</h2>
+        <p>
+          Are you sure you want to delete the design with Name{" "}
+          <strong>{designName}</strong>?
+        </p>
+        <div className="mt-6 flex justify-end">
+          <button
+            className="bg-gray-200 text-gray-800 py-2 px-4 rounded-md mr-2"
+            onClick={onClose}
+          >
+            Cancel
+          </button>
+          <button
+            className="bg-red-500 text-white py-2 px-4 rounded-md"
+            onClick={onConfirm}
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 type Design = DesignDatabase["webspirre_admin"]["Tables"]["website"]["Row"];
 
@@ -21,23 +65,30 @@ const Table: React.FC<TableProps> = ({
   data = [],
   bulkSelectedRows,
 }) => {
-  const handleDesignDelete = async (designID: string, designName: string) => {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete design with Name ${designName}?`
-    );
-    if (confirmDelete) {
-      const deleted = await deleteDesign(designID);
-      if (deleted) {
-        console.log(`Design with ID ${designID} deleted successfully`);
-        toast.success(`Design with Name ${designName} deleted successfully`);
-      } else {
-        console.log(`Failed to delete design with ID ${designID}`);
-        toast.success(`Failed to delete design with Name ${designName}`);
-      }
-    } else {
-      console.log("Design deletion cancelled");
-    }
+
+   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDesignName, setSelectedDesignName] = useState("");
+  
+ const handleDesignDelete = async (designID: string, designName: string) => {
+   setSelectedDesignName(designName);
+   setIsModalOpen(true);
+ };
+
+ const confirmDelete = async (designID: string) => {
+   const deleted = await deleteDesign(designID);
+   setIsModalOpen(false);
+
+   if (deleted) {
+     console.log(`Design with ID ${designID} deleted successfully`);
+     toast.success(
+       `Design with Name ${selectedDesignName} deleted successfully`
+     );
+   } else {
+     console.log(`Failed to delete design with ID ${designID}`);
+     toast.error(`Failed to delete design with Name ${selectedDesignName}`);
+   }
   };
+  
   const router = useRouter();
   const [openPopupIndex, setOpenPopupIndex] = useState<number | null>(null);
   const [individualSelectedRows, setIndividualSelectedRows] = useState<
@@ -81,6 +132,12 @@ const Table: React.FC<TableProps> = ({
   if (!data) return [];
   return (
     <div className="text-[#989898]">
+      <DeleteModal
+        isOpen={isModalOpen}
+        designName={selectedDesignName}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={() => confirmDelete("designID123")}
+      />
       {/* table header */}
       <div className="flex text-[#989898] text-[12px] text-center justify-between mb-2">
         {columns.map((column, index) => (
@@ -131,7 +188,12 @@ const Table: React.FC<TableProps> = ({
 
           <div className="flex border shadow-md justify-between items-center p-2 w-full rounded-[24px] mb-2">
             <div className="flex gap-8 items-center">
-              <div className="relative flex w-10 h-10">
+              <Link
+                href={`https://www.webspirre.com/detail/${row?.uid}`}
+                className="relative flex w-10 h-10"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <img
                   src={row?.logoImageURL as string}
                   alt=""
@@ -142,7 +204,7 @@ const Table: React.FC<TableProps> = ({
                   alt=""
                   className="absolute rounded top-2.5 -right-2 w-5 h-5"
                 />
-              </div>
+              </Link>
               <p className="font-bold text-black">{row?.name as string}</p>
             </div>
             <div>

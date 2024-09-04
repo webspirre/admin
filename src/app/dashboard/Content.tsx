@@ -173,7 +173,10 @@ const Content: React.FC = () => {
             onClick={handleBulkActionClick}
           >
             <div className="flex gap-2 items-center">
-              <div className="border-2 border-[#C7C7C7] rounded-full w-4 h-4"></div>
+              <div className="border-2 border-[#C7C7C7] rounded-full flex justify-center items-center min-w-4 min-h-4 px-1">
+                {" "}
+                {/* {setSelectedRows.length} */}
+              </div>
               <p className="line-clamp-1">Bulk action</p>
             </div>
 
@@ -214,14 +217,14 @@ const Content: React.FC = () => {
           )}
           {/* SEARCHINPUT */}
 
-        <SearchInput
-        onBlur={handleInputClear}
-        onChange={handleSearchChange}
-        onFocus={handleInputFocus}
-        value={searchQuery as string}
-        ref={searchInputRef}
-        placeholder={'Search...'}
-         />
+          <SearchInput
+            onBlur={handleInputClear}
+            onChange={handleSearchChange}
+            onFocus={handleInputFocus}
+            value={searchQuery as string}
+            ref={searchInputRef}
+            placeholder={"Search..."}
+          />
           {/* Filter bar option section */}
           <TabButtons
             tabs={tabs}

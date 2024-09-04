@@ -95,7 +95,7 @@ const SignIn: React.FC = () => {
             <Image
               width={166}
               height={32}
-              src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1705721941/utilities/logo_e8rxwj.svg"
+              src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1720865679/utilities/webspirre/webspirre-logo-long_na5afq.svg"
               alt="Logo"
               className="mt-[20px]"
               priority
@@ -140,7 +140,7 @@ const SignIn: React.FC = () => {
                 <div className="mb-5 flex w-full items-center justify-center">
                   <button
                     type="submit"
-                    className="cursor-pointer rounded-lg border border-primary bg-[#4608AD] px-6 py-2 font-bold text-white transition hover:bg-opacity-90 disabled:cursor-not-allowed disabled:bg-opacity-40"
+                    className="cursor-pointer rounded-lg border border-primary bg-[black] px-6 py-2 font-bold text-white transition hover:bg-opacity-90 disabled:cursor-not-allowed disabled:bg-opacity-40"
                     disabled={[!email].every(Boolean)}
                   >
                     {isSubmitting ? (

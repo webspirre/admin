@@ -194,8 +194,9 @@ const Content: React.FC = () => {
                   : "Select More"}
               </button>
               <button
-                className="block- w-full text-left px-4 py-2 text-[#FA4C4C] hover:bg-gray-100  flex gap-1 items-center"
+                className="block- w-full text-left px-4 py-2 text-[#FA4C4C] hover:bg-gray-100  flex gap-1 items-center disabled:bg-opacity-30 disabled:text-opacity-50 disabled:cursor-not-allowed"
                 onClick={handleDeleteAll}
+                disabled={selectedRowsLength === 0}
               >
                 <img
                   src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1718762840/utilities/webspirre/fi_trash-2_pvcgbs.svg"

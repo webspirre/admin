@@ -163,9 +163,11 @@ const Content: React.FC = () => {
             onClick={handleBulkActionClick}
           >
             <div className="flex gap-2 items-center">
-              <div className="border-2 border-[#C7C7C7] rounded-full flex justify-center items-center w-4 h-4 px-1">
+              <div className="border-2 border-[#C7C7C7] rounded-full flex justify-center items-center w-5 h-5 px-1">
                 {/* <span className="text-xs">{setSelectedRows.length}</span> */}
-                <span className="text-xs">{selectedRowsLength}</span>
+                <span className="text-xs text-[#FAB843] font-bold">
+                  {selectedRowsLength}
+                </span>
               </div>
               <p className="line-clamp-1">Bulk action</p>
             </div>

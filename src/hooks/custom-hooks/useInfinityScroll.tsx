@@ -1,4 +1,3 @@
-// InfiniteScroll.tsx
 import InfiniteLoader from "@/components/common/infiniteLoader";
 import React, { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
@@ -11,14 +10,8 @@ interface InfiniteScrollProps {
   rootMargin?: string;
   disabled?: boolean;
   deviceFilter?: string;
+  isFetching?: boolean; // Add a prop to track fetching status
 }
-
-/**
- * InfiniteScroll component
- *
- * @param {Function} loadMore - Function to call when the element is in view
- * @returns {JSX.Element} - A div element that triggers the loadMore function when in view
- */
 
 const InfiniteScroll: React.FC<InfiniteScrollProps> = ({
   loadMore,
@@ -28,6 +21,7 @@ const InfiniteScroll: React.FC<InfiniteScrollProps> = ({
   rootMargin = "0px",
   disabled = false,
   deviceFilter,
+  isFetching = false, // Default to false
 }) => {
   const [ref, inView] = useInView({
     triggerOnce,
@@ -43,9 +37,9 @@ const InfiniteScroll: React.FC<InfiniteScrollProps> = ({
 
   return (
     <>
-      {/* <div ref={ref} style={{ height }} className="opacity-0 hidden" /> */}
-      <div ref={ref}>
-        <InfiniteLoader />
+      <div ref={ref} style={{ height }}>
+        {/* Conditionally render the InfiniteLoader */}
+        {!disabled && <InfiniteLoader />}
       </div>
     </>
   );

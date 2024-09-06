@@ -79,27 +79,27 @@ export const fetchDynamicDesigns = async (
       .from("website")
       .select()
       .containedBy("categories", [searchTerm]);
-
-    const [nameResult, descriptionResult, bodyResult, categoryResult] =
-      await Promise.all([
-        nameSearch,
-        descriptionSearch,
-        bodySearch,
-        categorySearch,
-      ]);
+    // bodyResult, categoryResult
+    const [nameResult, descriptionResult] = await Promise.all([
+      nameSearch,
+      descriptionSearch,
+      // bodySearch,
+      // categorySearch,
+    ]);
 
     // Check for errors in any of the search queries
     if (
       nameResult.error ||
-      descriptionResult.error ||
-      bodyResult.error ||
-      categoryResult.error
+      descriptionResult.error
+      // ||
+      // bodyResult.error ||
+      // categoryResult.error
     ) {
       console.error(
-        nameResult.error?.message ||
-          descriptionResult.error?.message ||
-          bodyResult.error?.message ||
-          categoryResult.error?.message
+        nameResult.error?.message || descriptionResult.error?.message
+        //  ||
+        // bodyResult.error?.message ||
+        // categoryResult.error?.message
       );
       return [];
     }
@@ -108,8 +108,8 @@ export const fetchDynamicDesigns = async (
     const combinedResults = [
       ...nameResult.data!,
       ...descriptionResult.data!,
-      ...bodyResult.data!,
-      ...categoryResult.data!,
+      // ...bodyResult.data!,
+      // ...categoryResult.data!,
     ];
 
     const uniqueResults = Array.from(
@@ -140,4 +140,5 @@ export const fetchDynamicDesigns = async (
   const finalFilteredDesigns = filterByPageTypes(pureDesigns, filternames!);
   // console.log(finalFilteredDesigns);
   return shuffleArray(finalFilteredDesigns) as Design[] | [];
+  // return finalFilteredDesigns as Design[] | [];
 };

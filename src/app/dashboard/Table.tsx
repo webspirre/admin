@@ -118,6 +118,13 @@ const Table: React.FC<TableProps> = ({
     };
   }, [openPopupIndex]);
 
+  function capitalizeWords(category: string) {
+    return category
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join("-");
+  }
+
   // const handleSelect = (rowIndex: number) => {
   //   if (individualSelectedRows.includes(rowIndex)) {
   //     setIndividualSelectedRows(
@@ -191,11 +198,11 @@ const Table: React.FC<TableProps> = ({
 
           <div className="flex border shadow-md justify-between items-center p-2 w-full rounded-[24px] mb-2">
             <div className="flex gap-8 items-center">
-              <Link
-                href={`https://www.webspirre.com/detail/${row?.uid}`}
+              <div
+                // href={`https://www.webspirre.com/detail/${row?.uid}`}
                 className="relative flex w-10 h-10"
-                target="_blank"
-                rel="noopener noreferrer"
+                // target="_blank"
+                // rel="noopener noreferrer"
               >
                 <img
                   src={row?.logoImageURL as string}
@@ -207,17 +214,35 @@ const Table: React.FC<TableProps> = ({
                   alt=""
                   className="absolute rounded top-2.5 -right-2 w-5 h-5"
                 />
-              </Link>
+              </div>
               <p className="font-bold text-black">{row?.name as string}</p>
             </div>
             <div>
               <p>Web | Mobile</p>
             </div>
-            <div>
+            <div className="w-32 overflow-x-auto whitespace-nowrap hide-scrollbar">
+              {Array.isArray(row.categories) &&
+                (row.categories as string[]).map(
+                  (category: string, index: number) => (
+                    <Link
+                      href={`/category/${category.toLowerCase() as string}`}
+                      key={index}
+                      className="inline-block mr-1"
+                    >
+                      {capitalizeWords(category)}
+                      {index < (row.categories as string[]).length - 1
+                        ? " ,"
+                        : ""}
+                    </Link>
+                  )
+                )}
+            </div>
+
+            {/* <div>
               <p>
                 {Array.isArray(row.categories) && (row.categories[0] as string)}
               </p>
-            </div>
+            </div> */}
             <div>
               <p>{row.pageType as string}</p>
             </div>

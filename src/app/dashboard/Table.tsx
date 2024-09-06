@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { deleteDesign } from "../../../lib/supabase/queries/designs";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import { useDesignActionContext } from "@/context/DesignActionProvider";
 
 interface DeleteModalProps {
   isOpen: boolean;
@@ -49,15 +50,14 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   );
 };
 
-
 type Design = DesignDatabase["webspirre_admin"]["Tables"]["website"]["Row"];
 
 interface TableProps {
   columns: string[];
   data: Design[];
-  bulkSelectedRows: number[];
-  individualSelectedRows: number[];
-  setIndividualSelectedRows: (rows: number[]) => void;
+  bulkSelectedRows: string[];
+  individualSelectedRows: string[];
+  setIndividualSelectedRows?: (rows: string[]) => void;
 }
 
 const Table: React.FC<TableProps> = ({
@@ -65,35 +65,35 @@ const Table: React.FC<TableProps> = ({
   data = [],
   bulkSelectedRows,
 }) => {
-
-   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDesignName, setSelectedDesignName] = useState("");
-  
- const handleDesignDelete = async (designID: string, designName: string) => {
-   setSelectedDesignName(designName);
-   setIsModalOpen(true);
- };
+  const { handleSelect, individualSelectedRows } = useDesignActionContext();
 
- const confirmDelete = async (designID: string) => {
-   const deleted = await deleteDesign(designID);
-   setIsModalOpen(false);
-
-   if (deleted) {
-     console.log(`Design with ID ${designID} deleted successfully`);
-     toast.success(
-       `Design with Name ${selectedDesignName} deleted successfully`
-     );
-   } else {
-     console.log(`Failed to delete design with ID ${designID}`);
-     toast.error(`Failed to delete design with Name ${selectedDesignName}`);
-   }
+  const handleDesignDelete = async (designID: string, designName: string) => {
+    setSelectedDesignName(designName);
+    setIsModalOpen(true);
   };
-  
+
+  const confirmDelete = async (designID: string) => {
+    const deleted = await deleteDesign(designID);
+    setIsModalOpen(false);
+
+    if (deleted) {
+      console.log(`Design with ID ${designID} deleted successfully`);
+      toast.success(
+        `Design with Name ${selectedDesignName} deleted successfully`
+      );
+    } else {
+      console.log(`Failed to delete design with ID ${designID}`);
+      toast.error(`Failed to delete design with Name ${selectedDesignName}`);
+    }
+  };
+
   const router = useRouter();
   const [openPopupIndex, setOpenPopupIndex] = useState<number | null>(null);
-  const [individualSelectedRows, setIndividualSelectedRows] = useState<
-    number[]
-  >([]);
+  // const [individualSelectedRows, setIndividualSelectedRows] = useState<
+  //   number[]
+  // >([]);
 
   const { hasNextPage, fetchNextPage, isFetchingNextPage, isLoading } =
     useDataFetch();
@@ -118,16 +118,16 @@ const Table: React.FC<TableProps> = ({
     };
   }, [openPopupIndex]);
 
-  const handleSelect = (rowIndex: number) => {
-    if (individualSelectedRows.includes(rowIndex)) {
-      setIndividualSelectedRows(
-        individualSelectedRows.filter((index) => index !== rowIndex)
-      );
-    } else {
-      setIndividualSelectedRows([...individualSelectedRows, rowIndex]);
-    }
-    setOpenPopupIndex(null); // close the popup after selecting
-  };
+  // const handleSelect = (rowIndex: number) => {
+  //   if (individualSelectedRows.includes(rowIndex)) {
+  //     setIndividualSelectedRows(
+  //       individualSelectedRows.filter((index) => index !== rowIndex)
+  //     );
+  //   } else {
+  //     setIndividualSelectedRows([...individualSelectedRows, rowIndex]);
+  //   }
+  //   setOpenPopupIndex(null); // close the popup after selecting
+  // };
 
   if (!data) return [];
   return (
@@ -170,10 +170,11 @@ const Table: React.FC<TableProps> = ({
         <div key={row?.uid as string} className="flex gap-2 items-center">
           {/* This should be visible when "Select" is clicked */}
           <div
-            onClick={() => handleSelect(rowIndex)}
+            // onClick={() => handleSelect(rowIndex)}
+            onClick={() => handleSelect(row?.uid as string)}
             className={`h-[18px] w-[18px] border flex justify-center items-center rounded-[4px] cursor-pointer p-[2px] border-[#FAB843] ${
-              bulkSelectedRows.includes(rowIndex) ||
-              individualSelectedRows.includes(rowIndex)
+              bulkSelectedRows.includes(row?.uid as string) ||
+              individualSelectedRows.includes(row?.uid as string)
                 ? "visible"
                 : "hidden"
             }`}
@@ -181,7 +182,9 @@ const Table: React.FC<TableProps> = ({
             {/* Main Selection Indecator */}
             <div
               className={`bg-[#FAB843] flex h-full w-full rounded-[4px] ${
-                individualSelectedRows.includes(rowIndex) ? "visible" : "hidden"
+                individualSelectedRows.includes(row?.uid as string)
+                  ? "visible"
+                  : "hidden"
               }`}
             ></div>{" "}
           </div>
@@ -241,17 +244,17 @@ const Table: React.FC<TableProps> = ({
                 >
                   <button
                     className="w-full flex items-center gap-2 text-left p-1 hover:bg-gray-100"
-                    onClick={() => handleSelect(rowIndex)}
+                    onClick={() => handleSelect(row?.uid as string)}
                   >
                     <img
                       src={
-                        individualSelectedRows.includes(rowIndex)
+                        individualSelectedRows.includes(row?.uid as string)
                           ? "https://res.cloudinary.com/dcb4ilgmr/image/upload/v1718618172/utilities/webspirre/fi_check-square_r2xdvk.svg"
                           : "https://res.cloudinary.com/dcb4ilgmr/image/upload/v1718618172/utilities/webspirre/fi_check-square_r2xdvk.svg"
                       }
                       alt=""
                     />
-                    {individualSelectedRows.includes(rowIndex)
+                    {individualSelectedRows.includes(row?.uid as string)
                       ? "Unselect"
                       : "Select"}
                   </button>

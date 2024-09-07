@@ -65,30 +65,30 @@ const Navbar: React.FC<NavProps> = ({}) => {
                     />
                     <button
                       type="submit"
-                      className={
-                        "cursor-pointer text-red-600 font-bold text-lg "
-                      }
+                      className="cursor-pointer bg-red-600 text-white font-semibold text-sm px-6 py-2 rounded-md shadow-lg hover:bg-red-700 hover:shadow-xl transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-50"
                     >
-                      Log out
+                      Log Out
                     </button>
                   </form>
 
                   <div className="text-black">
                     {user ? (
                       <div>
-                        <div className="p-2 flex flex-row gap-2 rounded-full">
+                        <div className="flex items-center gap-4 p-1.5 bg-gray-100 rounded-full shadow-sm">
                           <Image
-                            height={20}
+                            height={40}
                             width={40}
                             src={
                               "https://res.cloudinary.com/dwqantex4/image/upload/v1716927592/profile_image_exayvy.png"
                             }
-                            alt="rice"
-                            className="z-10 rounded-full"
+                            alt="profile"
+                            className="rounded-full border-2 border-gray-200 shadow-md"
                           />
-                          <div className="text-[12px] pr-[50px]">
-                            <p>{user?.email as string}</p>
-                            <p className="capitalize">Admin</p>
+                          <div className="text-sm">
+                            <p className="font-medium text-gray-700">
+                              {user?.email as string}
+                            </p>
+                            <p className="capitalize text-gray-500">Admin</p>
                           </div>
                         </div>
                       </div>

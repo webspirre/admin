@@ -37,7 +37,7 @@ const InfiniteScroll: React.FC<InfiniteScrollProps> = ({
 
   return (
     <>
-      <div ref={ref} style={{ height }}>
+      <div ref={ref}>
         {/* Conditionally render the InfiniteLoader */}
         {!disabled && <InfiniteLoader />}
       </div>

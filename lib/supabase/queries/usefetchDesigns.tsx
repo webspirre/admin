@@ -1,9 +1,8 @@
-import { DesignDatabase } from "@/types/types_db";
+import { DesignDatabase, Map } from "@/types/types_db";
 import {
   filterByPageTypes,
   getMainDesigns,
   isValidCategory,
-  shuffleArray,
 } from "@/util/data.util";
 import { createClient } from "../client";
 
@@ -32,11 +31,64 @@ export const fetchDynamicDesigns = async (
   }
 
   const supabase = createClient();
+  let filteredUIDs: string[] | null | (Map | undefined)[] = null;
+
+  // Apply search filter if searchTerm is provided before executing the main query
+  if (searchTerm) {
+    const nameSearch = supabase
+      .schema("webspirre_admin")
+      .from("website")
+      .select("uid")
+      .textSearch("name", searchTerm, { type: "websearch", config: "english" });
+
+    const descriptionSearch = supabase
+      .schema("webspirre_admin")
+      .from("website")
+      .select("uid")
+      .textSearch("shortDescription", searchTerm, {
+        type: "websearch",
+        config: "english",
+      });
+
+    // Run search queries in parallel
+    const [nameResult, descriptionResult] = await Promise.all([
+      nameSearch,
+      descriptionSearch,
+    ]);
+
+    // Check for errors in any of the search queries
+    if (nameResult.error || descriptionResult.error) {
+      console.error(
+        nameResult.error?.message || descriptionResult.error?.message
+      );
+      return [];
+    }
+
+    // Combine results and remove duplicates
+    const combinedResults = [...nameResult.data!, ...descriptionResult.data!];
+
+    const uniqueUIDs = Array.from(
+      new Set(combinedResults.map((item) => item.uid))
+    );
+
+    // If search results are found, assign them to the filteredUIDs variable
+    if (uniqueUIDs.length > 0) {
+      filteredUIDs = uniqueUIDs;
+    }
+  }
+
+  // Proceed with the main design query
   let designQuery = supabase
     .schema("webspirre_admin")
     .from("website")
     .select("*")
-    .range((page - 1) * pageSize, page * pageSize - 1);
+    .range((page - 1) * pageSize, page * pageSize - 1)
+    .order("created_at", { ascending: false }); // Sort by newest
+
+  // If filteredUIDs exist from the search, apply it to the query
+  if (filteredUIDs) {
+    designQuery = designQuery.in("uid", filteredUIDs);
+  }
 
   // Apply category filter if provided and not equal to "all"
   if (category && category.toLowerCase() !== "all") {
@@ -48,87 +100,7 @@ export const fetchDynamicDesigns = async (
     designQuery = designQuery.in("pageType", filternames);
   }
 
-  // Apply search filter if searchTerm is provided
-  if (searchTerm) {
-    const nameSearch = supabase
-      .schema("webspirre_admin")
-      .from("website")
-      .select("*")
-      .textSearch("name", searchTerm, { type: "websearch", config: "english" });
-
-    const descriptionSearch = supabase
-      .schema("webspirre_admin")
-      .from("website")
-      .select("*")
-      .textSearch("shortDescription", searchTerm, {
-        type: "websearch",
-        config: "english",
-      });
-
-    const bodySearch = supabase
-      .schema("webspirre_admin")
-      .from("website")
-      .select("*")
-      .textSearch("longDescription", searchTerm, {
-        type: "websearch",
-        config: "english",
-      });
-
-    const categorySearch = supabase
-      .schema("webspirre_admin")
-      .from("website")
-      .select()
-      .containedBy("categories", [searchTerm]);
-    // bodyResult, categoryResult
-    const [nameResult, descriptionResult] = await Promise.all([
-      nameSearch,
-      descriptionSearch,
-      // bodySearch,
-      // categorySearch,
-    ]);
-
-    // Check for errors in any of the search queries
-    if (
-      nameResult.error ||
-      descriptionResult.error
-      // ||
-      // bodyResult.error ||
-      // categoryResult.error
-    ) {
-      console.error(
-        nameResult.error?.message || descriptionResult.error?.message
-        //  ||
-        // bodyResult.error?.message ||
-        // categoryResult.error?.message
-      );
-      return [];
-    }
-
-    // Combine and remove duplicates from search results
-    const combinedResults = [
-      ...nameResult.data!,
-      ...descriptionResult.data!,
-      // ...bodyResult.data!,
-      // ...categoryResult.data!,
-    ];
-
-    const uniqueResults = Array.from(
-      new Set(combinedResults.map((item) => item.uid))
-    ).map((id) => combinedResults.find((item) => item.uid === id));
-
-    // console.log(uniqueResults);
-
-    designQuery = supabase
-      .schema("webspirre_admin")
-      .from("website")
-      .select("*")
-      .in(
-        "uid",
-        uniqueResults.map((item) => item?.uid)
-      );
-  }
-
-  // Execute the combined query
+  // Execute the final query
   const { data, error } = await designQuery;
 
   if (error) {
@@ -136,9 +108,9 @@ export const fetchDynamicDesigns = async (
     return [];
   }
 
+  // Filter and return the designs
   const pureDesigns = getMainDesigns(data, category!);
   const finalFilteredDesigns = filterByPageTypes(pureDesigns, filternames!);
-  // console.log(finalFilteredDesigns);
-  return shuffleArray(finalFilteredDesigns) as Design[] | [];
-  // return finalFilteredDesigns as Design[] | [];
+
+  return finalFilteredDesigns as Design[] | [];
 };

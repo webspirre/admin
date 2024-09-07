@@ -19,6 +19,7 @@ import { Option } from "@/types/types_db";
 import useSearchInput from "@/hooks/custom-hooks/useSearchInput";
 import SearchInput from "@/components/ui/SearchInput";
 import { useDesignActionContext } from "@/context/DesignActionProvider";
+import usePreventNavigation from "@/hooks/custom-hooks/usePreventNavigation";
 const filterOptions = pageTypes;
 
 const Content: React.FC = () => {
@@ -58,6 +59,8 @@ const Content: React.FC = () => {
     handleInputClear,
   } = useSearchInput(router, refetch);
 
+  // prevent search naviagtion
+  // usePreventNavigation(searchQuery as string);
   const { userId } = useAuth();
   const filteredURL = useFilteredPagetypeValues(selectedFilters as string[]);
   const activeTabRef = useRef(null);

@@ -146,9 +146,9 @@ const Table: React.FC<TableProps> = ({
         onConfirm={() => confirmDelete("designID123")}
       />
       {/* table header */}
-      <div className="flex text-[#989898] text-[12px] text-center justify-between mb-2">
+      <div className="flex justify-between items-center text-gray-500 text-xs mb-3">
         {columns.map((column, index) => (
-          <p key={index} className="text-center">
+          <p key={index} className="text-center font-semibold text-gray-800">
             {column}
           </p>
         ))}
@@ -218,14 +218,17 @@ const Table: React.FC<TableProps> = ({
               <p className="font-bold text-black">{row?.name as string}</p>
             </div>
             <div>
-              <p>Web | Mobile</p>
+              <p>Desktop | Mobile</p>
             </div>
             <div className="w-32 overflow-x-auto whitespace-nowrap hide-scrollbar">
               {Array.isArray(row.categories) &&
                 (row.categories as string[]).map(
                   (category: string, index: number) => (
                     <Link
-                      href={`/category/${category.toLowerCase() as string}`}
+                      href={`/dashboard/content/category/${
+                        // category.toLowerCase() as string
+                        category as string
+                      }`}
                       key={index}
                       className="inline-block mr-1"
                     >

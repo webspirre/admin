@@ -14,6 +14,7 @@ import toast from "react-hot-toast";
 import Link from "next/link";
 import { useDesignActionContext } from "@/context/DesignActionProvider";
 import TotalDesigns from "../actions/totalDesigns";
+import { cn } from "../../../lib/cn";
 
 interface DeleteModalProps {
   isOpen: boolean;
@@ -159,6 +160,19 @@ const Table: React.FC<TableProps> = ({
         onClose={() => setIsModalOpen(false)}
         onConfirm={() => confirmDelete("designID123")}
       />
+      <p
+        className={cn(
+          "text-3xl font-semibold mb-6 text-gray-800 dark:text-gray-200",
+          !searchTerm && "hidden"
+        )}
+      >
+        Showing <span className="text-blue-500">{data.length}</span> result
+        {data.length !== 1 ? "s" : ""} for{" "}
+        <span className="italic text-gray-600 dark:text-gray-400">
+          '{searchTerm}'
+        </span>
+      </p>
+
       {/* table header */}
       <div className="flex justify-between items-center text-gray-500 text-xs mb-3">
         {TDisLoading ? (

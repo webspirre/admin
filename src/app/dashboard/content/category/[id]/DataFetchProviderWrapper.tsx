@@ -1,6 +1,7 @@
 "use client";
 
 import { DataFetchProvider } from "@/context/DataFetchProvider";
+import { DesignActionProvider } from "@/context/DesignActionProvider";
 import useGetSessionStorage from "@/hooks/custom-hooks/useGetSessionValue";
 import React from "react";
 
@@ -20,7 +21,7 @@ const DataFetchProviderWrapper = ({
       categoryId={categoryId}
       searchQuery={getSearchQueryFromSessionStorage()}
     >
-      {children}
+      <DesignActionProvider>{children}</DesignActionProvider>
     </DataFetchProvider>
   );
 };

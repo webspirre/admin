@@ -33,6 +33,7 @@ const useSearchInput = (router: any, refetch?: any) => {
   const updateURLWithSearchQuery = (searchQuery: string, router: any) => {
     const currentRoute = pathname;
     const newRoute = `${currentRoute}?queryResult=${searchQuery}`;
+    console.log("Updating URL to:", newRoute); // Log URL for debugging
     router.push(newRoute);
     refetch();
   };

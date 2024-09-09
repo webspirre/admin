@@ -4,6 +4,7 @@ import Content from "../Content";
 import { createClient } from "../../../../lib/supabase/server";
 import ContentLayout from "./ContentLayout";
 import { DataFetchProvider } from "@/context/DataFetchProvider";
+import { DesignActionProvider } from "@/context/DesignActionProvider";
 
 const ContentPage = async () => {
   const supabase = createClient();
@@ -16,9 +17,11 @@ const ContentPage = async () => {
       <AuthProvider initialUser={user}>
         <ContentLayout>
           <DataFetchProvider>
-            <div>
-              <Content />
-            </div>
+            <DesignActionProvider>
+              <div>
+                <Content />
+              </div>
+            </DesignActionProvider>
           </DataFetchProvider>
         </ContentLayout>
       </AuthProvider>

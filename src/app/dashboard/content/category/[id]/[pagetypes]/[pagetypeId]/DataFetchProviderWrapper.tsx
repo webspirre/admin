@@ -1,6 +1,7 @@
-'use client'
+"use client";
 
 import { DataFetchProvider } from "@/context/DataFetchProvider";
+import { DesignActionProvider } from "@/context/DesignActionProvider";
 import useGetSessionStorage from "@/hooks/custom-hooks/useGetSessionValue";
 import useAuth from "@/hooks/useAuth";
 import { getCategoryNameFromQuery, getFilterParams } from "@/util/data.util";
@@ -16,7 +17,7 @@ const DataFetchProviderWrapper = ({
   const getSearchQueryFromSessionStorage = () => {
     return useGetSessionStorage<string>("searchQuery");
   };
-  
+
   const [filterParams, setFilterParams] = useState<string[]>([]);
   const [filtercategory, setFilterCategory] = useState<string>();
   const { auth } = useAuth();
@@ -43,7 +44,7 @@ const DataFetchProviderWrapper = ({
       categoryId={filtercategory && filtercategory}
       searchQuery={getSearchQueryFromSessionStorage()}
     >
-      {children}
+      <DesignActionProvider>{children}</DesignActionProvider>
     </DataFetchProvider>
   );
 };

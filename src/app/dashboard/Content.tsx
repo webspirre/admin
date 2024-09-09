@@ -18,6 +18,8 @@ import useUpdateSelectedFilters from "@/hooks/custom-hooks/useSelectedFilters";
 import { Option } from "@/types/types_db";
 import useSearchInput from "@/hooks/custom-hooks/useSearchInput";
 import SearchInput from "@/components/ui/SearchInput";
+import { useDesignActionContext } from "@/context/DesignActionProvider";
+import usePreventNavigation from "@/hooks/custom-hooks/usePreventNavigation";
 const filterOptions = pageTypes;
 
 const Content: React.FC = () => {
@@ -28,25 +30,37 @@ const Content: React.FC = () => {
     "selectedFilters",
     []
   );
-  const [showBulkActionDropdown, setShowBulkActionDropdown] = useState(false);
+  // const [showBulkActionDropdown, setShowBulkActionDropdown] = useState(false);
   const [hasFilterToggled, setHasFilterToggled] = useState(false);
 
-  const [selectedRows, setSelectedRows] = useState<number[]>([]);
+  // const [selectedRows, setSelectedRows] = useState<number[]>([]);
   const searchResultRef = useRef<HTMLDivElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const [bulkSelectedRows, setBulkSelectedRows] = useState<number[]>([]);
+  // const dropdownRef = useRef<HTMLDivElement>(null);
+  // const [bulkSelectedRows, setBulkSelectedRows] = useState<number[]>([]);
   const { Designs, categoryId, pageTypes = [], refetch } = useDataFetch();
+  const {
+    handleBulkActionClick,
+    handleDeleteAll,
+    handleSelectAll,
+    selectedRowsLength,
+    individualSelectedRows,
+    dropdownRef,
+    showBulkActionDropdown,
+    bulkSelectedRows,
+  } = useDesignActionContext();
 
   console.log("pageTypes", pageTypes);
 
-  const{
+  const {
     searchQuery,
     searchInputRef,
     handleSearchChange,
     handleInputFocus,
     handleInputClear,
-  } = useSearchInput(router,refetch)
+  } = useSearchInput(router, refetch);
 
+  // prevent search naviagtion
+  // usePreventNavigation(searchQuery as string);
   const { userId } = useAuth();
   const filteredURL = useFilteredPagetypeValues(selectedFilters as string[]);
   const activeTabRef = useRef(null);
@@ -88,7 +102,7 @@ const Content: React.FC = () => {
     return filteredResults;
   }, [Designs, activeTab, selectedFilters, hasFilterToggled]);
 
-  console.log(filteredData, Designs)
+  console.log(filteredData, Designs);
 
   const handleFilterClick = (option: { value: string; label: string }) => {
     const newFilters =
@@ -101,24 +115,24 @@ const Content: React.FC = () => {
     (setSelectedFilters as (filters: string[]) => void)(newFilters);
   };
 
-  const handleBulkActionClick = () => {
-    setShowBulkActionDropdown(!showBulkActionDropdown);
-  };
+  // const handleBulkActionClick = () => {
+  //   setShowBulkActionDropdown(!showBulkActionDropdown);
+  // };
 
-  const handleSelectAll = () => {
-    if (bulkSelectedRows.length === Designs.length) {
-      setBulkSelectedRows([]);
-    } else {
-      const allRowIndexes = Designs.map((_, index) => index);
-      setBulkSelectedRows(allRowIndexes);
-    }
-    setShowBulkActionDropdown(false);
-  };
+  // const handleSelectAll = () => {
+  //   if (bulkSelectedRows.length === Designs.length) {
+  //     setBulkSelectedRows([]);
+  //   } else {
+  //     const allRowIndexes = Designs.map((_, index) => index);
+  //     setBulkSelectedRows(allRowIndexes);
+  //   }
+  //   setShowBulkActionDropdown(false);
+  // };
 
-  const handleDeleteAll = () => {
-    console.log("Delete All clicked");
-    setShowBulkActionDropdown(false);
-  };
+  // const handleDeleteAll = () => {
+  //   console.log("Delete All clicked");
+  //   setShowBulkActionDropdown(false);
+  // };
 
   const categoryRoute = (category: string) => {
     const isValid =
@@ -142,27 +156,6 @@ const Content: React.FC = () => {
     "",
   ];
 
-  useEffect(() => {
-    const handleOutsideClick = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setShowBulkActionDropdown(false);
-      }
-    };
-
-    if (showBulkActionDropdown) {
-      document.addEventListener("mousedown", handleOutsideClick);
-    } else {
-      document.removeEventListener("mousedown", handleOutsideClick);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
-    };
-  }, [showBulkActionDropdown]);
-
   return (
     <div className="p-4">
       <div className="p-[30px] rounded-[20px] w-full bg-white">
@@ -172,9 +165,11 @@ const Content: React.FC = () => {
             onClick={handleBulkActionClick}
           >
             <div className="flex gap-2 items-center">
-              <div className="border-2 border-[#C7C7C7] rounded-full flex justify-center items-center min-w-4 min-h-4 px-1">
-                {" "}
-                {/* {setSelectedRows.length} */}
+              <div className="border-2 border-[#C7C7C7] rounded-full flex justify-center items-center w-5 h-5 px-1">
+                {/* <span className="text-xs">{setSelectedRows.length}</span> */}
+                <span className="text-xs text-[#FAB843] font-bold">
+                  {selectedRowsLength}
+                </span>
               </div>
               <p className="line-clamp-1">Bulk action</p>
             </div>
@@ -191,7 +186,7 @@ const Content: React.FC = () => {
             >
               <button
                 className="bloc-k w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-1 items-center"
-                onClick={handleSelectAll}
+                onClick={() => handleSelectAll(Designs)}
               >
                 <img
                   src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1718618172/utilities/webspirre/fi_check-square_r2xdvk.svg"
@@ -203,8 +198,9 @@ const Content: React.FC = () => {
                   : "Select More"}
               </button>
               <button
-                className="block- w-full text-left px-4 py-2 text-[#FA4C4C] hover:bg-gray-100  flex gap-1 items-center"
+                className="block- w-full text-left px-4 py-2 text-[#FA4C4C] hover:bg-gray-100  flex gap-1 items-center disabled:bg-opacity-30 disabled:text-opacity-50 disabled:cursor-not-allowed"
                 onClick={handleDeleteAll}
+                disabled={selectedRowsLength === 0}
               >
                 <img
                   src="https://res.cloudinary.com/dcb4ilgmr/image/upload/v1718762840/utilities/webspirre/fi_trash-2_pvcgbs.svg"
@@ -245,8 +241,9 @@ const Content: React.FC = () => {
             columns={columns}
             data={filteredData}
             bulkSelectedRows={bulkSelectedRows}
-            individualSelectedRows={selectedRows}
-            setIndividualSelectedRows={setSelectedRows}
+            // individualSelectedRows={selectedRows}
+            individualSelectedRows={individualSelectedRows}
+            // setIndividualSelectedRows={setSelectedRows}
           />{" "}
         </div>
       </div>

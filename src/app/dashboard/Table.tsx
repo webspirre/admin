@@ -225,9 +225,7 @@ const Table: React.FC<TableProps> = ({
                 <p className="font-bold text-black ">{row?.name as string}</p>
               </Link>
             </div>
-            {/* <div>
-              <p>Web | Mobile</p>
-            </div> */}
+           
             <div className="flex overflow-x-hidden w-[150px]">
               <p>
                 {Array.isArray(row.categories) && (row.categories[0] as string)}

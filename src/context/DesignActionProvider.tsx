@@ -1,6 +1,7 @@
 "use client";
 
-import { Design } from "@/types/types";
+import { Design, AdminDesign } from "@/types/types";
+
 import React, {
   createContext,
   useState,
@@ -10,6 +11,7 @@ import React, {
 } from "react";
 import { deleteMultipleDesigns } from "../../lib/supabase/queries/designs";
 import { useWebspirreDesignSearch } from "../../lib/supabase/queries/useSearchDesigns";
+import { useSearchParams } from "next/navigation";
 
 // Define the type for the context
 interface DesignActionContextType {
@@ -28,6 +30,9 @@ interface DesignActionContextType {
   showBulkActionDropdown: boolean;
   encodedQuery: string | null;
   setEncodedQuery: React.Dispatch<React.SetStateAction<string | null>>;
+  searchTerm?: string;
+  srIsLoading?: boolean;
+  searchResults?: Design[] | [];
 }
 
 // Create context with undefined as the initial value
@@ -47,9 +52,11 @@ export const useDesignActionContext = () => {
 };
 
 // Provider component
-export const DesignActionProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const DesignActionProvider: React.FC<{
+  children: React.ReactNode;
+  searchTerm?: string;
+}> = ({ children, searchTerm = useSearchParams().get("search") ?? "" }) => {
+  let querx = useSearchParams().get("search") ?? "";
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDesignName, setSelectedDesignName] = useState("");
@@ -60,11 +67,13 @@ export const DesignActionProvider: React.FC<{ children: React.ReactNode }> = ({
   const [encodedQuery, setEncodedQuery] = useState<string | null>(null);
   const [showBulkActionDropdown, setShowBulkActionDropdown] = useState(false);
   const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]); // State for storing selected row indices
-  const Designs: Design[] = []; // Placeholder for Designs
+  console.log("searchParams", searchTerm);
   const [showPopup, setShowPopup] = useState(false);
   const query = typeof encodedQuery === "string" ? encodedQuery : "";
 
-  const {} = useWebspirreDesignSearch(query);
+  const { data: searchResults, isLoading: srIsLoading } =
+    useWebspirreDesignSearch(searchTerm ? searchTerm : query);
+  console.log("search Results", searchResults);
 
   const handleDesignDelete = async (designID: string, designName: string) => {
     setSelectedDesignName(designName);
@@ -185,6 +194,9 @@ export const DesignActionProvider: React.FC<{ children: React.ReactNode }> = ({
     showBulkActionDropdown,
     encodedQuery,
     setEncodedQuery,
+    searchTerm,
+    srIsLoading,
+    searchResults,
   };
 
   return (

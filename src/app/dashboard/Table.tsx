@@ -74,7 +74,8 @@ const Table: React.FC<TableProps> = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDesignName, setSelectedDesignName] = useState("");
-  const { handleSelect, individualSelectedRows } = useDesignActionContext();
+  const { handleSelect, individualSelectedRows, srIsLoading, searchTerm } =
+    useDesignActionContext();
 
   const handleDesignDelete = async (designID: string, designName: string) => {
     setSelectedDesignName(designName);
@@ -329,7 +330,7 @@ const Table: React.FC<TableProps> = ({
         </div>
       ))}
       {/* INFINITY HANDLER */}
-      {data.length > 0 && hasNextPage && (
+      {!searchTerm && data.length > 0 && hasNextPage && (
         <InfiniteScroll
           loadMore={fetchNextPage}
           height="20px"

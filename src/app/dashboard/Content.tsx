@@ -38,7 +38,12 @@ const Content: React.FC = () => {
   const searchResultRef = useRef<HTMLDivElement>(null);
   // const dropdownRef = useRef<HTMLDivElement>(null);
   // const [bulkSelectedRows, setBulkSelectedRows] = useState<number[]>([]);
-  const { Designs, categoryId, pageTypes = [], refetch } = useDataFetch();
+  const {
+    Designs: MainDesigns,
+    categoryId,
+    pageTypes = [],
+    refetch,
+  } = useDataFetch();
   const {
     handleBulkActionClick,
     handleDeleteAll,
@@ -49,10 +54,11 @@ const Content: React.FC = () => {
     showBulkActionDropdown,
     bulkSelectedRows,
     encodedQuery,
+    searchTerm,
+    searchResults,
   } = useDesignActionContext();
 
-  // console.log("pageTypes", pageTypes);
-  // console.log("encodedQuery", encodedQuery);
+  const Designs = searchTerm && searchTerm ? searchResults! : MainDesigns;
 
   const {
     searchQuery,

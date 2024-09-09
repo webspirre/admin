@@ -142,6 +142,7 @@ type Props = {
 };
 
 type Design = DesignDatabase["webspirre_admin"]["Tables"]["website"]["Row"];
+type AdminDesign = Database["webspirre_admin"]["Tables"]["website"]["Row"];
 
 interface SearchInputProps {
   value: string;
@@ -159,4 +160,5 @@ export type {
   UserIsAdmin,
   Props,
   Design,
+  AdminDesign,
 };

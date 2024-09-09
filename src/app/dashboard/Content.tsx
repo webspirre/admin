@@ -50,7 +50,7 @@ const Content: React.FC = () => {
     bulkSelectedRows,
   } = useDesignActionContext();
 
-  console.log("pageTypes", pageTypes);
+  // console.log("pageTypes", pageTypes);
 
   const {
     searchQuery,
@@ -103,7 +103,7 @@ const Content: React.FC = () => {
     return filteredResults;
   }, [Designs, activeTab, selectedFilters, hasFilterToggled]);
 
-  console.log(filteredData, Designs);
+  // console.log(filteredData, Designs);
 
   const handleFilterClick = (option: { value: string; label: string }) => {
     const newFilters =

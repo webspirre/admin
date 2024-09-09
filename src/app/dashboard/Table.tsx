@@ -1,12 +1,19 @@
+"use client";
+
 import React, { useState, useRef, useEffect } from "react";
 import { DesignDatabase } from "@/types/types_db";
 import useDataFetch from "@/hooks/useDataFetch";
 import InfiniteScroll from "@/hooks/custom-hooks/useInfinityScroll";
 import { useRouter } from "next/navigation";
-import { deleteDesign } from "../../../lib/supabase/queries/designs";
+import {
+  deleteDesign,
+  fetchTotalDesigns,
+  getCachedTotalDesigns,
+} from "../../../lib/supabase/queries/designs";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import { useDesignActionContext } from "@/context/DesignActionProvider";
+import TotalDesigns from "../actions/totalDesigns";
 
 interface DeleteModalProps {
   isOpen: boolean;
@@ -95,8 +102,14 @@ const Table: React.FC<TableProps> = ({
   //   number[]
   // >([]);
 
-  const { hasNextPage, fetchNextPage, isFetchingNextPage, isLoading } =
-    useDataFetch();
+  const {
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+    isLoading,
+    totalDesigns,
+    TDisLoading,
+  } = useDataFetch();
 
   const popupRef = useRef<HTMLDivElement | null>(null);
 
@@ -147,8 +160,17 @@ const Table: React.FC<TableProps> = ({
       />
       {/* table header */}
       <div className="flex justify-between items-center text-gray-500 text-xs mb-3">
+        {TDisLoading ? (
+          <div className="animate-pulse flex space-x-4">
+            <div className="bg-gray-300 rounded-lg w-20 h-10"></div>
+          </div>
+        ) : (
+          <p className="text-2xl font-bold text-indigo-600 bg-indigo-100 rounded-lg px-4 py-2 shadow-sm">
+            {totalDesigns} designs
+          </p>
+        )}
         {columns.map((column, index) => (
-          <p key={index} className="text-center-">
+          <p key={index} className="text-center">
             {column}
           </p>
         ))}
@@ -225,7 +247,7 @@ const Table: React.FC<TableProps> = ({
                 <p className="font-bold text-black ">{row?.name as string}</p>
               </Link>
             </div>
-           
+
             <div className="flex overflow-x-hidden w-[150px]">
               <p>
                 {Array.isArray(row.categories) && (row.categories[0] as string)}

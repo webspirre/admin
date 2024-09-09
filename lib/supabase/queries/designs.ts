@@ -86,7 +86,6 @@ export const fetchDesignByID = async (id: string): Promise<Design | null> => {
   return data as Design | null;
 };
 
-
 export const getCachedDesignById = unstable_cache(
   async (id: string): Promise<Design | null> => {
     const supabase = createClient();
@@ -130,7 +129,9 @@ export const deleteDesign = async (id: string): Promise<boolean> => {
   return true;
 };
 
-export const deleteMultipleDesigns = async (ids: string[]): Promise<boolean> => {
+export const deleteMultipleDesigns = async (
+  ids: string[]
+): Promise<boolean> => {
   if (!ids || ids.length === 0) {
     console.warn("No IDs provided. Exiting deleteMultipleDesigns function.");
     return false;
@@ -149,3 +150,57 @@ export const deleteMultipleDesigns = async (ids: string[]): Promise<boolean> => 
 
   return true;
 };
+
+export const getCachedTotalDesignsx = unstable_cache(
+  async (): Promise<number | null> => {
+    const supabase = createClient();
+
+    const { count, error } = await supabase
+      .schema("webspirre_admin")
+      .from("website") // Assuming your table name is 'webspirre'
+      .select("*", { count: "exact" }); // Using { count: "exact" } to get the total count
+
+    if (error || count === null) {
+      console.error("Error fetching total designs:", error);
+      return null;
+    }
+
+    return count;
+  },
+  [
+    /* Cache key dependencies here if needed */
+  ]
+);
+
+export const getCachedTotalDesigns = async (): Promise<number | null> => {
+  const supabase = createClient();
+
+  const { count, error } = await supabase
+    .schema("webspirre_admin")
+    .from("website") // Assuming your table name is 'webspirre'
+    .select("*", { count: "exact" }); // Using { count: "exact" } to get the total count
+
+  console.log("count", count);
+
+  if (error || count === null) {
+    console.error("Error fetching total designs:", error);
+    return null;
+  }
+
+  return count;
+};
+
+export async function fetchTotalDesigns() {
+  try {
+    const totalDesigns = await getCachedTotalDesigns();
+
+    if (totalDesigns !== null) {
+      console.log(`Total designs: ${totalDesigns}`);
+      return totalDesigns;
+    } else {
+      console.log("Could not fetch total designs.");
+    }
+  } catch (error) {
+    console.error("Error calling getCachedTotalDesigns:", error);
+  }
+}

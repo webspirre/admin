@@ -8,6 +8,7 @@ import {
 } from "@/hooks/useDesigns";
 import { DesignDatabase } from "@/types/types_db";
 import useGetSessionStorage from "@/hooks/custom-hooks/useGetSessionValue";
+import { useTotalDesigns } from "@/hooks/custom-hooks/useTotalDesigns";
 
 type Design = DesignDatabase["webspirre_admin"]["Tables"]["website"]["Row"];
 
@@ -22,6 +23,8 @@ export interface DataFetchContextType {
   pageTypes?: string[];
   designByIdIsLoading?: boolean;
   detailDesign?: Design | null;
+  totalDesigns?: any;
+  TDisLoading?: boolean;
 }
 
 const DataFetchContext = createContext<DataFetchContextType | undefined>(
@@ -59,7 +62,12 @@ export const DataFetchProvider = ({
     () => (smDlDesigns && smDlDesigns!.pages.flatMap((page) => page)) || [],
     [smDlDesigns]
   );
-  console.log(smDlDesigns, Designs);
+  const {
+    data: totalDesigns,
+    error: totalDesignsErr,
+    isLoading: TDisLoading,
+  } = useTotalDesigns();
+  // console.log(smDlDesigns, Designs);
 
   const { data: dlDesign, isLoading: designByIdIsLoading } = useDesignByID(
     designId!
@@ -79,6 +87,8 @@ export const DataFetchProvider = ({
     pageTypes,
     designByIdIsLoading,
     detailDesign,
+    totalDesigns,
+    TDisLoading,
   };
 
   return (

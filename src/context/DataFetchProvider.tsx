@@ -66,7 +66,7 @@ export const DataFetchProvider = ({
   );
   const detailDesign = useMemo(() => dlDesign || null, [dlDesign]);
 
-  const categories = detailDesign?.categories ?? [] as string[];
+  const categories = detailDesign?.categories ?? ([] as string[]);
 
   const value = {
     Designs,

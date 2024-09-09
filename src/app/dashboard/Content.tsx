@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import React, { useState, useRef, useEffect, useMemo, Suspense } from "react";
 import Table from "./Table";
 import TabButtons from "./TabButtons";
 import useAuth from "@/hooks/useAuth";
@@ -19,7 +19,8 @@ import { Option } from "@/types/types_db";
 import useSearchInput from "@/hooks/custom-hooks/useSearchInput";
 import SearchInput from "@/components/ui/SearchInput";
 import { useDesignActionContext } from "@/context/DesignActionProvider";
-import usePreventNavigation from "@/hooks/custom-hooks/usePreventNavigation";
+import { Search, SearchFallback } from "@/components/ui/search";
+
 const filterOptions = pageTypes;
 
 const Content: React.FC = () => {
@@ -213,14 +214,18 @@ const Content: React.FC = () => {
           )}
           {/* SEARCHINPUT */}
 
-          <SearchInput
+          {/* <SearchInput
             onBlur={handleInputClear}
             onChange={handleSearchChange}
             onFocus={handleInputFocus}
             value={searchQuery as string}
             ref={searchInputRef}
             placeholder={"Search..."}
-          />
+          /> */}
+
+          {/* <Suspense fallback={<SearchFallback />}> */}
+          <Search />
+          {/* </Suspense> */}
           {/* Filter bar option section */}
           <TabButtons
             tabs={tabs}

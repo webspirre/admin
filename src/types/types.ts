@@ -1,3 +1,4 @@
+import { ChangeEvent } from "react";
 import { DesignDatabase } from "./types_db";
 import { Database } from "./types_db_admin";
 
@@ -141,6 +142,14 @@ type Props = {
 };
 
 type Design = DesignDatabase["webspirre_admin"]["Tables"]["website"]["Row"];
+
+interface SearchInputProps {
+  value: string;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onFocus: () => void;
+  onBlur: () => void;
+  placeholder: string;
+}
 
 export type {
   User,

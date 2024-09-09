@@ -6,7 +6,12 @@ import ContentLayout from "./ContentLayout";
 import { DataFetchProvider } from "@/context/DataFetchProvider";
 import { DesignActionProvider } from "@/context/DesignActionProvider";
 
-const ContentPage = async () => {
+const ContentPage = async ({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>;
+}) => {
+  console.log("searchParams", searchParams);
   const supabase = createClient();
 
   const {

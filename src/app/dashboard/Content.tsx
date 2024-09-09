@@ -48,9 +48,11 @@ const Content: React.FC = () => {
     dropdownRef,
     showBulkActionDropdown,
     bulkSelectedRows,
+    encodedQuery,
   } = useDesignActionContext();
 
   // console.log("pageTypes", pageTypes);
+  // console.log("encodedQuery", encodedQuery);
 
   const {
     searchQuery,
@@ -221,9 +223,9 @@ const Content: React.FC = () => {
             placeholder={"Search..."}
           /> */}
 
-          {/* <Suspense fallback={<SearchFallback />}> */}
-          <Search />
-          {/* </Suspense> */}
+          <Suspense fallback={<SearchFallback />}>
+            <Search />
+          </Suspense>
           {/* Filter bar option section */}
           <TabButtons
             tabs={tabs}

@@ -64,7 +64,11 @@ const searchProducts = async (searchTerm: string) => {
 
 // Custom hook using react-query
 export const useWebspirreDesignSearch = (searchTerm: string) => {
-  return useQuery(["products", searchTerm], () => searchProducts(searchTerm), {
-    enabled: !!searchTerm, // Only run query if searchTerm is provided
-  });
+  return useQuery(
+    ["searchedDesigns", searchTerm],
+    () => searchProducts(searchTerm),
+    {
+      enabled: !!searchTerm, // Only run query if searchTerm is provided
+    }
+  );
 };

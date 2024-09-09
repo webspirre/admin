@@ -9,6 +9,7 @@ import React, {
   useEffect,
 } from "react";
 import { deleteMultipleDesigns } from "../../lib/supabase/queries/designs";
+import { useWebspirreDesignSearch } from "../../lib/supabase/queries/useSearchDesigns";
 
 // Define the type for the context
 interface DesignActionContextType {
@@ -25,6 +26,8 @@ interface DesignActionContextType {
   setIsModalOpen: (open: boolean) => void;
   dropdownRef?: React.RefObject<HTMLDivElement>;
   showBulkActionDropdown: boolean;
+  encodedQuery: string | null;
+  setEncodedQuery: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 // Create context with undefined as the initial value
@@ -54,10 +57,14 @@ export const DesignActionProvider: React.FC<{ children: React.ReactNode }> = ({
   const [individualSelectedRows, setIndividualSelectedRows] = useState<
     string[]
   >([]);
+  const [encodedQuery, setEncodedQuery] = useState<string | null>(null);
   const [showBulkActionDropdown, setShowBulkActionDropdown] = useState(false);
   const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]); // State for storing selected row indices
   const Designs: Design[] = []; // Placeholder for Designs
   const [showPopup, setShowPopup] = useState(false);
+  const query = typeof encodedQuery === "string" ? encodedQuery : "";
+
+  const {} = useWebspirreDesignSearch(query);
 
   const handleDesignDelete = async (designID: string, designName: string) => {
     setSelectedDesignName(designName);
@@ -176,6 +183,8 @@ export const DesignActionProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsModalOpen,
     dropdownRef,
     showBulkActionDropdown,
+    encodedQuery,
+    setEncodedQuery,
   };
 
   return (
@@ -187,7 +196,6 @@ export const DesignActionProvider: React.FC<{ children: React.ReactNode }> = ({
               Are you sure you want to delete the {selectedRowIds.length}{" "}
               selected designs?
             </h2>
-            <p className="my-20 text-4xl ">HELLO WORLD</p>
             <div className="flex justify-end space-x-4">
               <button
                 className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"

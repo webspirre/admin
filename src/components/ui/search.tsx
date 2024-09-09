@@ -7,8 +7,10 @@ import { SearchIcon } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useBackpressure } from "../../../lib/use-backpressure";
 import SearchInput from "./SearchInput";
+import { useDesignActionContext } from "@/context/DesignActionProvider";
 
 function SearchBase({ initialQuery }: { initialQuery: string }) {
+  //   const { setEncodedQuery } = useDesignActionContext();
   let [inputValue, setInputValue] = useState(initialQuery);
   let inputRef = useRef<HTMLInputElement>(null);
   let { triggerUpdate, shouldSuspend, formRef } = useBackpressure();
@@ -17,6 +19,8 @@ function SearchBase({ initialQuery }: { initialQuery: string }) {
     let query = formData.get("search") as string;
     let newUrl = `/dashboard/content?search=${encodeURIComponent(query)}`;
     await triggerUpdate(newUrl);
+    // Set the encoded query in the state
+    // setEncodedQuery(encodeURIComponent(query));
   }
 
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -34,10 +38,10 @@ function SearchBase({ initialQuery }: { initialQuery: string }) {
       );
     }
   }, []);
-
-  if (shouldSuspend) {
-    use(Promise.resolve());
-  }
+  // readd
+  //   if (shouldSuspend) {
+  //     use(Promise.resolve());
+  //   }
 
   return (
     <Form

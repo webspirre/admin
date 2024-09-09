@@ -57,6 +57,7 @@ export const DesignActionProvider: React.FC<{ children: React.ReactNode }> = ({
   const [showBulkActionDropdown, setShowBulkActionDropdown] = useState(false);
   const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]); // State for storing selected row indices
   const Designs: Design[] = []; // Placeholder for Designs
+  const [showPopup, setShowPopup] = useState(false);
 
   const handleDesignDelete = async (designID: string, designName: string) => {
     setSelectedDesignName(designName);
@@ -73,30 +74,36 @@ export const DesignActionProvider: React.FC<{ children: React.ReactNode }> = ({
     setShowBulkActionDropdown(false);
   };
 
-  const handleDeleteAll = async () => {
-    // Prompt the user for confirmation, including the number of selected designs
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete ${selectedRowIds.length} selected designs?`
-    );
+  // const handleDeleteAll = async () => {
+  //   // Prompt the user for confirmation, including the number of selected designs
+    
+  //   const confirmDelete = window.confirm(
+  //     `Are you sure you want to delete ${selectedRowIds.length} selected designs?`
+  //   );
 
-    if (!confirmDelete) {
-      // If the user cancels, simply return without doing anything
-      return;
-    }
+  //   if (!confirmDelete) {
+  //     // If the user cancels, simply return without doing anything
+  //     return;
+  //   }
 
-    console.log("Delete All clicked");
-    setShowBulkActionDropdown(false);
+  //   console.log("Delete All clicked");
+  //   setShowBulkActionDropdown(false);
 
-    const deleteSuccess = await deleteMultipleDesigns(selectedRowIds); // Call delete function with selected row IDs
-    if (deleteSuccess) {
-      console.log("Successfully deleted selected designs.");
-      // Optionally clear the selected rows after deletion
-      setSelectedRowIds([]);
-      setIndividualSelectedRows([]);
-    } else {
-      console.error("Failed to delete selected designs.");
-    }
+  //   const deleteSuccess = await deleteMultipleDesigns(selectedRowIds); // Call delete function with selected row IDs
+  //   if (deleteSuccess) {
+  //     console.log("Successfully deleted selected designs.");
+  //     // Optionally clear the selected rows after deletion
+  //     setSelectedRowIds([]);
+  //     setIndividualSelectedRows([]);
+  //   } else {
+  //     console.error("Failed to delete selected designs.");
+  //   }
+  // };
+
+  const handleDeleteAll = () => {
+    setShowPopup(true); // Show the confirmation popup
   };
+
 
   const handleBulkActionClick = () => {
     setShowBulkActionDropdown(!showBulkActionDropdown);
@@ -174,6 +181,42 @@ export const DesignActionProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <DesignActionContext.Provider value={value}>
+      {showPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-lg font-semibold mb-4">
+              Are you sure you want to delete the {selectedRowIds.length} selected
+              designs?
+            </h2>
+            <div className="flex justify-end space-x-4">
+              <button
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                onClick={() => setShowPopup(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                onClick={async () => {
+                  setShowPopup(false);
+                  const deleteSuccess = await deleteMultipleDesigns(
+                    selectedRowIds
+                  );
+                  if (deleteSuccess) {
+                    setSelectedRowIds([]);
+                    setIndividualSelectedRows([]);
+                  } else {
+                    console.error("Failed to delete selected designs.");
+                  }
+                }}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {children}
     </DesignActionContext.Provider>
   );

@@ -15,6 +15,7 @@ import ErrorMessage from "@/components/ui/ErrorMessage";
 import useDataFetch from "@/hooks/useDataFetch";
 import { formatCategoryOptions, formatPageTypeOption } from "@/util/data.util";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const categories_: Option[] = [
   { value: "ai", label: "AI" },
@@ -362,6 +363,8 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
    * @description Triggers when the main form is submitted
    */
 
+  const router = useRouter();
+
   const addWebsiteHandler = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsSubmitting(true); // Set loading state to true
@@ -553,7 +556,10 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
 
       // Handle success
       toast.success("Document Updated successfully!", { duration: 3000 });
-      setIsSubmitting(false); // Set loading state to false after request completes
+      setIsSubmitting(false);
+      router.push("/dashboard/content/");
+
+      // Set loading state to false after request completes
     } catch (error) {
       console.error("Error:", error);
     }

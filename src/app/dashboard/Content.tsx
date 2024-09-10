@@ -161,7 +161,6 @@ const Content: React.FC = () => {
     "Category",
     "Page Type",
     "Last Modified",
-    "Status",
     "",
   ];
 

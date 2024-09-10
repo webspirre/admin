@@ -204,12 +204,17 @@ const Table: React.FC<TableProps> = ({
           subtitle="Please check back later or adjust your filters."
         />
       ) : searchTerm && !isLoading && data.length === 0 ? (
+        // <EmptyState
+        //   image="https://res.cloudinary.com/dwqantex4/image/upload/v1725945061/a_very_simple_animated_search_loader_gif-removebg-preview_1_jy3fla.png"
+        //   title={`Loading designs for '${searchTerm}' found ${
+        //     data.length === 0 ? "Nothing" : "some designs"
+        //   }`}
+        //   subtitle=""
+        // />
         <EmptyState
-          image="https://res.cloudinary.com/dwqantex4/image/upload/v1725945061/a_very_simple_animated_search_loader_gif-removebg-preview_1_jy3fla.png"
-          title={`Loading designs for '${searchTerm}' found ${
-            data.length === 0 ? "Nothing" : "some designs"
-          }`}
-          subtitle=""
+          image="https://res.cloudinary.com/dwqantex4/image/upload/w_500,f_auto/v1716472523/hero_H1_and_vector_r6n8qn.png"
+          title="No designs at the moment"
+          subtitle="Please check back later or adjust your filters."
         />
       ) : null}
 

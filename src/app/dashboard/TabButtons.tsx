@@ -46,7 +46,7 @@ const TabButtons: React.FC<TabButtonsProps> = ({
 
   return (
     <div className="flex mb-4 text-[12px] sm:text-[14px]">
-      <div className="mr-2 relative z-10">
+      <div className="mr-2 relative z-d10">
         <button
           onClick={() => setShowFilterOptions(!showFilterOptions)}
           className=""

@@ -181,7 +181,7 @@ const Table: React.FC<TableProps> = ({
         </div>
       ) : (
         <p className="t mb-4 text-black bg-gray-100 rounded-lg px-4 py-2 shadow-sm">
-          Totaal number of uploaded designs:{" "}
+          Total number of uploaded designs:{" "}
           <span className="font-bold text-[16px] underline">
             {totalDesigns}
           </span>

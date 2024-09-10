@@ -10,8 +10,6 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "^0.0.58",
-    "@cloudinary/react": "^1.13.0",
-    "@cloudinary/url-gen": "^1.19.0",
     "@headlessui/react": "^2.0.4",
     "@supabase/ssr": "^0.3.0",
     "@supabase/supabase-js": "^2.42.0",

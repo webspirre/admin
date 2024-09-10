@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useDesignActionContext } from "@/context/DesignActionProvider";
 import TotalDesigns from "../actions/totalDesigns";
 import { cn } from "../../../lib/cn";
+import EmptyState from "@/components/ui/EmptyState";
 
 interface DeleteModalProps {
   isOpen: boolean;
@@ -108,10 +109,12 @@ const Table: React.FC<TableProps> = ({
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-    isLoading,
+    isLoading: mainIsLoading,
     totalDesigns,
     TDisLoading,
   } = useDataFetch();
+
+  const isLoading = searchTerm && searchTerm ? TDisLoading : mainIsLoading;
 
   const popupRef = useRef<HTMLDivElement | null>(null);
 
@@ -191,24 +194,21 @@ const Table: React.FC<TableProps> = ({
         ))}
       </div>
 
-      {!isLoading && data.length === 0 && (
-        <div className="flex flex-col items-center justify-center min-h-[50vh]">
-          <div className={`text-center`}>
-            <img
-              src="https://res.cloudinary.com/dwqantex4/image/upload/w_500,f_auto/v1716472523/hero_H1_and_vector_r6n8qn.png" // Replace with the path to your image
-              alt="No designs found"
-              className="mb-6"
-            />
-            <p className="text-lg text-slate-800 font-semibold mb-2">
-              No designs at the moment
-            </p>
-            <p className="text-sm text-slate-500">
-              Please check back later or adjust your filters.
-            </p>
-          </div>
-        </div>
-      )}
-
+      {(!searchTerm || searchTerm === "") && !isLoading && data.length === 0 ? (
+        <EmptyState
+          image="https://res.cloudinary.com/dwqantex4/image/upload/w_500,f_auto/v1716472523/hero_H1_and_vector_r6n8qn.png"
+          title="No designs at the moment"
+          subtitle="Please check back later or adjust your filters."
+        />
+      ) : searchTerm && !isLoading && data.length === 0 ? (
+        <EmptyState
+          image="https://res.cloudinary.com/dwqantex4/image/upload/v1725945061/a_very_simple_animated_search_loader_gif-removebg-preview_1_jy3fla.png"
+          title={`Loading designs for '${searchTerm}' found ${
+            data.length === 0 ? "Nothing" : "some designs"
+          }`}
+          subtitle=""
+        />
+      ) : null}
       {/* table rows */}
       {data.map((row, rowIndex) => (
         <div key={row?.uid as string} className="flex gap-2 items-center">

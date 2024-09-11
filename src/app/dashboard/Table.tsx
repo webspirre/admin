@@ -16,48 +16,8 @@ import { useDesignActionContext } from "@/context/DesignActionProvider";
 import TotalDesigns from "../actions/totalDesigns";
 import { cn } from "../../../lib/cn";
 import EmptyState from "@/components/ui/EmptyState";
-
-interface DeleteModalProps {
-  isOpen: boolean;
-  designName: string;
-  onClose: () => void;
-  onConfirm: () => void;
-}
-
-const DeleteModal: React.FC<DeleteModalProps> = ({
-  isOpen,
-  designName,
-  onClose,
-  onConfirm,
-}) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-md shadow-md">
-        <h2 className="text-lg font-bold mb-4">Confirm Delete</h2>
-        <p>
-          Are you sure you want to delete the design with Name{" "}
-          <strong>{designName}</strong>?
-        </p>
-        <div className="mt-6 flex justify-end">
-          <button
-            className="bg-gray-200 text-gray-800 py-2 px-4 rounded-md mr-2"
-            onClick={onClose}
-          >
-            Cancel
-          </button>
-          <button
-            className="bg-red-500 text-white py-2 px-4 rounded-md"
-            onClick={onConfirm}
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
+import DeleteSingleModal from "@/components/modal/DeleteSingleModal";
+import { useQueryClient } from "react-query";
 
 type Design = DesignDatabase["webspirre_admin"]["Tables"]["website"]["Row"];
 
@@ -75,12 +35,39 @@ const Table: React.FC<TableProps> = ({
   bulkSelectedRows,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const queryClient = useQueryClient();
   const [selectedDesignName, setSelectedDesignName] = useState("");
-  const { handleSelect, individualSelectedRows, srIsLoading, searchTerm } =
-    useDesignActionContext();
+  const [selectedDesignId, setSelectedDesignId] = useState("");
+  const {
+    handleSelect,
+    individualSelectedRows,
+    srIsLoading,
+    searchTerm,
+    searchResults,
+  } = useDesignActionContext();
+
+  const router = useRouter();
+  const [openPopupIndex, setOpenPopupIndex] = useState<number | null>(null);
+
+  const {
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+    isLoading: mainIsLoading,
+    totalDesigns,
+    TDisLoading,
+    currentPage,
+    Designs,
+    refetch,
+  } = useDataFetch();
+
+  const isLoading = searchTerm && searchTerm ? TDisLoading : mainIsLoading;
+
+  const popupRef = useRef<HTMLDivElement | null>(null);
 
   const handleDesignDelete = async (designID: string, designName: string) => {
     setSelectedDesignName(designName);
+    setSelectedDesignId(designID);
     setIsModalOpen(true);
   };
 
@@ -90,33 +77,26 @@ const Table: React.FC<TableProps> = ({
 
     if (deleted) {
       console.log(`Design with ID ${designID} deleted successfully`);
+
+      // Show success toast
       toast.success(
         `Design with Name ${selectedDesignName} deleted successfully`
       );
+
+      // Invalidate the designs query to refetch and refresh the paginated data
+      refetch();
+      queryClient.invalidateQueries([
+        "synchronizedesignsDynamic",
+        { page: currentPage },
+      ]);
+      queryClient.invalidateQueries("searchedDesigns");
     } else {
       console.log(`Failed to delete design with ID ${designID}`);
+
+      // Show error toast
       toast.error(`Failed to delete design with Name ${selectedDesignName}`);
     }
   };
-
-  const router = useRouter();
-  const [openPopupIndex, setOpenPopupIndex] = useState<number | null>(null);
-  // const [individualSelectedRows, setIndividualSelectedRows] = useState<
-  //   number[]
-  // >([]);
-
-  const {
-    hasNextPage,
-    fetchNextPage,
-    isFetchingNextPage,
-    isLoading: mainIsLoading,
-    totalDesigns,
-    TDisLoading,
-  } = useDataFetch();
-
-  const isLoading = searchTerm && searchTerm ? TDisLoading : mainIsLoading;
-
-  const popupRef = useRef<HTMLDivElement | null>(null);
 
   const handleOutsideClick = (event: MouseEvent) => {
     if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
@@ -143,25 +123,14 @@ const Table: React.FC<TableProps> = ({
       .join("-");
   }
 
-  // const handleSelect = (rowIndex: number) => {
-  //   if (individualSelectedRows.includes(rowIndex)) {
-  //     setIndividualSelectedRows(
-  //       individualSelectedRows.filter((index) => index !== rowIndex)
-  //     );
-  //   } else {
-  //     setIndividualSelectedRows([...individualSelectedRows, rowIndex]);
-  //   }
-  //   setOpenPopupIndex(null); // close the popup after selecting
-  // };
-
   if (!data) return [];
   return (
     <div className="text-[#989898]">
-      <DeleteModal
+      <DeleteSingleModal
         isOpen={isModalOpen}
         designName={selectedDesignName}
         onClose={() => setIsModalOpen(false)}
-        onConfirm={() => confirmDelete("designID123")}
+        onConfirm={() => confirmDelete(selectedDesignId)}
       />
       <p
         className={cn(
@@ -177,7 +146,7 @@ const Table: React.FC<TableProps> = ({
       </p>
       {TDisLoading ? (
         <div className="animate-pulse flex space-x-4">
-          <div className="bg-gray-300 rounded-lg w-20 h-10"></div>
+          <div className="bg-gray-300 rounded-lg w-full h-10"></div>
         </div>
       ) : (
         <p className="t mb-4 text-black bg-gray-100 rounded-lg px-4 py-2 shadow-sm">
@@ -187,7 +156,6 @@ const Table: React.FC<TableProps> = ({
           </span>
         </p>
       )}
-
       {/* table header */}
       <div className="flex- grid grid-cols-6 justify-between- items-center text-gray-500 text-[14px] mb-3">
         {columns.map((column, index) => (
@@ -196,7 +164,6 @@ const Table: React.FC<TableProps> = ({
           </p>
         ))}
       </div>
-
       {(!searchTerm || searchTerm === "") && !isLoading && data.length === 0 ? (
         <EmptyState
           image="https://res.cloudinary.com/dwqantex4/image/upload/w_500,f_auto/v1716472523/hero_H1_and_vector_r6n8qn.png"
@@ -217,7 +184,6 @@ const Table: React.FC<TableProps> = ({
           subtitle="Please check back later or adjust your filters."
         />
       ) : null}
-
       {/* table rows */}
       {data.map((row, rowIndex) => (
         <div key={row?.uid as string} className="flex gap-2 items-center">

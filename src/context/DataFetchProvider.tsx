@@ -25,6 +25,7 @@ export interface DataFetchContextType {
   detailDesign?: Design | null;
   totalDesigns?: any;
   TDisLoading?: boolean;
+  currentPage?: number;
 }
 
 const DataFetchContext = createContext<DataFetchContextType | undefined>(
@@ -62,6 +63,7 @@ export const DataFetchProvider = ({
     () => (smDlDesigns && smDlDesigns!.pages.flatMap((page) => page)) || [],
     [smDlDesigns]
   );
+  const currentPage = smDlDesigns?.pages.length || 1;
   const {
     data: totalDesigns,
     error: totalDesignsErr,
@@ -89,6 +91,7 @@ export const DataFetchProvider = ({
     detailDesign,
     totalDesigns,
     TDisLoading,
+    currentPage,
   };
 
   return (

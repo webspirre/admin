@@ -60,14 +60,6 @@ const Content: React.FC = () => {
 
   const Designs = searchTerm && searchTerm ? searchResults! : MainDesigns;
 
-  const {
-    searchQuery,
-    searchInputRef,
-    handleSearchChange,
-    handleInputFocus,
-    handleInputClear,
-  } = useSearchInput(router, refetch);
-
   // prevent search naviagtion
   // usePreventNavigation(searchQuery as string);
   const { userId } = useAuth();
@@ -206,7 +198,7 @@ const Content: React.FC = () => {
               </button>
               <button
                 className="block- w-full text-left px-4 py-2 text-[#FA4C4C] hover:bg-gray-100  flex gap-1 items-center disabled:bg-opacity-30 disabled:text-opacity-50 disabled:cursor-not-allowed"
-                onClick={handleDeleteAll}
+                onClick={()=> handleDeleteAll(refetch)}
                 disabled={selectedRowsLength === 0}
               >
                 <img

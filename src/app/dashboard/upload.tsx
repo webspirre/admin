@@ -449,7 +449,7 @@ const Form: FC<{ handleLoading: () => void; loading?: boolean }> = ({
       localStorage.removeItem("formData");
       localStorage.removeItem("selectedCategories");
       localStorage.removeItem("selectedPageType");
-      localStorage.removeitem("file-desktopFpURL");
+      localStorage.removeItem("file-desktopFpURL");
       localStorage.removeItem("file-mobileFpURL");
       localStorage.removeItem("file-logoImageURL");
 

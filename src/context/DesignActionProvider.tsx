@@ -12,6 +12,7 @@ import React, {
 import { deleteMultipleDesigns } from "../../lib/supabase/queries/designs";
 import { useWebspirreDesignSearch } from "../../lib/supabase/queries/useSearchDesigns";
 import { useSearchParams } from "next/navigation";
+import { cn } from "../../lib/cn";
 
 // Define the type for the context
 interface DesignActionContextType {
@@ -22,7 +23,7 @@ interface DesignActionContextType {
   handleDesignDelete: (designID: string, designName: string) => void;
   handleSelectAll: (Designs: Design[]) => void;
   handleSelect: (rowIndex: string) => void;
-  handleDeleteAll: () => void;
+  handleDeleteAll: (refetch?: any) => void;
   handleBulkActionClick: () => void;
   selectedRowsLength: number;
   setIsModalOpen: (open: boolean) => void;
@@ -65,8 +66,12 @@ export const DesignActionProvider: React.FC<{
     string[]
   >([]);
   const [encodedQuery, setEncodedQuery] = useState<string | null>(null);
+  const [dataRefetch, setDataRefetch] = useState<(() => void) | undefined>(
+    undefined
+  );
   const [showBulkActionDropdown, setShowBulkActionDropdown] = useState(false);
   const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]); // State for storing selected row indices
+  const [isDeleting, setIsDeleting] = useState(false);
   console.log("searchParams", searchTerm);
   const [showPopup, setShowPopup] = useState(false);
   const query = typeof encodedQuery === "string" ? encodedQuery : "";
@@ -90,50 +95,14 @@ export const DesignActionProvider: React.FC<{
     setShowBulkActionDropdown(false);
   };
 
-  // const handleDeleteAll = async () => {
-  //   // Prompt the user for confirmation, including the number of selected designs
-
-  //   const confirmDelete = window.confirm(
-  //     `Are you sure you want to delete ${selectedRowIds.length} selected designs?`
-  //   );
-
-  //   if (!confirmDelete) {
-  //     // If the user cancels, simply return without doing anything
-  //     return;
-  //   }
-
-  //   console.log("Delete All clicked");
-  //   setShowBulkActionDropdown(false);
-
-  //   const deleteSuccess = await deleteMultipleDesigns(selectedRowIds); // Call delete function with selected row IDs
-  //   if (deleteSuccess) {
-  //     console.log("Successfully deleted selected designs.");
-  //     // Optionally clear the selected rows after deletion
-  //     setSelectedRowIds([]);
-  //     setIndividualSelectedRows([]);
-  //   } else {
-  //     console.error("Failed to delete selected designs.");
-  //   }
-  // };
-
-  const handleDeleteAll = () => {
+  const handleDeleteAll = (refetch?: any) => {
     setShowPopup(true); // Show the confirmation popup
+    setDataRefetch(() => refetch); // Store the refetch function without invoking it
   };
 
   const handleBulkActionClick = () => {
     setShowBulkActionDropdown(!showBulkActionDropdown);
   };
-
-  // Function to handle individual row selection
-  //   const handleSelects = (rowIndex: number) => {
-  //     if (individualSelectedRows.includes(rowIndex)) {
-  //       setIndividualSelectedRows(
-  //         individualSelectedRows.filter((index) => index !== rowIndex)
-  //       );
-  //     } else {
-  //       setIndividualSelectedRows([...individualSelectedRows, rowIndex]);
-  //     }
-  //   };
 
   const handleSelect = (rowId: string) => {
     setIndividualSelectedRows((prevSelectedRows) => {
@@ -210,27 +179,74 @@ export const DesignActionProvider: React.FC<{
             </h2>
             <div className="flex justify-end space-x-4">
               <button
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                className={cn(
+                  "px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                )}
                 onClick={() => setShowPopup(false)}
               >
                 Cancel
               </button>
               <button
-                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                className={cn(
+                  "px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600",
+                  isDeleting ? "opacity-50 cursor-not-allowed" : ""
+                )}
                 onClick={async () => {
-                  setShowPopup(false);
-                  const deleteSuccess = await deleteMultipleDesigns(
-                    selectedRowIds
-                  );
-                  if (deleteSuccess) {
-                    setSelectedRowIds([]);
-                    setIndividualSelectedRows([]);
-                  } else {
-                    console.error("Failed to delete selected designs.");
+                  setIsDeleting(true); // Set deleting state to true
+                  setShowPopup(false); // Hide the confirmation popup
+
+                  try {
+                    // Attempt to delete the selected designs
+                    const deleteSuccess = await deleteMultipleDesigns(
+                      selectedRowIds
+                    );
+
+                    if (deleteSuccess) {
+                      // If deletion is successful, call the stored refetch function if it's available
+                      if (dataRefetch) {
+                        dataRefetch();
+                      }
+                      // Reset selected row states
+                      setSelectedRowIds([]);
+                      setIndividualSelectedRows([]);
+                    } else {
+                      console.error("Failed to delete selected designs.");
+                    }
+                  } catch (error) {
+                    console.error(
+                      "An error occurred while deleting designs:",
+                      error
+                    );
+                  } finally {
+                    // Always set deleting state to false, regardless of success or failure
+                    setIsDeleting(false);
                   }
                 }}
               >
-                Confirm
+                {isDeleting ? (
+                  <svg
+                    className="animate-spin h-5 w-5 text-white mr-2"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.963 7.963 0 014 12H0c0 2.137.835 4.087 2.209 5.541l1.791-1.25z"
+                    />
+                  </svg>
+                ) : (
+                  "Confirm"
+                )}
               </button>
             </div>
           </div>

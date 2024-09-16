@@ -191,7 +191,7 @@ const Table: React.FC<TableProps> = ({
       {/* table header */}
       <div className="flex- grid grid-cols-6 justify-between- items-center text-gray-500 text-[14px] mb-3">
         {columns.map((column, index) => (
-          <p key={index} className="text-center-">
+          <p key={index} className="text-center">
             {column}
           </p>
         ))}
@@ -238,50 +238,50 @@ const Table: React.FC<TableProps> = ({
           </div>
           {/* grid grid-cols-7 */}
           <div className="flex- grid grid-cols-6 text-center- text-[14px] border shadow-md justify-between- items-center p-2 w-full rounded-[24px] mb-2">
-            {/* <div className="flex gap-8 items-center"> */}
-            <Link
-              href={`https://www.webspirre.com/detail/${row?.uid}`}
-              className="relative flex w-10 h-10"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <img
-                src={row?.logoImageURL as string}
-                alt=""
-                className="w-full h-full rounded-2xl"
-              />
-              <img
-                src={row.logoImageURL as string}
-                alt=""
-                className="absolute rounded top-2.5 -right-2 w-5 h-5"
-              />
-            </Link>
-            <Link
-              target="_blank"
-              rel="noopener noreferrer"
-              href={`https://www.webspirre.com/detail/${row?.uid}`}
-              className="flex overflow-x-hidden w-[150px]"
-            >
-              {" "}
-              <p className="font-bold text-black ">{row?.name as string}</p>
-            </Link>
-            {/* </div> */}
+            <div className="flex gap-8 items-center">
+              <Link
+                href={`https://www.webspirre.com/detail/${row?.uid}`}
+                className="relative flex min-w-10 h-10"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img
+                  src={row?.logoImageURL as string}
+                  alt=""
+                  className="w-full h-full rounded-2xl"
+                />
+                <img
+                  src={row.logoImageURL as string}
+                  alt=""
+                  className="absolute rounded top-2.5 -right-2 w-5 h-5"
+                />
+              </Link>
+              <Link
+                target="_blank"
+                rel="noopener noreferrer"
+                href={`https://www.webspirre.com/detail/${row?.uid}`}
+                className="flex overflow-x-hidden w-[150px]"
+              >
+                {" "}
+                <p className="font-bold text-black ">{row?.name as string}</p>
+              </Link>
+            </div>
 
-            <div className="flex overflow-x-hidden w-[150px]">
-              <p>
+            <div className="flex- overflow-x-hidden text-center w-[150px]-">
+              <p className="text-center">
                 {Array.isArray(row.categories) && (row.categories[0] as string)}
               </p>
             </div>
             <div>
-              <p>{row.pageType as string}</p>
+              <p className="text-center">{row.pageType as string}</p>
             </div>
             <div>
-              <p>{row?.date as string}</p>
+              <p className="text-center">{row?.date as string}</p>
             </div>
-            {/* <p className="text-center"> */}
-            {/* Active */}
-            {/* {row["Status"]} */}
-            {/* </p> */}
+            <p className="text-center">
+              Active
+              {/* {row["Status"]} */}
+            </p>
             <div className="flex col-span-1/2 justify-end gap-8 items-center relative pr-[20px]">
               <button onClick={() => setOpenPopupIndex(rowIndex)}>
                 <img

@@ -148,11 +148,12 @@ const Content: React.FC = () => {
   };
 
   const columns = [
-    "",
     "Name of Website",
     "Category",
     "Page Type",
     "Last Modified",
+    "Status",
+
     "",
   ];
 

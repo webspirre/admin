@@ -1,3 +1,5 @@
+import { SupabaseFunctions } from "./types";
+
 export type Json =
   | string
   | number
@@ -238,3 +240,9 @@ export type Enums<
   : PublicEnumNameOrOptions extends keyof DesignDatabase["webspirre_admin"]["Enums"]
   ? DesignDatabase["webspirre_admin"]["Enums"][PublicEnumNameOrOptions]
   : never;
+
+declare module "@supabase/supabase-js" {
+  interface SupabaseFunctionsType {
+    fuzzy_search_websites: SupabaseFunctions["fuzzy_search_websites"];
+  }
+}

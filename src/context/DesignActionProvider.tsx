@@ -13,6 +13,7 @@ import { deleteMultipleDesigns } from "../../lib/supabase/queries/designs";
 import { useWebspirreDesignSearch } from "../../lib/supabase/queries/useSearchDesigns";
 import { useSearchParams } from "next/navigation";
 import { cn } from "../../lib/cn";
+import { useWebspirreFuzzyDesignSearch } from "../../lib/supabase/queries/useFuzzySearchDesigns";
 
 // Define the type for the context
 interface DesignActionContextType {
@@ -77,7 +78,8 @@ export const DesignActionProvider: React.FC<{
   const query = typeof encodedQuery === "string" ? encodedQuery : "";
 
   const { data: searchResults, isLoading: srIsLoading } =
-    useWebspirreDesignSearch(searchTerm ? searchTerm : query);
+    // ddclare search design logic
+    useWebspirreFuzzyDesignSearch(searchTerm ? searchTerm : query);
   console.log("search Results", searchResults);
 
   const handleDesignDelete = async (designID: string, designName: string) => {

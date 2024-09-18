@@ -152,6 +152,17 @@ interface SearchInputProps {
   placeholder: string;
 }
 
+type SupabaseFunctions = {
+  fuzzy_search_websites: {
+    Args: { search_term: string };
+    Returns: Array<{
+      name: string | null;
+      webURL: string | null;
+      // Add other fields based on your table structure
+    }>;
+  };
+};
+
 export type {
   User,
   FormData,
@@ -161,4 +172,5 @@ export type {
   Props,
   Design,
   AdminDesign,
+  SupabaseFunctions,
 };
